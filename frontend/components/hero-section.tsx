@@ -33,7 +33,7 @@ const DIALECT_COLORS: Record<string, string> = {
 
 export function HeroSection() {
   const [searchMode, setSearchMode] = useState<'simple' | 'cooccurrence'>('simple')
-  const [searchQuery, setSearchQuery] = useState('客家')
+  const [searchQuery, setSearchQuery] = useState('')
   const [searchQuery2, setSearchQuery2] = useState('美食')
   const [distance, setDistance] = useState('5')
   const [corpusType, setCorpusType] = useState('written')
