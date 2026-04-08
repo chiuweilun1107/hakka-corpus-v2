@@ -1,0 +1,88 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* 參考最新截圖：溫潤的人文淺棕色系 */
+  --background: oklch(0.99 0.01 85); /* 米白色背景 */
+  --foreground: oklch(0.32 0.03 65); /* 深褐文字 */
+  
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.32 0.03 65);
+  
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.32 0.03 65);
+  
+  /* Primary - 淺木棕 (#bda282 左右) */
+  --primary: oklch(0.68 0.08 75);
+  --primary-foreground: oklch(0.99 0 0);
+  
+  /* Secondary - 極淺沙色 (#f8f6f2 左右) */
+  --secondary: oklch(0.97 0.01 85);
+  --secondary-foreground: oklch(0.40 0.05 75);
+  
+  /* Muted */
+  --muted: oklch(0.94 0.01 85);
+  --muted-foreground: oklch(0.55 0.03 75);
+  
+  /* Accent - 柔金 (#d9c18c 左右) */
+  --accent: oklch(0.82 0.08 85);
+  --accent-foreground: oklch(0.30 0.05 85);
+  
+  --destructive: oklch(0.60 0.15 30);
+  --destructive-foreground: oklch(0.99 0 0);
+  
+  --border: oklch(0.92 0.02 75);
+  --input: oklch(0.93 0.02 75);
+  --ring: oklch(0.68 0.08 75);
+  
+  /* 自定義專屬色 */
+  --hakka-light-brown: oklch(0.68 0.08 75);
+  --hakka-soft-gold: oklch(0.82 0.08 85);
+  --hakka-warm-white: oklch(0.98 0.01 85);
+  --hakka-navy: oklch(0.25 0.03 75); /* 深褐色頁尾背景 */
+  
+  --radius: 0.6rem;
+}
+
+.dark {
+  --background: oklch(0.20 0.02 75);
+  --foreground: oklch(0.95 0.01 85);
+  --card: oklch(0.24 0.02 75);
+  --card-foreground: oklch(0.95 0.01 85);
+  --primary: oklch(0.75 0.08 75);
+  --primary-foreground: oklch(0.20 0.02 75);
+  --secondary: oklch(0.30 0.03 75);
+  --secondary-foreground: oklch(0.92 0.02 75);
+  --border: oklch(0.35 0.03 75);
+}
+
+@theme inline {
+  --font-sans: 'Noto Sans TC', 'Geist', sans-serif;
+  --font-serif: 'Noto Serif TC', serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-hakka-light-brown: var(--hakka-light-brown);
+  --color-hakka-soft-gold: var(--hakka-soft-gold);
+  --color-hakka-warm-white: var(--hakka-warm-white);
+  --color-hakka-navy: var(--hakka-navy);
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground antialiased; }
+}

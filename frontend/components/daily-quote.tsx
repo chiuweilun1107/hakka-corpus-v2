@@ -1,0 +1,89 @@
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
+import { Quote, RefreshCw, Volume2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { fetchDailyQuote } from '@/lib/api'
+import type { DailyQuoteData } from '@/lib/api'
+
+export function DailyQuote() {
+  const [quote, setQuote] = useState<DailyQuoteData | null>(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [error, setError] = useState(false)
+
+  const loadQuote = useCallback(async () => {
+    setIsRefreshing(true)
+    setError(false)
+    try {
+      const data = await fetchDailyQuote()
+      setQuote(data)
+    } catch {
+      setError(true)
+    } finally {
+      setIsRefreshing(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadQuote()
+  }, [loadQuote])
+
+  if (error && !quote) {
+    return (
+      <section className="py-10 bg-background border-y border-border">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center space-y-4">
+            <p className="text-muted-foreground">暫時無法載入每日一句，請稍後再試。</p>
+            <Button variant="outline" onClick={loadQuote} className="rounded-full gap-2 px-6">
+              <RefreshCw size={16} /> 重新載入
+            </Button>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (!quote) return null
+
+  return (
+    <section className="py-10 bg-background border-y border-border">
+      <div className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto relative text-center">
+          <Quote className="w-12 h-12 text-primary/10 absolute -top-6 left-1/2 -translate-x-1/2" />
+
+          <div className="space-y-5">
+            <Badge variant="outline" className="rounded-full border-primary/30 text-primary px-4 py-1">
+              {quote.dialect}
+            </Badge>
+
+            <h2 className="text-2xl md:text-4xl font-serif font-bold text-foreground leading-tight px-4">
+              {quote.title}
+            </h2>
+
+            <div className="space-y-2">
+              {quote.pinyin && (
+                <p className="text-xl text-primary font-medium font-mono">{quote.pinyin}</p>
+              )}
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">{quote.definition}</p>
+              {quote.example && (
+                <p className="text-muted-foreground/70 text-base max-w-2xl mx-auto italic">
+                  {quote.example}
+                </p>
+              )}
+            </div>
+
+            <div className="flex justify-center gap-4 pt-4">
+              <Button variant="outline" onClick={loadQuote} disabled={isRefreshing} className="rounded-full gap-2 px-6">
+                <RefreshCw className={isRefreshing ? 'animate-spin' : ''} size={16} /> 換一句
+              </Button>
+              <Button className="rounded-full gap-2 px-6 shadow-lg shadow-primary/20">
+                <Volume2 size={16} /> 聆聽發音
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
