@@ -38,13 +38,7 @@ export function Footer() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12">
             <div className="col-span-2 lg:col-span-2">
               <Link href="/" className="flex items-center gap-3 mb-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-hakka-navy">
-                  <svg viewBox="0 0 40 40" className="h-7 w-7" fill="currentColor">
-                    <rect x="8" y="8" width="24" height="24" rx="4" fill="none" stroke="currentColor" strokeWidth="2.5" />
-                    <rect x="12" y="13" width="16" height="3" rx="1.5" />
-                    <rect x="12" y="20" width="16" height="3" rx="1.5" />
-                  </svg>
-                </div>
+                <img src="/logo.png" alt="臺灣客語語料庫" className="h-12 w-12 rounded-xl" />
                 <div>
                   <div className="text-xl font-bold text-white">臺灣客語語料庫</div>
                   <div className="text-xs text-white/50 uppercase tracking-widest">Taiwan Hakka Corpus</div>

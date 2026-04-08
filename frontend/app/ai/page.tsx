@@ -148,13 +148,7 @@ export default function AiPage() {
       )}>
         {/* Sidebar Header */}
         <div className="px-4 pt-5 pb-3 flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
-            <svg viewBox="0 0 40 40" className="h-4.5 w-4.5 text-white" fill="currentColor">
-              <rect x="8" y="8" width="24" height="24" rx="4" fill="none" stroke="currentColor" strokeWidth="2.5" />
-              <rect x="12" y="13" width="16" height="3" rx="1.5" />
-              <rect x="12" y="20" width="16" height="3" rx="1.5" />
-            </svg>
-          </div>
+          <img src="/logo.png" alt="客語 AI 助手" className="w-8 h-8 rounded-lg" />
           <span className="text-[15px] font-bold text-white tracking-wide">客語 AI 助手</span>
           <button
             className="lg:hidden ml-auto text-white/60 hover:text-white"
