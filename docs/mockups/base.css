@@ -1,0 +1,305 @@
+/* 臺灣客語語料庫 - Mockup 共用樣式 */
+
+:root {
+  --hakka-brown:      #bda282;  /* 淺木棕 - primary */
+  --hakka-gold:       #d9c18c;  /* 柔金 */
+  --hakka-white:      #f8f6f2;  /* 米白背景 */
+  --hakka-navy:       #3a3028;  /* 深褐文字 */
+  --hakka-teal:       #2d5a3d;  /* 深綠 active tab */
+  --hakka-teal-dark:  #1f3d2a;
+  --hakka-accent:     #c79a4a;  /* 油桐金 */
+  --text-main:        #3a3028;
+  --text-muted:       #7a6c58;
+  --border-soft:      #e8e0d4;
+  --card-bg:          #ffffff;
+  --success:          #3d9970;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', system-ui, sans-serif;
+  background: var(--hakka-white);
+  color: var(--text-main);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mockup-page {
+  width: 1440px;
+  min-height: 900px;
+  margin: 0 auto;
+  background: var(--hakka-white);
+  overflow: hidden;
+}
+
+/* ── Header ─────────────────────────────── */
+.site-header {
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border-soft);
+  padding: 14px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.site-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.site-logo .logo-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--hakka-teal), var(--hakka-teal-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 20px;
+  font-family: 'Noto Serif TC', serif;
+}
+
+.site-logo .logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.site-logo .logo-zh {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--hakka-navy);
+  font-family: 'Noto Serif TC', serif;
+}
+
+.site-logo .logo-en {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.site-nav {
+  display: flex;
+  gap: 28px;
+}
+
+.site-nav a {
+  color: var(--text-main);
+  text-decoration: none;
+  font-size: 15px;
+  padding: 6px 0;
+  position: relative;
+}
+
+.site-nav a.active {
+  color: var(--hakka-teal);
+  font-weight: 600;
+}
+
+.site-nav a.active::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -14px;
+  height: 2px;
+  background: var(--hakka-teal);
+}
+
+.site-header-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.site-header-right input {
+  padding: 7px 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: 20px;
+  font-size: 13px;
+  width: 200px;
+  background: var(--hakka-white);
+}
+
+/* ── Main content ───────────────────────── */
+.content {
+  padding: 32px 48px;
+}
+
+.content h1.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--hakka-navy);
+  margin-bottom: 20px;
+  font-family: 'Noto Serif TC', serif;
+}
+
+.content h2.section-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--hakka-teal);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.content h2.section-title::before {
+  content: '';
+  width: 4px;
+  height: 18px;
+  background: var(--hakka-teal);
+  border-radius: 2px;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+.two-col-wide-left {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 28px;
+}
+
+/* ── Card ──────────────────────────────── */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 22px;
+  box-shadow: 0 1px 2px rgba(58, 48, 40, 0.04);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--hakka-navy);
+  margin-bottom: 12px;
+}
+
+.card-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+/* ── Tag ──────────────────────────────── */
+.tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--hakka-white);
+  color: var(--hakka-teal);
+  border: 1px solid var(--border-soft);
+  margin: 2px 3px;
+}
+
+.tag-gold { background: #fdf6e6; color: #a8751d; border-color: #e9d299; }
+.tag-brown { background: #f5ede0; color: #7a6040; border-color: #dcc8a8; }
+.tag-teal { background: #e4f1f4; color: var(--hakka-teal); border-color: #b6d4da; }
+
+/* ── Button ───────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  background: var(--hakka-teal);
+  color: #fff;
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--hakka-teal);
+  border: 1px solid var(--hakka-teal);
+}
+
+/* ── Progress bar ─────────────────────── */
+.progress-bar {
+  height: 8px;
+  background: var(--hakka-white);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 6px 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--hakka-teal), var(--hakka-accent));
+  border-radius: 4px;
+}
+
+/* ── Hakka pinyin ─────────────────────── */
+.hakka-text {
+  font-family: 'Noto Serif TC', 'Songti TC', serif;
+  font-size: 15px;
+  line-height: 2;
+  color: var(--hakka-navy);
+}
+
+.hakka-pinyin {
+  font-family: 'Times New Roman', Georgia, serif;
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+  display: block;
+  margin-top: 2px;
+  font-style: italic;
+}
+
+.hakka-pinyin sup,
+.tone {
+  font-size: 0.7em;
+  vertical-align: super;
+  line-height: 0;
+  font-style: normal;
+  letter-spacing: 0;
+}
+
+.hakka-poem {
+  padding: 20px;
+  background: linear-gradient(135deg, #fdfbf6, #f8f1e4);
+  border-radius: 10px;
+  border-left: 3px solid var(--hakka-accent);
+}
+
+.hakka-poem h3 {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 20px;
+  color: var(--hakka-navy);
+  margin-bottom: 14px;
+  letter-spacing: 0.05em;
+}
+
+.hakka-poem p {
+  margin-bottom: 10px;
+}
+
+/* ── Utility ──────────────────────────── */
+.muted { color: var(--text-muted); font-size: 13px; }
+.row { display: flex; gap: 10px; align-items: center; }
+.col { display: flex; flex-direction: column; gap: 10px; }
+.mt-8  { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mb-12 { margin-bottom: 12px; }
+
+.divider {
+  height: 1px;
+  background: var(--border-soft);
+  margin: 14px 0;
+}

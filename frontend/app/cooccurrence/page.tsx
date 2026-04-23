@@ -2,11 +2,15 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Search, ArrowUpDown, ExternalLink, Loader2 } from 'lucide-react'
+import { Search, ArrowUpDown, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { PageLayout } from '@/components/page-layout'
 import { PageSearchBar } from '@/components/page-search-bar'
+import { LoadingState } from '@/components/loading-state'
+import { EmptyState } from '@/components/empty-state'
+import { DataSources } from '@/components/data-sources'
 import { fetchCooc, type CoocItem } from '@/lib/api'
 
 type SortKey = 'logdice' | 'mi' | 'freq' | 'count'
@@ -45,14 +49,6 @@ function CooccurrenceContent() {
 
   const maxLogDice = Math.max(...sortedData.map(d => d.logdice), 1)
 
-  if (!q) {
-    return (
-      <div className="flex items-center justify-center py-20 text-muted-foreground">
-        請在上方搜尋欄輸入關鍵詞
-      </div>
-    )
-  }
-
   return (
     <>
       <PageSearchBar defaultQuery={q} targetPath="/cooccurrence" />
@@ -66,8 +62,9 @@ function CooccurrenceContent() {
               共現詞列表
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              「<span className="font-semibold text-primary">{q}</span>」
-              {!loading && ` -- 共 ${sortedData.length} 筆結果`}
+              {q ? (
+                <>「<span className="font-semibold text-primary">{q}</span>」{!loading && ` -- 共 ${sortedData.length} 筆結果`}</>
+              ) : '輸入關鍵詞後顯示共現詞分析結果'}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -95,50 +92,55 @@ function CooccurrenceContent() {
         </div>
 
         {/* Loading */}
-        {loading && (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-3 text-muted-foreground">載入中...</span>
-          </div>
-        )}
+        {q && loading && <LoadingState />}
 
         {/* Error */}
-        {error && (
-          <div className="text-center py-20 text-muted-foreground">{error}</div>
-        )}
+        {q && error && <EmptyState title={error} />}
 
-        {/* Table */}
-        {!loading && !error && sortedData.length > 0 && (
-          <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border bg-muted/30">
-                    <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3 w-12">#</th>
-                    <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">共現詞</th>
-                    <th className="text-right text-xs font-semibold text-muted-foreground px-4 py-3">詞頻</th>
-                    <th className="text-right text-xs font-semibold text-muted-foreground px-4 py-3">共現次數</th>
-                    <th className="text-right text-xs font-semibold text-muted-foreground px-4 py-3">LogDice</th>
-                    <th className="text-right text-xs font-semibold text-muted-foreground px-4 py-3">MI-score</th>
-                    <th className="text-center text-xs font-semibold text-muted-foreground px-4 py-3">外部連結</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/50">
-                  {sortedData.map((d, i) => (
-                    <tr key={d.partner} className="hover:bg-muted/20 transition-colors">
-                      <td className="px-4 py-3 text-xs text-muted-foreground">{i + 1}</td>
-                      <td className="px-4 py-3">
+        {/* Table — always show skeleton */}
+        <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/30 hover:bg-muted/30">
+                  <TableHead className="w-12 text-xs font-semibold">#</TableHead>
+                  <TableHead className="text-xs font-semibold">共現詞</TableHead>
+                  <TableHead className="text-right text-xs font-semibold">詞頻</TableHead>
+                  <TableHead className="text-right text-xs font-semibold">共現次數</TableHead>
+                  <TableHead className="text-right text-xs font-semibold">LogDice</TableHead>
+                  <TableHead className="text-right text-xs font-semibold">MI-score</TableHead>
+                  <TableHead className="text-center text-xs font-semibold">外部連結</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {!q ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="text-xs text-muted-foreground/30">{i + 1}</TableCell>
+                      <TableCell><div className="h-4 bg-muted/20 rounded w-20" /></TableCell>
+                      <TableCell><div className="h-4 bg-muted/20 rounded w-10 ml-auto" /></TableCell>
+                      <TableCell><div className="h-4 bg-muted/20 rounded w-10 ml-auto" /></TableCell>
+                      <TableCell><div className="h-4 bg-muted/20 rounded w-16 ml-auto" /></TableCell>
+                      <TableCell><div className="h-4 bg-muted/20 rounded w-12 ml-auto" /></TableCell>
+                      <TableCell><div className="h-4 bg-muted/20 rounded w-24 mx-auto" /></TableCell>
+                    </TableRow>
+                  ))
+                ) : sortedData.length > 0 ? (
+                  sortedData.map((d, i) => (
+                    <TableRow key={d.partner} className="hover:bg-muted/20 transition-colors">
+                      <TableCell className="text-xs text-muted-foreground">{i + 1}</TableCell>
+                      <TableCell>
                         <span className="text-sm font-semibold text-foreground hover:text-primary cursor-pointer transition-colors">
                           {d.partner}
                         </span>
-                      </td>
-                      <td className="px-4 py-3 text-right text-xs text-muted-foreground">
+                      </TableCell>
+                      <TableCell className="text-right text-xs text-muted-foreground">
                         {d.word_freq || '-'}
-                      </td>
-                      <td className="px-4 py-3 text-right text-sm font-medium text-foreground">
+                      </TableCell>
+                      <TableCell className="text-right text-sm font-medium text-foreground">
                         {d.co_count}
-                      </td>
-                      <td className="px-4 py-3 text-right">
+                      </TableCell>
+                      <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
                           <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
                             <div
@@ -150,74 +152,52 @@ function CooccurrenceContent() {
                             {d.logdice.toFixed(2)}
                           </span>
                         </div>
-                      </td>
-                      <td className="px-4 py-3 text-right text-xs text-muted-foreground font-mono">
+                      </TableCell>
+                      <TableCell className="text-right text-xs text-muted-foreground font-mono">
                         {d.mi_score.toFixed(3)}
-                      </td>
-                      <td className="px-4 py-3">
+                      </TableCell>
+                      <TableCell>
                         <div className="flex items-center justify-center gap-1.5">
-                          <a
-                            href={`https://www.google.com/search?q=${encodeURIComponent(q + ' ' + d.partner)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-2 py-1 rounded-md text-[10px] font-bold bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-                          >
-                            Google
-                          </a>
-                          <a
-                            href={`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(q + ' ' + d.partner)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-2 py-1 rounded-md text-[10px] font-bold bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
-                          >
-                            圖片
-                          </a>
-                          <a
-                            href={`https://www.youtube.com/results?search_query=${encodeURIComponent(q + ' ' + d.partner)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-2 py-1 rounded-md text-[10px] font-bold bg-red-500 text-white hover:bg-red-600 transition-colors"
-                          >
-                            YT
-                          </a>
+                          <Button size="sm" asChild className="px-2 py-1 h-auto text-[10px] font-bold bg-blue-500 hover:bg-blue-600 text-white">
+                            <a href={`https://www.google.com/search?q=${encodeURIComponent(q + ' ' + d.partner)}`} target="_blank" rel="noopener noreferrer">
+                              Google
+                            </a>
+                          </Button>
+                          <Button size="sm" asChild className="px-2 py-1 h-auto text-[10px] font-bold bg-emerald-500 hover:bg-emerald-600 text-white">
+                            <a href={`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(q + ' ' + d.partner)}`} target="_blank" rel="noopener noreferrer">
+                              圖片
+                            </a>
+                          </Button>
+                          <Button size="sm" asChild className="px-2 py-1 h-auto text-[10px] font-bold bg-red-500 hover:bg-red-600 text-white">
+                            <a href={`https://www.youtube.com/results?search_query=${encodeURIComponent(q + ' ' + d.partner)}`} target="_blank" rel="noopener noreferrer">
+                              YT
+                            </a>
+                          </Button>
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination info */}
-            <div className="px-4 py-3 border-t border-border bg-muted/10 flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">
-                顯示 1-{sortedData.length} 筆，共 {sortedData.length} 筆
-              </span>
-            </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : !loading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
+                      {error || `關鍵詞「${q}」查無共現詞資料`}
+                    </TableCell>
+                  </TableRow>
+                ) : null}
+              </TableBody>
+            </Table>
           </div>
-        )}
 
-        {/* No results */}
-        {!loading && !error && sortedData.length === 0 && (
-          <div className="text-center py-20">
-            <div className="text-lg font-semibold text-foreground mb-2">查無共現詞資料</div>
-            <div className="text-sm text-muted-foreground">
-              關鍵詞「{q}」在資料庫中沒有共現詞。
-            </div>
+          {/* Pagination info */}
+          <div className="px-4 py-3 border-t border-border bg-muted/10 flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">
+              {q && sortedData.length > 0 ? `顯示 1-${sortedData.length} 筆，共 ${sortedData.length} 筆` : '尚無資料'}
+            </span>
           </div>
-        )}
+        </div>
 
         {/* Data sources */}
-        <div className="mt-8 py-4 border-t border-border flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          <span className="font-semibold text-foreground">資料來源：</span>
-          <a href="https://www.moedict.tw/" target="_blank" rel="noopener noreferrer" className="hover:text-primary flex items-center gap-1">
-            萌典 Moedict 客語辭典 API <ExternalLink className="h-3 w-3" />
-          </a>
-          <span>|</span>
-          <a href="https://corpus.hakka.gov.tw/" target="_blank" rel="noopener noreferrer" className="hover:text-primary flex items-center gap-1">
-            臺灣客語語料庫 <ExternalLink className="h-3 w-3" />
-          </a>
-        </div>
+        <DataSources />
       </div>
     </>
   )
@@ -226,11 +206,7 @@ function CooccurrenceContent() {
 export default function CooccurrencePage() {
   return (
     <PageLayout>
-      <Suspense fallback={
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      }>
+      <Suspense fallback={<LoadingState />}>
         <CooccurrenceContent />
       </Suspense>
     </PageLayout>

@@ -6,10 +6,13 @@ import time
 from contextlib import asynccontextmanager
 from collections.abc import AsyncGenerator
 
+from pathlib import Path
+
 import redis.asyncio as aioredis
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
 from config import get_settings
@@ -95,6 +98,10 @@ from routers import pinyin as pinyin_router
 from routers import stats as stats_router
 from routers import ai as ai_router
 from routers import media as media_router
+from routers import proverbs as proverbs_router
+from routers import dialects as dialects_router
+from routers import speakers as speakers_router
+from routers import corpus_texts as corpus_texts_router
 
 app.include_router(dict_router.router)
 app.include_router(cooc_router.router)
@@ -102,6 +109,16 @@ app.include_router(pinyin_router.router)
 app.include_router(stats_router.router)
 app.include_router(ai_router.router)
 app.include_router(media_router.router)
+app.include_router(proverbs_router.router)
+app.include_router(dialects_router.router)
+app.include_router(corpus_texts_router.router)
+app.include_router(speakers_router.router)
+
+
+# ── Static files (speaker portraits / audio) ─────────
+_STATIC_DIR = Path(__file__).resolve().parent / "static"
+if _STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static")
 
 
 # ── Health check ─────────────────────────────────────

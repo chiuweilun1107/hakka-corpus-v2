@@ -5,14 +5,14 @@ from __future__ import annotations
 import time
 from enum import Enum
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Query
-from sqlalchemy import func, select
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
 from models.cooc import Cooccurrence
 from models.log import QueryLog
-from schemas.cooc import CoocItem, CoocResponse
+from schemas.cooc import CoocItem, CoocPairItem, CoocResponse
 
 router = APIRouter(prefix="/api/v1", tags=["cooc"])
 
@@ -175,4 +175,64 @@ async def cooc_categories(
         total=total,
         sort_by="logdice",
         results=items,
+    )
+
+
+@router.get("/cooc/top", response_model=list[CoocPairItem])
+async def cooc_top_global(
+    limit: int = Query(30, ge=1, le=100),
+    sort: SortField = Query(SortField.logdice),
+    db: AsyncSession = Depends(get_db),
+) -> list[CoocPairItem]:
+    """全域共現詞 top N，不依特定詞查詢。"""
+    stmt = (
+        select(Cooccurrence)
+        .order_by(_SORT_MAP[sort])
+        .limit(limit)
+    )
+    result = await db.execute(stmt)
+    return [
+        CoocPairItem(
+            word=row.word,
+            partner=row.partner,
+            co_count=row.co_count,
+            logdice=float(row.logdice),
+            mi_score=float(row.mi_score),
+            word_freq=row.word_freq,
+        )
+        for row in result.scalars().all()
+    ]
+
+
+@router.get("/cooc/random-pair", response_model=CoocPairItem)
+async def random_cooc_pair(
+    db: AsyncSession = Depends(get_db),
+) -> CoocPairItem:
+    """隨機取一組共現詞對。用 TABLESAMPLE SYSTEM 取樣，效能優先。"""
+    result = await db.execute(
+        text("""
+            SELECT word, partner, co_count, logdice, mi_score, word_freq
+            FROM cooccurrence TABLESAMPLE SYSTEM (0.1)
+            LIMIT 1
+        """)
+    )
+    row = result.first()
+    if row is None:
+        # TABLESAMPLE 可能返回空，fallback 到 random()
+        result2 = await db.execute(
+            text("""
+                SELECT word, partner, co_count, logdice, mi_score, word_freq
+                FROM cooccurrence ORDER BY random() LIMIT 1
+            """)
+        )
+        row = result2.first()
+    if row is None:
+        raise HTTPException(status_code=404, detail="No cooccurrence data available")
+    return CoocPairItem(
+        word=row.word,
+        partner=row.partner,
+        co_count=row.co_count,
+        logdice=float(row.logdice),
+        mi_score=float(row.mi_score),
+        word_freq=row.word_freq,
     )

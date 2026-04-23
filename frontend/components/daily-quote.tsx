@@ -1,13 +1,15 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Quote, RefreshCw, Volume2 } from 'lucide-react'
+import { RefreshCw, Volume2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { fetchDailyQuote } from '@/lib/api'
 import type { DailyQuoteData } from '@/lib/api'
 
 export function DailyQuote() {
+  const t = useTranslations('dailyQuote')
   const [quote, setQuote] = useState<DailyQuoteData | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [error, setError] = useState(false)
@@ -31,12 +33,12 @@ export function DailyQuote() {
 
   if (error && !quote) {
     return (
-      <section className="py-10 bg-background border-y border-border">
+      <section className="py-14 bg-muted/30 border-y border-border relative overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center space-y-4">
-            <p className="text-muted-foreground">暫時無法載入每日一句，請稍後再試。</p>
+            <p className="text-muted-foreground">{t('errorLoad')}</p>
             <Button variant="outline" onClick={loadQuote} className="rounded-full gap-2 px-6">
-              <RefreshCw size={16} /> 重新載入
+              <RefreshCw size={16} /> {t('reload')}
             </Button>
           </div>
         </div>
@@ -47,10 +49,10 @@ export function DailyQuote() {
   if (!quote) return null
 
   return (
-    <section className="py-10 bg-background border-y border-border">
+    <section className="py-14 bg-muted/30 border-y border-border relative overflow-hidden">
+      <div aria-hidden className="pointer-events-none absolute -top-4 left-1/2 -translate-x-1/2 text-[180px] font-serif font-black text-primary/5 leading-none select-none">"</div>
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto relative text-center">
-          <Quote className="w-12 h-12 text-primary/10 absolute -top-6 left-1/2 -translate-x-1/2" />
 
           <div className="space-y-5">
             <Badge variant="outline" className="rounded-full border-primary/30 text-primary px-4 py-1">
@@ -75,10 +77,10 @@ export function DailyQuote() {
 
             <div className="flex justify-center gap-4 pt-4">
               <Button variant="outline" onClick={loadQuote} disabled={isRefreshing} className="rounded-full gap-2 px-6">
-                <RefreshCw className={isRefreshing ? 'animate-spin' : ''} size={16} /> 換一句
+                <RefreshCw className={isRefreshing ? 'animate-spin' : ''} size={16} /> {t('refreshQuote')}
               </Button>
               <Button className="rounded-full gap-2 px-6 shadow-lg shadow-primary/20">
-                <Volume2 size={16} /> 聆聽發音
+                <Volume2 size={16} /> {t('listen')}
               </Button>
             </div>
           </div>

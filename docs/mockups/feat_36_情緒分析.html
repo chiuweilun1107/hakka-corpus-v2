@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>情緒分析 - 臺灣客語語料庫</title>
+<link rel="stylesheet" href="base.css">
+</head>
+<body>
+<div class="mockup-page">
+
+  <div class="site-header">
+    <div class="site-logo">
+      <div class="logo-icon">客</div>
+      <div class="logo-text">
+        <div class="logo-zh">臺灣客語語料庫</div>
+        <div class="logo-en">Taiwan Hakka Corpus</div>
+      </div>
+    </div>
+    <nav class="site-nav">
+      <a href="#">首頁</a>
+      <a href="#">語料檢索</a>
+      <a href="#" class="active">情感分析</a>
+      <a href="#">研究工具</a>
+      <a href="#">關於我們</a>
+    </nav>
+    <div class="site-header-right">
+      <input type="text" placeholder="搜尋…">
+      <button class="btn btn-outline">登入</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <h1 class="page-title">文本情緒擷取與情感分析</h1>
+
+    <div class="two-col">
+      <div class="card">
+        <h2 class="section-title">語料句子分析</h2>
+
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div style="padding: 14px; background: #e6f7ed; border-radius: 8px; border-left: 3px solid var(--success);">
+            <div class="row" style="justify-content: space-between;">
+              <strong style="color: var(--success);">正向情感 · 91%</strong>
+              <span class="muted">信心度：高</span>
+            </div>
+            <p class="mt-8 hakka-text" style="font-size: 14px;">春天來啦，油桐花開等歸山頭，心肝肚歡喜到無法度講。</p>
+            <div class="mt-8">
+              <span class="tag tag-gold">歡喜</span>
+              <span class="tag tag-gold">美景</span>
+              <span class="tag tag-gold">春景</span>
+            </div>
+          </div>
+
+          <div style="padding: 14px; background: #fef3e6; border-radius: 8px; border-left: 3px solid var(--hakka-accent);">
+            <div class="row" style="justify-content: space-between;">
+              <strong style="color: #c77a1c;">中性 · 72%</strong>
+              <span class="muted">信心度：中</span>
+            </div>
+            <p class="mt-8 hakka-text" style="font-size: 14px;">今晡日个天氣陰陰个，做麼个事情都無緊。</p>
+            <div class="mt-8">
+              <span class="tag tag-brown">天氣</span>
+              <span class="tag tag-brown">日常</span>
+            </div>
+          </div>
+
+          <div style="padding: 14px; background: #fde8e8; border-radius: 8px; border-left: 3px solid #c05050;">
+            <div class="row" style="justify-content: space-between;">
+              <strong style="color: #a04040;">負向情感 · 84%</strong>
+              <span class="muted">信心度：高</span>
+            </div>
+            <p class="mt-8 hakka-text" style="font-size: 14px;">想着過身个阿公，心肝肚酸酸澀澀，目汁流到分毋忒。</p>
+            <div class="mt-8">
+              <span class="tag tag-teal">思念</span>
+              <span class="tag tag-teal">悲傷</span>
+              <span class="tag tag-teal">離別</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <h2 class="section-title">全庫情感分布統計</h2>
+          <div class="muted mb-12">語料來源：臺灣客語語料庫全庫｜分析樣本：8,642 句</div>
+
+          <div class="mb-12">
+            <div class="row" style="justify-content: space-between;">
+              <strong style="color: var(--success);">正向</strong>
+              <span>52.3%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 52.3%; background: linear-gradient(90deg, #6ab890, var(--success));"></div></div>
+          </div>
+
+          <div class="mb-12">
+            <div class="row" style="justify-content: space-between;">
+              <strong style="color: #c77a1c;">中性</strong>
+              <span>31.4%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 31.4%; background: linear-gradient(90deg, #e9b670, var(--hakka-accent));"></div></div>
+          </div>
+
+          <div>
+            <div class="row" style="justify-content: space-between;">
+              <strong style="color: #a04040;">負向</strong>
+              <span>16.3%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 16.3%; background: linear-gradient(90deg, #d07070, #a04040);"></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title">高頻情感詞彙</h2>
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <thead>
+              <tr style="background: var(--hakka-white); color: var(--hakka-navy);">
+                <th style="padding: 10px; text-align: left;">情感</th>
+                <th style="padding: 10px; text-align: left;">代表詞彙</th>
+                <th style="padding: 10px; text-align: right;">出現次數</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border-soft);"><td style="padding: 10px;">喜悅</td><td style="padding: 10px;">歡喜、笑、好</td><td style="padding: 10px; text-align: right;">1,284</td></tr>
+              <tr style="border-bottom: 1px solid var(--border-soft);"><td style="padding: 10px;">思念</td><td style="padding: 10px;">想、懷念、望</td><td style="padding: 10px; text-align: right;">943</td></tr>
+              <tr style="border-bottom: 1px solid var(--border-soft);"><td style="padding: 10px;">悲傷</td><td style="padding: 10px;">愁、苦、目汁</td><td style="padding: 10px; text-align: right;">628</td></tr>
+              <tr><td style="padding: 10px;">憤怒</td><td style="padding: 10px;">譙、惱、燥</td><td style="padding: 10px; text-align: right;">241</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

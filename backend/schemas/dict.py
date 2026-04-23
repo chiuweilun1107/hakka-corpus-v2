@@ -24,3 +24,27 @@ class DictSearchResult(BaseModel):
 class DictResponse(BaseModel):
     entry: DictEntry | None = None
     related: list[DictSearchResult] = Field(default_factory=list)
+
+
+class PinyinByDialect(BaseModel):
+    dialect: str
+    pinyin_full: str
+
+
+class CoocWord(BaseModel):
+    partner: str
+    logdice: float
+
+
+class ProverbPreview(BaseModel):
+    title: str
+    pinyin: str | None = None
+    definition: str | None = None
+    example: str | None = None
+
+
+class WordOfDayResponse(BaseModel):
+    entry: DictEntry
+    pinyin_by_dialect: list[PinyinByDialect] = Field(default_factory=list)
+    cooc_words: list[CoocWord] = Field(default_factory=list)
+    related_proverbs: list[ProverbPreview] = Field(default_factory=list)

@@ -5,6 +5,10 @@ import Link from 'next/link'
 import { Menu, X, User, ChevronDown, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { Logo } from '@/components/logo'
+import { LanguageSwitcher } from '@/components/language-switcher'
+import { useTranslations } from 'next-intl'
+import { HakkaLabel } from '@/components/ui/hakka-label'
 
 interface NavItem {
   name: string
@@ -13,47 +17,51 @@ interface NavItem {
   children?: Array<{ name: string; href: string; external?: boolean }>
 }
 
-const navItems: NavItem[] = [
-  {
-    name: '語料檢索',
-    children: [
-      { name: '共現詞檢索', href: '/cooccurrence' },
-      { name: '詞彙剖析 (Word Sketch)', href: '/sketch' },
-      { name: '共現詞視覺化', href: '/viz' },
-      { name: '多媒體整合', href: '/media' },
-    ],
-  },
-  {
-    name: '語言資源',
-    children: [
-      { name: '基礎詞彙檢索', href: 'https://corpus.hakka.gov.tw/#/corevocabulary', external: true },
-      { name: '詞語分級標準詞彙', href: 'https://corpus.hakka.gov.tw/#/gradedvocabulary', external: true },
-      { name: '（類）詞綴表', href: 'https://corpus.hakka.gov.tw/#/semiaffix', external: true },
-      { name: '覆蓋率統計', href: 'https://corpus.hakka.gov.tw/#/coverage', external: true },
-    ],
-  },
-  {
-    name: 'AI 智慧功能',
-    children: [
-      { name: 'AI 助手', href: '/ai' },
-      { name: '客語斷詞暨詞性標注', href: 'https://corpus.hakka.gov.tw/corpus/#/segmenter', external: true },
-    ],
-  },
-  {
-    name: '最新消息',
-    href: 'https://corpus.hakka.gov.tw/#/news',
-    external: true,
-  },
-  {
-    name: '關於',
-    children: [
-      { name: '語料庫說明', href: 'https://corpus.hakka.gov.tw/#/about-us', external: true },
-      { name: '語料庫元資訊', href: 'https://corpus.hakka.gov.tw/#/corpus-info', external: true },
-      { name: '導覽地圖', href: 'https://corpus.hakka.gov.tw/#/sitemap', external: true },
-      { name: '權利聲明', href: 'https://corpus.hakka.gov.tw/#/copyright', external: true },
-    ],
-  },
-]
+function getNavItems(t: ReturnType<typeof useTranslations<'nav'>>): NavItem[] {
+  return [
+    {
+      name: t('categories.corpusSearch.label'),
+      children: [
+        { name: t('categories.corpusSearch.children.cooccurrence'), href: '/cooccurrence' },
+        { name: t('categories.corpusSearch.children.wordSketch'), href: '/sketch' },
+        { name: t('categories.corpusSearch.children.visualization'), href: '/viz' },
+        { name: t('categories.corpusSearch.children.multimedia'), href: '/media' },
+      ],
+    },
+    {
+      name: t('categories.languageResources.label'),
+      children: [
+        { name: t('categories.languageResources.children.corpus'), href: '/corpus' },
+        { name: t('categories.languageResources.children.coreVocabulary'), href: 'https://corpus.hakka.gov.tw/#/corevocabulary', external: true },
+        { name: t('categories.languageResources.children.gradedVocabulary'), href: 'https://corpus.hakka.gov.tw/#/gradedvocabulary', external: true },
+        { name: t('categories.languageResources.children.semiAffix'), href: 'https://corpus.hakka.gov.tw/#/semiaffix', external: true },
+        { name: t('categories.languageResources.children.coverage'), href: 'https://corpus.hakka.gov.tw/#/coverage', external: true },
+      ],
+    },
+    {
+      name: t('categories.aiFeatures.label'),
+      children: [
+        { name: t('categories.aiFeatures.children.aiAssistant'), href: '/ai' },
+        { name: t('categories.aiFeatures.children.topicAnalysis'), href: '/corpus' },
+        { name: t('categories.aiFeatures.children.segmenter'), href: 'https://corpus.hakka.gov.tw/corpus/#/segmenter', external: true },
+      ],
+    },
+    {
+      name: t('categories.news.label'),
+      href: 'https://corpus.hakka.gov.tw/#/news',
+      external: true,
+    },
+    {
+      name: t('categories.about.label'),
+      children: [
+        { name: t('categories.about.children.aboutUs'), href: 'https://corpus.hakka.gov.tw/#/about-us', external: true },
+        { name: t('categories.about.children.corpusInfo'), href: 'https://corpus.hakka.gov.tw/#/corpus-info', external: true },
+        { name: t('categories.about.children.sitemap'), href: 'https://corpus.hakka.gov.tw/#/sitemap', external: true },
+        { name: t('categories.about.children.copyright'), href: 'https://corpus.hakka.gov.tw/#/copyright', external: true },
+      ],
+    },
+  ]
+}
 
 function Dropdown({ item }: { item: NavItem }) {
   const [open, setOpen] = useState(false)
@@ -71,13 +79,14 @@ function Dropdown({ item }: { item: NavItem }) {
 
   return (
     <div ref={ref} className="relative">
-      <button
+      <Button
+        variant="ghost"
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
+        className="flex items-center gap-1 px-3 py-1.5 h-auto text-sm font-medium text-foreground/80 hover:text-primary"
       >
-        {item.name}
+        <HakkaLabel text={item.name} />
         <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")} />
-      </button>
+      </Button>
       {open && (
         <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-lg shadow-lg ring-1 ring-black/5 py-1 z-[100]">
           {item.children?.map((child) => (
@@ -90,7 +99,7 @@ function Dropdown({ item }: { item: NavItem }) {
                 className="flex items-center justify-between px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-primary transition-colors"
                 onClick={() => setOpen(false)}
               >
-                {child.name}
+                <HakkaLabel text={child.name} />
                 <ExternalLink className="h-3 w-3 text-muted-foreground" />
               </a>
             ) : (
@@ -100,7 +109,7 @@ function Dropdown({ item }: { item: NavItem }) {
                 className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-primary transition-colors"
                 onClick={() => setOpen(false)}
               >
-                {child.name}
+                <HakkaLabel text={child.name} />
               </Link>
             )
           ))}
@@ -111,6 +120,8 @@ function Dropdown({ item }: { item: NavItem }) {
 }
 
 export function Header() {
+  const t = useTranslations('nav')
+  const navItems = getNavItems(t)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
@@ -129,10 +140,13 @@ export function Header() {
           : "bg-background border-transparent py-3"
       )}
     >
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[200] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md">
+        {t('skipToContent')}
+      </a>
       <div className="container mx-auto flex items-center justify-between px-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group shrink-0">
-          <img src="/logo.png" alt="臺灣客語語料庫" className="h-9 w-9 rounded-xl shadow-sm transition-transform group-hover:scale-105" />
+          <Logo size={36} className="transition-transform group-hover:scale-105" />
           <div className="flex flex-col">
             <span className="text-base font-bold text-foreground tracking-tight leading-tight">臺灣客語語料庫</span>
             <span className="text-[9px] font-medium text-muted-foreground uppercase tracking-wider">Taiwan Hakka Corpus</span>
@@ -152,7 +166,7 @@ export function Header() {
                 rel="noopener noreferrer"
                 className="px-3 py-1.5 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
               >
-                {item.name}
+                <HakkaLabel text={item.name} />
               </a>
             ) : (
               <Link
@@ -160,17 +174,18 @@ export function Header() {
                 href={item.href || '/'}
                 className="px-3 py-1.5 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
               >
-                {item.name}
+                <HakkaLabel text={item.name} />
               </Link>
             )
           )}
         </nav>
 
         {/* Actions */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
+          <LanguageSwitcher />
           <Button className="hidden md:flex rounded-full px-5 h-9 text-sm shadow-md hover:shadow-lg transition-all bg-primary hover:bg-primary/90">
             <User className="h-4 w-4 mr-1.5" />
-            登入
+            <HakkaLabel text={t('login')} />
           </Button>
 
           <Button
@@ -178,6 +193,7 @@ export function Header() {
             size="icon"
             className="lg:hidden rounded-full"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
           >
             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </Button>
@@ -196,7 +212,7 @@ export function Header() {
             <div key={item.name}>
               {item.children ? (
                 <>
-                  <div className="px-3 py-2 text-sm font-bold text-foreground">{item.name}</div>
+                  <div className="px-3 py-2 text-sm font-bold text-foreground"><HakkaLabel text={item.name} /></div>
                   {item.children.map((child) => (
                     child.external ? (
                       <a
@@ -207,7 +223,7 @@ export function Header() {
                         className="flex items-center justify-between px-6 py-2 text-sm text-muted-foreground hover:text-primary"
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        {child.name}
+                        <HakkaLabel text={child.name} />
                         <ExternalLink className="h-3 w-3" />
                       </a>
                     ) : (
@@ -217,7 +233,7 @@ export function Header() {
                         className="block px-6 py-2 text-sm text-muted-foreground hover:text-primary"
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        {child.name}
+                        <HakkaLabel text={child.name} />
                       </Link>
                     )
                   ))}
@@ -231,7 +247,7 @@ export function Header() {
                     className="block px-3 py-2 text-sm font-bold text-foreground hover:text-primary"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    {item.name}
+                    <HakkaLabel text={item.name} />
                   </a>
                 ) : (
                   <Link
@@ -239,14 +255,14 @@ export function Header() {
                     className="block px-3 py-2 text-sm font-bold text-foreground hover:text-primary"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    {item.name}
+                    <HakkaLabel text={item.name} />
                   </Link>
                 )
               )}
             </div>
           ))}
           <div className="pt-3 mt-2 border-t border-border">
-            <Button className="w-full rounded-full bg-primary hover:bg-primary/90">登入</Button>
+            <Button className="w-full rounded-full bg-primary hover:bg-primary/90"><HakkaLabel text={t('login')} /></Button>
           </div>
         </nav>
       </div>

@@ -1,37 +1,28 @@
 import type { Metadata, Viewport } from 'next'
-import { Noto_Sans_TC, Noto_Serif_TC } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from 'sonner'
+import { NextIntlClientProvider } from 'next-intl'
+import { getLocale, getMessages, getTranslations } from 'next-intl/server'
 import './globals.css'
 
-const notoSansTC = Noto_Sans_TC({ 
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '700'],
-  variable: '--font-sans',
-})
-
-const notoSerifTC = Noto_Serif_TC({ 
-  subsets: ['latin'],
-  weight: ['400', '600', '700'],
-  variable: '--font-serif',
-})
-
-export const metadata: Metadata = {
-  title: '臺灣客語語料庫 | Taiwan Hakka Corpus',
-  description: '探索臺灣客語的豐富語言資源。提供語料檢索、斷詞標注、詞彙剖析等功能，保存與推廣客家語言文化。',
-  keywords: ['客語', '客家話', 'Hakka', '語料庫', 'corpus', '四縣腔', '海陸腔', '臺灣', '語言資源'],
-  authors: [{ name: '客家委員會' }],
-  generator: 'v0.app',
-  icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
-  },
-  openGraph: {
-    title: '臺灣客語語料庫 | Taiwan Hakka Corpus',
-    description: '探索臺灣客語的豐富語言資源',
-    locale: 'zh_TW',
-    type: 'website',
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('seo')
+  const locale = await getLocale()
+  const keywords = t.raw('keywords') as string[]
+  return {
+    title: `${t('title')} | Taiwan Hakka Corpus`,
+    description: t('description'),
+    keywords,
+    authors: [{ name: '客家委員會' }],
+    generator: 'v0.app',
+    icons: { icon: '/logo.png', apple: '/logo.png' },
+    openGraph: {
+      title: t('title'),
+      description: t('description'),
+      locale: locale.replace('-', '_'),
+      type: 'website',
+    },
+  }
 }
 
 export const viewport: Viewport = {
@@ -43,15 +34,20 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const locale = await getLocale()
+  const messages = await getMessages()
+
   return (
-    <html lang="zh-TW" suppressHydrationWarning>
-      <body className={`${notoSansTC.variable} ${notoSerifTC.variable} font-sans antialiased`}>
-        {children}
+    <html lang={locale} suppressHydrationWarning>
+      <body className="font-sans antialiased">
+        <NextIntlClientProvider messages={messages}>
+          {children}
+        </NextIntlClientProvider>
         <Toaster richColors position="bottom-right" />
         <Analytics />
       </body>

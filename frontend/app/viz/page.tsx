@@ -9,6 +9,7 @@ import { PageSearchBar } from '@/components/page-search-bar'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { fetchCooc, type CoocItem } from '@/lib/api'
 import {
   CAT_COLORS,
@@ -44,7 +45,7 @@ type MetricType = 'logdice' | 'mi'
 
 function VizContent() {
   const searchParams = useSearchParams()
-  const keyword = searchParams.get('q') || '客家'
+  const keyword = searchParams.get('q') || ''
 
   // State
   const [coocData, setCoocData] = useState<CoocItem[]>([])
@@ -83,6 +84,11 @@ function VizContent() {
 
   // Load data
   useEffect(() => {
+    if (!keyword) {
+      setLoading(false)
+      setCoocData([])
+      return
+    }
     let cancelled = false
     setLoading(true)
     setError(null)
@@ -180,37 +186,38 @@ function VizContent() {
             </div>
 
             {/* View mode toggle */}
-            <div className="flex gap-0">
-              <button
-                onClick={() => setViewMode('network')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 border text-xs font-semibold rounded-l-md transition-all ${
-                  viewMode === 'network'
-                    ? 'bg-primary text-white border-primary'
-                    : 'bg-white text-gray-500 border-gray-300 hover:bg-gray-50'
-                }`}
+            <ToggleGroup
+              type="single"
+              value={viewMode}
+              onValueChange={(v) => v && setViewMode(v as ViewMode)}
+              className="gap-0"
+            >
+              <ToggleGroupItem
+                value="network"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-l-md rounded-r-none border border-gray-300 data-[state=on]:bg-primary data-[state=on]:text-white data-[state=on]:border-primary data-[state=off]:bg-white data-[state=off]:text-gray-500 data-[state=off]:hover:bg-gray-50"
               >
                 <Network className="h-3.5 w-3.5" />
                 網路圖
-              </button>
-              <button
-                onClick={() => setViewMode('bubble')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 border border-l-0 text-xs font-semibold rounded-r-md transition-all ${
-                  viewMode === 'bubble'
-                    ? 'bg-primary text-white border-primary'
-                    : 'bg-white text-gray-500 border-gray-300 hover:bg-gray-50'
-                }`}
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="bubble"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-r-md rounded-l-none border border-l-0 border-gray-300 data-[state=on]:bg-primary data-[state=on]:text-white data-[state=on]:border-primary data-[state=off]:bg-white data-[state=off]:text-gray-500 data-[state=off]:hover:bg-gray-50"
               >
                 <CircleDot className="h-3.5 w-3.5" />
                 泡泡詞雲
-              </button>
-            </div>
+              </ToggleGroupItem>
+            </ToggleGroup>
           </div>
 
           {/* Main layout: chart + controls */}
           <div className="flex flex-col lg:flex-row">
             {/* Chart area */}
             <div className="flex-1 min-w-0 border-t border-gray-100">
-              {loading ? (
+              {!keyword ? (
+                <div className="flex items-center justify-center text-gray-400 text-sm" style={{ height: 560 }}>
+                  請在上方搜尋欄輸入關鍵詞
+                </div>
+              ) : loading ? (
                 <ChartLoading />
               ) : error ? (
                 <div className="flex items-center justify-center text-gray-500 text-sm" style={{ height: 560 }}>
@@ -324,28 +331,25 @@ function NetworkControls({
 
       {/* Metric toggle */}
       <ControlCard title="排序與連線依據">
-        <div className="flex gap-1 mt-1.5">
-          <button
-            onClick={() => setMetric('logdice')}
-            className={`flex-1 py-1.5 rounded text-xs font-semibold transition-all ${
-              metric === 'logdice'
-                ? 'bg-primary text-white'
-                : 'bg-white text-gray-500 border border-gray-200'
-            }`}
+        <ToggleGroup
+          type="single"
+          value={metric}
+          onValueChange={(v) => v && setMetric(v as MetricType)}
+          className="gap-1 mt-1.5 w-full"
+        >
+          <ToggleGroupItem
+            value="logdice"
+            className="flex-1 py-1.5 h-auto text-xs font-semibold data-[state=on]:bg-primary data-[state=on]:text-white data-[state=off]:bg-white data-[state=off]:text-gray-500 data-[state=off]:border data-[state=off]:border-gray-200"
           >
             LogDice
-          </button>
-          <button
-            onClick={() => setMetric('mi')}
-            className={`flex-1 py-1.5 rounded text-xs font-semibold transition-all ${
-              metric === 'mi'
-                ? 'bg-primary text-white'
-                : 'bg-white text-gray-500 border border-gray-200'
-            }`}
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value="mi"
+            className="flex-1 py-1.5 h-auto text-xs font-semibold data-[state=on]:bg-primary data-[state=on]:text-white data-[state=off]:bg-white data-[state=off]:text-gray-500 data-[state=off]:border data-[state=off]:border-gray-200"
           >
             MI-score
-          </button>
-        </div>
+          </ToggleGroupItem>
+        </ToggleGroup>
         <p className="text-[11px] text-gray-400 mt-1.5">切換後會重新排序共現詞</p>
       </ControlCard>
 

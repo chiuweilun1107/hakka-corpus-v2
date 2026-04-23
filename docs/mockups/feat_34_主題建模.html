@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>主題建模 - 臺灣客語語料庫</title>
+<link rel="stylesheet" href="base.css">
+</head>
+<body>
+<div class="mockup-page">
+
+  <!-- Header -->
+  <div class="site-header">
+    <div class="site-logo">
+      <div class="logo-icon">客</div>
+      <div class="logo-text">
+        <div class="logo-zh">臺灣客語語料庫</div>
+        <div class="logo-en">Taiwan Hakka Corpus</div>
+      </div>
+    </div>
+    <nav class="site-nav">
+      <a href="#">首頁</a>
+      <a href="#">語料檢索</a>
+      <a href="#" class="active">主題分析</a>
+      <a href="#">研究工具</a>
+      <a href="#">關於我們</a>
+    </nav>
+    <div class="site-header-right">
+      <input type="text" placeholder="搜尋…">
+      <button class="btn btn-outline">登入</button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <h1 class="page-title">文本主題分析</h1>
+
+    <div class="two-col-wide-left">
+
+      <!-- 左欄：語料原文 -->
+      <div class="card">
+        <h2 class="section-title">語料原文</h2>
+        <div class="hakka-poem">
+          <h3>〈阿婆个灶下〉</h3>
+          <div class="hakka-text">
+            <p>阿婆个灶下，柴火燒䓇䓇，
+               <span class="hakka-pinyin">a<sup>24</sup> po<sup>11</sup> ge<sup>55</sup> zo<sup>31</sup> ha<sup>24</sup>，cag<sup>2</sup> fo<sup>11</sup> seu<sup>24</sup> pon<sup>55</sup> pon<sup>55</sup>，</span>
+            </p>
+            <p>粄條个香味，同鹹豬肉落脯。
+               <span class="hakka-pinyin">ban<sup>31</sup> tiau<sup>11</sup> ge<sup>55</sup> hiong<sup>24</sup> mi<sup>55</sup>，tung<sup>11</sup> ham<sup>11</sup> zu<sup>24</sup> ngiug<sup>5</sup> lo<sup>55</sup> bu<sup>31</sup>。</span>
+            </p>
+            <p>阿姆教𠊎做擂茶，手路輕輕仔，
+               <span class="hakka-pinyin">a<sup>24</sup> me<sup>11</sup> gau<sup>55</sup> ngai<sup>11</sup> zo<sup>55</sup> lui<sup>11</sup> ca<sup>11</sup>，su<sup>31</sup> lu<sup>55</sup> kiang<sup>24</sup> kiang<sup>24</sup> e<sup>31</sup>，</span>
+            </p>
+            <p>細時節个回憶，一直留在心肝項。
+               <span class="hakka-pinyin">se<sup>55</sup> sii<sup>11</sup> jied<sup>2</sup> ge<sup>55</sup> fi<sup>11</sup> i<sup>31</sup>，id<sup>2</sup> cid<sup>2</sup> liu<sup>11</sup> coi<sup>55</sup> sim<sup>24</sup> gon<sup>24</sup> hong<sup>55</sup>。</span>
+            </p>
+          </div>
+        </div>
+        <div class="mt-12 muted">
+          共 4 段、116 字｜腔調：四縣腔｜文類：散文
+        </div>
+      </div>
+
+      <!-- 右欄：主題分析結果 -->
+      <div class="col">
+        <div class="card">
+          <h2 class="section-title">主題分析結果</h2>
+
+          <div class="mb-12">
+            <div class="row" style="justify-content: space-between;">
+              <strong>客家飲食</strong>
+              <span style="color: var(--hakka-teal); font-weight: 600;">35%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 35%;"></div></div>
+            <div>
+              <span class="tag tag-gold">粄條</span>
+              <span class="tag tag-gold">擂茶</span>
+              <span class="tag tag-gold">鹹豬肉</span>
+              <span class="tag tag-gold">灶下</span>
+            </div>
+          </div>
+
+          <div class="mb-12">
+            <div class="row" style="justify-content: space-between;">
+              <strong>家庭記憶</strong>
+              <span style="color: var(--hakka-teal); font-weight: 600;">40%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 40%;"></div></div>
+            <div>
+              <span class="tag tag-brown">阿婆</span>
+              <span class="tag tag-brown">阿姆</span>
+              <span class="tag tag-brown">細時節</span>
+              <span class="tag tag-brown">回憶</span>
+            </div>
+          </div>
+
+          <div class="mb-12">
+            <div class="row" style="justify-content: space-between;">
+              <strong>傳統技藝</strong>
+              <span style="color: var(--hakka-teal); font-weight: 600;">25%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 25%;"></div></div>
+            <div>
+              <span class="tag tag-teal">柴火</span>
+              <span class="tag tag-teal">手路</span>
+              <span class="tag tag-teal">粄食</span>
+              <span class="tag tag-teal">傳承</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title">自動生成摘要</h2>
+          <p style="color: var(--text-main); line-height: 1.8;">
+            此文以客家家庭灶下為場景，透過阿婆與阿姆製作粄條、擂茶等傳統料理的場景，呈現客家飲食文化與三代間的記憶傳承，字裡行間流露童年回憶之溫馨情感。
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

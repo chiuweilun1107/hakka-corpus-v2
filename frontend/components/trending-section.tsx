@@ -5,47 +5,63 @@ import Link from 'next/link'
 import { Loader2 } from 'lucide-react'
 import { fetchTrending } from '@/lib/api'
 import type { TrendingItem } from '@/lib/api'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { useTranslations } from 'next-intl'
+import { SectionHeader } from '@/components/ui/section-header'
 
 type TimePeriod = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly'
 
-const TIME_PERIODS: { id: TimePeriod; label: string }[] = [
-  { id: 'daily', label: '每日' },
-  { id: 'weekly', label: '每週' },
-  { id: 'monthly', label: '每月' },
-  { id: 'quarterly', label: '每季' },
-  { id: 'yearly', label: '每年' },
-]
+const RANK_COLOR: Record<number, { text: string; bar: string }> = {
+  1: { text: 'text-amber-600', bar: 'bg-amber-100' },
+  2: { text: 'text-slate-500', bar: 'bg-slate-100' },
+  3: { text: 'text-orange-500', bar: 'bg-orange-100' },
+}
 
-function TrendingRow({ item, rank }: { item: TrendingItem; rank: number }) {
-  const isTop3 = rank <= 3
+function TrendingRow({ item, rank, maxCount }: { item: TrendingItem; rank: number; maxCount: number }) {
+  const t = useTranslations('trending')
+  const color = RANK_COLOR[rank]
+  const pct = maxCount > 0 ? Math.max(8, (item.count / maxCount) * 100) : 0
 
   return (
     <Link
       href={`/sketch?q=${encodeURIComponent(item.word)}`}
-      className="flex items-center gap-3 py-2.5 group"
+      className="relative flex items-center gap-3 py-3 px-2 border-b border-border group hover:bg-muted/40 transition-colors"
     >
-      <span
-        className={`w-5 text-right text-sm font-semibold tabular-nums ${
-          isTop3 ? 'text-primary' : 'text-muted-foreground'
-        }`}
-      >
-        {rank}
-      </span>
-      <span className="flex-1 min-w-0 text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">
-        {item.word}
-      </span>
-      <span className="text-xs text-muted-foreground tabular-nums whitespace-nowrap">
-        {item.count.toLocaleString()} 次
-      </span>
+      {/* Progress bar background */}
+      <div
+        className={`absolute inset-y-0 left-0 transition-all duration-500 ${color?.bar || 'bg-primary/8'}`}
+        style={{ width: `${pct}%` }}
+      />
+      {/* Content */}
+      <div className="relative flex items-center gap-3 w-full">
+        <span className={`w-6 text-right text-sm font-extrabold tabular-nums shrink-0 ${color?.text || 'text-muted-foreground'}`}>
+          {rank}
+        </span>
+        <span className="flex-1 min-w-0 text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">
+          {item.word}
+        </span>
+        <span className="text-xs text-muted-foreground tabular-nums whitespace-nowrap">
+          {t('count', { n: item.count.toLocaleString() })}
+        </span>
+      </div>
     </Link>
   )
 }
 
 export function TrendingSection() {
+  const t = useTranslations('trending')
   const [period, setPeriod] = useState<TimePeriod>('monthly')
   const [items, setItems] = useState<TrendingItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+
+  const timePeriods: { id: TimePeriod; label: string }[] = [
+    { id: 'daily', label: t('periods.day') },
+    { id: 'weekly', label: t('periods.week') },
+    { id: 'monthly', label: t('periods.month') },
+    { id: 'quarterly', label: t('periods.quarter') },
+    { id: 'yearly', label: t('periods.year') },
+  ]
 
   const load = useCallback(async (p: TimePeriod) => {
     setLoading(true)
@@ -65,30 +81,29 @@ export function TrendingSection() {
   }, [period, load])
 
   return (
-    <section className="py-10 bg-background">
+    <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          {/* Header: title + period tabs */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-            <h2 className="text-lg font-bold text-foreground tracking-tight">
-              熱門查詢 <span className="text-primary">Top 10</span>
-            </h2>
+          <SectionHeader title={t('titleTop10')} subtitle={t('subtitle')} />
 
-            <div className="flex gap-1">
-              {TIME_PERIODS.map((p) => (
-                <button
+          {/* Period toggle：獨立一行置中 */}
+          <div className="flex justify-center mb-6">
+            <ToggleGroup
+              type="single"
+              value={period}
+              onValueChange={(v) => { if (v) setPeriod(v as TimePeriod) }}
+              className="gap-1 flex-wrap"
+            >
+              {timePeriods.map((p) => (
+                <ToggleGroupItem
                   key={p.id}
-                  onClick={() => setPeriod(p.id)}
-                  className={`text-xs h-7 px-3 rounded-md font-medium transition-colors ${
-                    period === p.id
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                  }`}
+                  value={p.id}
+                  className="text-xs h-7 px-3 rounded-md font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground text-muted-foreground hover:text-foreground hover:bg-muted"
                 >
                   {p.label}
-                </button>
+                </ToggleGroupItem>
               ))}
-            </div>
+            </ToggleGroup>
           </div>
 
           {/* Content */}
@@ -98,22 +113,22 @@ export function TrendingSection() {
             </div>
           ) : error ? (
             <div className="text-center py-10 text-sm text-muted-foreground">
-              暫時無法載入熱門查詢，請稍後再試。
+              {t('error.fetch')}
             </div>
           ) : items.length === 0 ? (
             <div className="text-center py-10 text-sm text-muted-foreground">
-              目前尚無查詢資料。
+              {t('empty')}
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-10">
-              <div className="divide-y divide-border">
+              <div>
                 {items.slice(0, 5).map((item, i) => (
-                  <TrendingRow key={item.word} item={item} rank={i + 1} />
+                  <TrendingRow key={item.word} item={item} rank={i + 1} maxCount={items[0]?.count || 1} />
                 ))}
               </div>
-              <div className="divide-y divide-border">
+              <div>
                 {items.slice(5, 10).map((item, i) => (
-                  <TrendingRow key={item.word} item={item} rank={i + 6} />
+                  <TrendingRow key={item.word} item={item} rank={i + 6} maxCount={items[0]?.count || 1} />
                 ))}
               </div>
             </div>

@@ -21,8 +21,10 @@ import {
   X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { fetchChat, type ChatResponse } from '@/lib/api'
+import { Logo } from '@/components/logo'
 
 interface ChatMessage {
   id: string
@@ -148,25 +150,28 @@ export default function AiPage() {
       )}>
         {/* Sidebar Header */}
         <div className="px-4 pt-5 pb-3 flex items-center gap-2.5">
-          <img src="/logo.png" alt="客語 AI 助手" className="w-8 h-8 rounded-lg" />
+          <Logo size={32} className="rounded-lg" />
           <span className="text-[15px] font-bold text-white tracking-wide">客語 AI 助手</span>
-          <button
-            className="lg:hidden ml-auto text-white/60 hover:text-white"
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden ml-auto text-white/60 hover:text-white hover:bg-white/10"
             onClick={() => setSidebarOpen(false)}
           >
             <X className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
 
         {/* New Chat Button */}
         <div className="px-4 mb-4">
-          <button
+          <Button
+            variant="outline"
             onClick={handleNewChat}
-            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg border border-white/20 text-white text-sm font-medium hover:bg-white/10 transition-colors"
+            className="w-full flex items-center gap-2 border-white/20 text-white hover:bg-white/10 hover:text-white bg-transparent"
           >
             <Plus className="h-4 w-4" />
             開啟新對話
-          </button>
+          </Button>
         </div>
 
         {/* Feature descriptions */}
@@ -206,12 +211,14 @@ export default function AiPage() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Bar */}
         <div className="h-12 border-b border-border bg-card flex items-center px-4 gap-3 shrink-0">
-          <button
-            className="lg:hidden p-1.5 rounded-lg hover:bg-muted"
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden rounded-lg"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="h-5 w-5 text-muted-foreground" />
-          </button>
+          </Button>
           <span className="text-sm font-semibold text-foreground">客語 AI 助手</span>
           <span className="text-[11px] text-muted-foreground bg-muted px-2 py-0.5 rounded">
             Gemini + RAG
@@ -234,14 +241,15 @@ export default function AiPage() {
                 {SUGGESTED_PROMPTS.map((p) => {
                   const Icon = p.icon
                   return (
-                    <button
+                    <Button
                       key={p.text}
+                      variant="outline"
                       onClick={() => sendMessage(p.text)}
-                      className="flex items-center gap-2 px-4 py-2.5 bg-card border border-border rounded-xl text-sm text-foreground hover:border-primary/50 hover:bg-primary/5 transition-all"
+                      className="flex items-center gap-2 px-4 py-2.5 h-auto text-sm text-foreground hover:border-primary/50 hover:bg-primary/5 rounded-xl"
                     >
                       <Icon className="h-4 w-4 text-primary shrink-0" />
                       {p.text}
-                    </button>
+                    </Button>
                   )
                 })}
               </div>
@@ -325,38 +333,26 @@ export default function AiPage() {
             <div className="flex items-end gap-2 bg-background rounded-2xl border border-border px-4 py-2 focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20 transition-all">
               {/* Tool buttons */}
               <div className="flex items-center gap-1 pb-1">
-                <button
-                  type="button"
-                  className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-                  title="圖片上傳"
-                >
-                  <Camera className="h-4.5 w-4.5" />
-                </button>
-                <button
-                  type="button"
-                  className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-                  title="OCR 文字辨識"
-                >
-                  <FileText className="h-4.5 w-4.5" />
-                </button>
-                <button
-                  type="button"
-                  className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-                  title="語音輸入"
-                >
-                  <Mic className="h-4.5 w-4.5" />
-                </button>
+                <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10" title="圖片上傳">
+                  <Camera className="h-4 w-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10" title="OCR 文字辨識">
+                  <FileText className="h-4 w-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10" title="語音輸入">
+                  <Mic className="h-4 w-4" />
+                </Button>
               </div>
 
               {/* Textarea */}
-              <textarea
+              <Textarea
                 ref={inputRef}
                 rows={1}
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
                 placeholder="輸入訊息... (Shift+Enter 換行)"
-                className="flex-1 resize-none bg-transparent border-0 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none py-1.5 max-h-36"
+                className="flex-1 resize-none bg-transparent border-0 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-0 py-1.5 max-h-36 min-h-0"
               />
 
               {/* Send button */}

@@ -1,0 +1,368 @@
+{
+  "language": {
+    "zh-TW": "Chinese",
+    "hak-sixian": "Hakka (Sixian)",
+    "hak-hailu": "Hakka (Hailu)",
+    "en": "English"
+  },
+  "seo": {
+    "title": "Taiwan Hakka Corpus",
+    "description": "Explore the linguistic treasure of six Hakka dialects — corpus search, dialect exploration, and AI-powered features",
+    "keywords": [
+      "Hakka",
+      "corpus",
+      "Taiwan Hakka",
+      "six dialects",
+      "Sixian",
+      "Hailu",
+      "Dapu",
+      "Raoping",
+      "Zhaoan",
+      "Southern Sixian"
+    ]
+  },
+  "nav": {
+    "login": "Login",
+    "skipToContent": "Skip to main content",
+    "corpus": "Corpus",
+    "dict": "Dictionary",
+    "search": "Search",
+    "about": "About",
+    "tools": "Tools",
+    "home": "Home",
+    "categories": {
+      "corpusSearch": {
+        "label": "Corpus Search",
+        "children": {
+          "cooccurrence": "Co-occurrence Search",
+          "wordSketch": "Word Sketch",
+          "visualization": "Co-occurrence Visualization",
+          "multimedia": "Multimedia Integration"
+        }
+      },
+      "languageResources": {
+        "label": "Language Resources",
+        "children": {
+          "corpus": "Text Corpus (AI Analysis)",
+          "coreVocabulary": "Core Vocabulary Search",
+          "gradedVocabulary": "Graded Vocabulary",
+          "semiAffix": "Semi-affix List",
+          "coverage": "Coverage Statistics"
+        }
+      },
+      "aiFeatures": {
+        "label": "AI Features",
+        "children": {
+          "aiAssistant": "AI Assistant",
+          "topicAnalysis": "Topic Analysis",
+          "segmenter": "Hakka Segmenter & POS Tagger"
+        }
+      },
+      "news": {
+        "label": "News"
+      },
+      "about": {
+        "label": "About",
+        "children": {
+          "aboutUs": "About the Corpus",
+          "corpusInfo": "Corpus Metadata",
+          "sitemap": "Sitemap",
+          "copyright": "Copyright Notice"
+        }
+      }
+    }
+  },
+  "hero": {
+    "title": "Taiwan Hakka Corpus",
+    "subtitle": "Explore the linguistic treasure of six Hakka dialects",
+    "searchPlaceholder": "Enter a word to search...",
+    "searchButton": "Search",
+    "dialects": "Dialect Distribution",
+    "descText": "Enter keywords to search the corpus, or click the map to explore dialect regions",
+    "tabs": {
+      "general": "General Search",
+      "cooccurrence": "Co-occurrence Search"
+    },
+    "searchForm": {
+      "placeholder": "Enter keyword...",
+      "submit": "Search",
+      "hint": "Enter keywords to search the corpus, or click the map to explore dialect regions",
+      "type": "Corpus Type",
+      "coword1": "Word 1",
+      "coword2": "Word 2",
+      "distance": "5",
+      "distanceLabel": "Distance:",
+      "distanceUnit": "words",
+      "written": "Written Corpus",
+      "oral": "Spoken Corpus"
+    },
+    "popularSearch": {
+      "title": "Trending",
+      "trySuggestions": "Try these",
+      "items": [
+        "Mountain Song",
+        "Lei Cha",
+        "Sunrise",
+        "Yi Min",
+        "Ban Tiao",
+        "Tung Blossom"
+      ],
+      "labels": {
+        "entry": "Entries",
+        "coword": "Co-words",
+        "pinyin": "Pinyin"
+      }
+    },
+    "corpusType": {
+      "written": "Written Corpus",
+      "spoken": "Spoken Corpus"
+    },
+    "pinyin": {
+      "recommend": "Hakka Pinyin Suggestions"
+    },
+    "toast": {
+      "emptyKeyword": "Please enter a keyword"
+    }
+  },
+  "cultureHub": {
+    "title": "Hakka Cultural Exploration",
+    "subtitle": "Festivals, Dialects, and Vocabulary — All in One",
+    "tabs": {
+      "today": "Word of the Day",
+      "quote": "Daily Proverb",
+      "festival": "Seasonal Festivals"
+    }
+  },
+  "wordOfDay": {
+    "title": "Word of the Day",
+    "subtitle": "Today's featured word — explore pronunciation and cultural context across six dialects",
+    "subtitleRandom": "Randomly explore a Hakka word",
+    "coocWords": "Common Co-occurring Words",
+    "coocWordsOf": "Co-occurring words with \"{word}\"",
+    "relatedProverbs": "Related Proverbs",
+    "relatedProverbsOf": "Proverbs related to \"{word}\"",
+    "randomBtn": "Random Word",
+    "todayBtn": "Today's Word",
+    "deepSearch": "Deep Search",
+    "readAloud": "Read aloud \"{word}\""
+  },
+  "dailyQuote": {
+    "selectDialect": "Select a dialect to view pronunciation",
+    "readAloud": "Read aloud \"{text}\"",
+    "refreshQuote": "Next proverb",
+    "reload": "Reload",
+    "listen": "Listen",
+    "errorLoad": "Unable to load the daily proverb. Please try again later.",
+    "loadFailed": "Failed to load proverb",
+    "noData": "No data available",
+    "dailyQuoteTitle": "Daily Proverb"
+  },
+  "dialectExplorer": {
+    "title": "Dialect Explorer",
+    "subtitle": "Pick a dialect to explore its distinctive Hakka vocabulary",
+    "representativeWords": "Representative Words (sorted by frequency)",
+    "noData": "No data available",
+    "populationEst": "Estimated speakers: ~{n}"
+  },
+  "festivalCards": {
+    "title": "Hakka Seasonal Festivals",
+    "subtitle": "Festivals are living fossils of language — click to explore festival vocabulary",
+    "today": "Today",
+    "todayFestival": "Today's festival: ",
+    "nextFestival": "Next festival: ",
+    "daysUntil": "({n} days to go)",
+    "clearFilter": "Clear festival filter",
+    "monthSuffix": "Month {n}",
+    "goToFestival": "Go to {name} page"
+  },
+  "randomExplore": {
+    "title": "Random Explore",
+    "subtitle": "Not sure what to search? Let us pick one for you",
+    "randomWord": "Random Word",
+    "randomProverb": "Random Proverb",
+    "randomCooc": "Random Co-word Pair",
+    "dictEntry": "Dictionary Entry",
+    "viewFull": "View full entry →",
+    "word": "Word",
+    "coword": "Co-word",
+    "coocCount": "Co-occurrences"
+  },
+  "a11y": {
+    "switchLanguage": "Switch language",
+    "prevFestival": "Previous festival",
+    "nextFestival": "Next festival",
+    "jumpToFestival": "Jump to {name}",
+    "prevSpeaker": "Previous speaker",
+    "nextSpeaker": "Next speaker"
+  },
+  "dialectPanel": {
+    "population": "Estimated speakers",
+    "populationUnit": "",
+    "representativeWords": "Representative Words · Sorted by frequency",
+    "noData": "No data available",
+    "readAloud": "Read aloud \"{word}\""
+  },
+  "speaker": {
+    "title": "Oral Informants",
+    "subtitle": "Guardians of precious Hakka linguistic heritage",
+    "rareSpeech": "Rare Recording",
+    "playAudio": "Play",
+    "pauseAudio": "Pause"
+  },
+  "trending": {
+    "title": "Trending",
+    "titleTop10": "Top 10 Searches",
+    "subtitle": "Real-time trending vocabulary in the corpus",
+    "periods": {
+      "day": "Daily",
+      "week": "Weekly",
+      "month": "Monthly",
+      "quarter": "Quarterly",
+      "year": "Yearly"
+    },
+    "error": {
+      "fetch": "Unable to load trending searches. Please try again later."
+    },
+    "empty": "No search data available yet.",
+    "count": "{n} times"
+  },
+  "news": {
+    "title": "Latest Updates",
+    "subtitle": "Follow the latest news and events of the Hakka Corpus",
+    "tabs": {
+      "latest": "Latest News",
+      "realtime": "Breaking News",
+      "procurement": "Procurement",
+      "newsletter": "Newsletter"
+    },
+    "moreNews": "More News",
+    "items": [
+      { "id": 1, "type": "latest", "title": "Hakka Affairs Council — 2026 guidelines for overseas Hakka exchange-program subsidies now open", "date": "2026-02-24" },
+      { "id": 2, "type": "realtime", "title": "Hakka tastes, Hakka memory: Vietnam Hakka Association celebrates Tianchuan Day", "date": "2026-03-31" },
+      { "id": 3, "type": "procurement", "title": "\"Hakka Visual Stories\" call for entries closes April 30 — NT$3.1M prize pool", "date": "2026-03-30" },
+      { "id": 4, "type": "newsletter", "title": "Mauritius Chinese Alumni & Youth Association marks Tianchuan Day, passing on Hakka culture", "date": "2026-03-30" }
+    ]
+  },
+  "stats": {
+    "title": "Corpus Statistics",
+    "subtitle": "Multi-dimensional distribution by category, genre, and topic",
+    "statCards": {
+      "dictCount": "Entries",
+      "coocCount": "Co-word Pairs",
+      "pinyinCount": "Pinyin Index",
+      "todayQueries": "Today's Queries"
+    },
+    "showWhat": {
+      "label": "Show:",
+      "dialect": "Dialect Distribution",
+      "genre": "Genre Distribution",
+      "topic": "Topic Distribution"
+    },
+    "dimension": {
+      "label": "Dimension:",
+      "overall": "Overall",
+      "byGenre": "By Genre",
+      "byTopic": "By Topic",
+      "byTime": "By Time"
+    },
+    "mockBadge": "Mock data — to be replaced after corpus annotation",
+    "realData": "Pinyin index count per dialect (real data)",
+    "mockHint": "Select different dimensions to observe data trends",
+    "chartTitle": {
+      "dialect": "Dialect Distribution",
+      "genre": "Genre Distribution",
+      "topic": "Topic Distribution"
+    }
+  },
+  "pageLayout": {
+    "corpusSearch": "Corpus Search",
+    "wordSketch": "Word Sketch",
+    "visualization": "Visualization",
+    "multimedia": "Multimedia",
+    "aiAssistant": "AI Assistant",
+    "adminPanel": "Admin",
+    "backHome": "Home",
+    "copyright": "Hakka Affairs Council. All Rights Reserved."
+  },
+  "footer": {
+    "about": "About the Corpus",
+    "contact": "Contact Us",
+    "privacy": "Privacy Policy",
+    "copyright": "Hakka Affairs Council. All Rights Reserved.",
+    "address": "17F, North Building, 439 Zhongping Rd, Xinzhuang Dist., New Taipei City 242030 | (02) 8995-6988",
+    "description": "The Taiwan Hakka Corpus is built and maintained by National Chengchi University, commissioned by the Hakka Affairs Council, to preserve the linguistic heritage of six Hakka dialects.",
+    "siteTitle": "Taiwan Hakka Corpus",
+    "siteSubtitle": "Taiwan Hakka Corpus",
+    "executingUnit": "Executing unit: Taiwan Hakka Corpus Team, NCCU",
+    "guidingUnit": "Supervising unit: Hakka Affairs Council, R.O.C.",
+    "links": {
+      "privacy": "Privacy Protection",
+      "security": "Information Security",
+      "feedback": "Feedback",
+      "rights": "Copyright Notice"
+    },
+    "sections": {
+      "corpusSystem": {
+        "title": "Corpus System",
+        "links": {
+          "search": "Corpus Search",
+          "segmentation": "Hakka Segmentation",
+          "analysis": "Lexical Analysis"
+        }
+      },
+      "languageResources": {
+        "title": "Language Resources",
+        "links": {
+          "featured": "Featured Vocabulary"
+        }
+      },
+      "aboutUs": {
+        "title": "About Us",
+        "links": {
+          "news": "Latest News",
+          "guide": "User Guide",
+          "team": "Research Team"
+        }
+      }
+    },
+    "backToTop": "Back to top"
+  },
+  "theme": {
+    "title": "Theme & Style",
+    "dialectLabel": "Dialect Color",
+    "fontLabel": "Font Style",
+    "traditional": "Traditional Serif",
+    "modern": "Modern Sans",
+    "playful": "Playful Round",
+    "darkMode": "Dark Mode",
+    "dialects": {
+      "sixian": "Sixian",
+      "hailu": "Hailu",
+      "dapu": "Dapu",
+      "raoping": "Raoping",
+      "zhaoan": "Zhaoan",
+      "sihai": "Southern Sixian"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Failed to load",
+    "retry": "Retry",
+    "refresh": "Refresh",
+    "viewMore": "View More",
+    "close": "Close"
+  },
+  "map": {
+    "clickToInteract": "Click map to interact",
+    "dialectDistribution": "Dialect Distribution",
+    "clickMarker": "Click marker to explore dialect",
+    "switchedTo": "Switched to Dialect Explorer → view representative words",
+    "resetView": "Reset view",
+    "population": "~{n} speakers",
+    "showAll": "Show All"
+  },
+  "dialectMap": {
+    "title": "Dialect Map",
+    "subtitle": "Explore the geographic distribution of six Hakka dialects"
+  }
+}

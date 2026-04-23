@@ -105,7 +105,29 @@ CREATE INDEX IF NOT EXISTS idx_chat_history_created_at
     ON chat_history (created_at);
 
 -- ──────────────────────────────────────────────
--- 6. users: Authentication
+-- 6. daily_proverbs: 諺語/歇後語/佳句（正規化）
+-- ──────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS daily_proverbs (
+    id          SERIAL PRIMARY KEY,
+    title       TEXT NOT NULL,
+    pinyin      TEXT,
+    dialect     TEXT,
+    definition  TEXT,
+    example     TEXT,
+    category    TEXT,
+    is_active   BOOLEAN NOT NULL DEFAULT true,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_daily_proverbs_active
+    ON daily_proverbs (is_active);
+CREATE INDEX IF NOT EXISTS idx_daily_proverbs_category
+    ON daily_proverbs (category);
+CREATE INDEX IF NOT EXISTS idx_daily_proverbs_dialect
+    ON daily_proverbs (dialect);
+
+-- ──────────────────────────────────────────────
+-- 7. users: Authentication
 -- ──────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS users (
     id            SERIAL PRIMARY KEY,
@@ -120,3 +142,28 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE INDEX IF NOT EXISTS idx_users_username
     ON users (username);
+
+-- ──────────────────────────────────────────────
+-- 8. speakers: Oral corpus informants
+-- ──────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS speakers (
+    id             SERIAL PRIMARY KEY,
+    name           TEXT NOT NULL,
+    dialect        TEXT NOT NULL,
+    region         TEXT,
+    birth_year     SMALLINT,
+    title          TEXT,
+    bio            TEXT,
+    portrait_url   TEXT NOT NULL DEFAULT '',
+    audio_url      TEXT NOT NULL DEFAULT '',
+    audio_duration INTEGER NOT NULL DEFAULT 0,
+    has_video      BOOLEAN NOT NULL DEFAULT false,
+    sort_order     SMALLINT NOT NULL DEFAULT 0,
+    is_active      BOOLEAN NOT NULL DEFAULT true,
+    created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_speakers_dialect
+    ON speakers (dialect);
+CREATE INDEX IF NOT EXISTS idx_speakers_sort
+    ON speakers (sort_order, id);

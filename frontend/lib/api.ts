@@ -237,3 +237,259 @@ export async function fetchTrending(period = 'monthly', limit = 10): Promise<Tre
   if (!res.ok) throw new Error('API error')
   return res.json()
 }
+
+// ===== Dialects =====
+
+export interface DialectMeta {
+  code: string
+  name_zh: string
+  db_labels: string[]
+  total_words: number
+}
+
+export interface DialectWord {
+  word: string
+  pinyin_full: string
+  definition: string | null
+  word_freq: number
+}
+
+export interface DialectWordsResponse {
+  dialect_code: string
+  dialect_name: string
+  items: DialectWord[]
+}
+
+export async function fetchDialects(): Promise<DialectMeta[]> {
+  const res = await fetch(`${API_BASE}/dialects`)
+  if (!res.ok) throw new Error('API error')
+  return res.json()
+}
+
+export async function fetchDialectWords(code: string, limit = 10): Promise<DialectWordsResponse> {
+  const res = await fetch(`${API_BASE}/dialects/${code}/words?limit=${limit}`)
+  if (!res.ok) throw new Error('API error')
+  return res.json()
+}
+
+// ===== Word of Day =====
+
+export interface PinyinByDialect {
+  dialect: string
+  pinyin_full: string
+}
+
+export interface CoocWord {
+  partner: string
+  logdice: number
+}
+
+export interface ProverbPreview {
+  title: string
+  pinyin: string | null
+  definition: string | null
+  example: string | null
+}
+
+export interface WordOfDayData {
+  entry: DictEntry
+  pinyin_by_dialect: PinyinByDialect[]
+  cooc_words: CoocWord[]
+  related_proverbs: ProverbPreview[]
+}
+
+export async function fetchWordOfDay(opts?: {
+  keyword?: string
+  random?: boolean
+}): Promise<WordOfDayData> {
+  const params = new URLSearchParams()
+  if (opts?.keyword) params.set('q', opts.keyword)
+  if (opts?.random) params.set('random', 'true')
+  const qs = params.toString()
+  const url = qs ? `${API_BASE}/dict/word-of-day?${qs}` : `${API_BASE}/dict/word-of-day`
+  const res = await fetch(url)
+  if (!res.ok) throw new Error('API error')
+  return res.json()
+}
+
+export async function fetchRandomDict(dialect?: string): Promise<DictEntry> {
+  const url = dialect
+    ? `${API_BASE}/dict/random?dialect=${encodeURIComponent(dialect)}`
+    : `${API_BASE}/dict/random`
+  const res = await fetch(url)
+  if (!res.ok) throw new Error('API error')
+  return res.json()
+}
+
+// ===== Proverbs =====
+
+export interface ProverbItem {
+  id: number
+  title: string
+  pinyin: string | null
+  dialect: string | null
+  definition: string | null
+  example: string | null
+  category: string | null
+}
+
+export interface ProverbListResponse {
+  total: number
+  items: ProverbItem[]
+}
+
+export async function fetchRandomProverb(): Promise<ProverbItem> {
+  const res = await fetch(`${API_BASE}/proverbs/random`)
+  if (!res.ok) throw new Error('API error')
+  return res.json()
+}
+
+export async function fetchProverbPinyinByDialect(id: number): Promise<PinyinByDialect[]> {
+  const res = await fetch(`${API_BASE}/proverbs/${id}/pinyin-by-dialect`)
+  if (!res.ok) throw new Error('API error')
+  return res.json()
+}
+
+export async function fetchProverbList(params?: {
+  limit?: number
+  offset?: number
+  category?: string
+  dialect?: string
+}): Promise<ProverbListResponse> {
+  const p = new URLSearchParams()
+  if (params?.limit) p.set('limit', String(params.limit))
+  if (params?.offset) p.set('offset', String(params.offset))
+  if (params?.category) p.set('category', params.category)
+  if (params?.dialect) p.set('dialect', params.dialect)
+  const res = await fetch(`${API_BASE}/proverbs?${p.toString()}`)
+  if (!res.ok) throw new Error('API error')
+  return res.json()
+}
+
+// ===== Cooc Top / Random Pair =====
+
+export interface CoocPairItem {
+  word: string
+  partner: string
+  co_count: number
+  logdice: number
+  mi_score: number
+  word_freq: number
+}
+
+export async function fetchCoocTop(limit = 30, sort = 'logdice'): Promise<CoocPairItem[]> {
+  const res = await fetch(`${API_BASE}/cooc/top?limit=${limit}&sort=${sort}`)
+  if (!res.ok) throw new Error('API error')
+  return res.json()
+}
+
+export async function fetchRandomCoocPair(): Promise<CoocPairItem> {
+  const res = await fetch(`${API_BASE}/cooc/random-pair`)
+  if (!res.ok) throw new Error('API error')
+  return res.json()
+}
+
+// ===== Corpus Texts (文章級客語語料 + AI 分析) =====
+
+export interface CorpusTopicItem {
+  name: string
+  percentage: number
+  keywords: string[]
+}
+
+export interface CorpusNerEntities {
+  persons?: string[]
+  places?: string[]
+  organizations?: string[]
+}
+
+export interface CorpusEmotionSentence {
+  text: string
+  keywords: string[]
+  emotion: string
+  confidence: number
+}
+
+export interface CorpusSentiment {
+  /** 情緒擷取（新）— 主要情緒 */
+  primary?: string
+  /** 七大情緒分布：喜悅/驚訝/生氣/厭惡/害怕/哀傷/中性 */
+  distribution?: Record<string, number>
+  /** 逐句情緒樣本 */
+  sentences?: CorpusEmotionSentence[]
+
+  /** 情感極性（舊）— 向後相容 */
+  positive?: number
+  negative?: number
+  neutral?: number
+}
+
+export interface CorpusTextSummary {
+  id: string
+  title: string
+  dialect?: string | null
+  genre?: string | null
+  source?: string | null
+  word_count?: number | null
+  summary?: string | null
+  topics?: CorpusTopicItem[] | null
+  categories?: string[] | null
+  sentiment?: CorpusSentiment | null
+}
+
+export interface CorpusTextDetail extends CorpusTextSummary {
+  content: string
+  content_pinyin?: string | null
+  author?: string | null
+  source_url?: string | null
+  license?: string | null
+  year?: number | null
+  summary_pinyin?: string | null
+  summary_zh?: string | null
+  ner_entities?: CorpusNerEntities | null
+  sentiment?: CorpusSentiment | null
+}
+
+export interface CorpusTextListResponse {
+  total: number
+  items: CorpusTextSummary[]
+  offset: number
+  limit: number
+}
+
+export interface CorpusTextStats {
+  total: number
+  analyzed: number
+  by_genre: { genre: string; count: number }[]
+  by_dialect: { dialect: string; count: number }[]
+}
+
+export async function fetchCorpusTexts(params: {
+  limit?: number
+  offset?: number
+  dialect?: string
+  genre?: string
+  q?: string
+} = {}): Promise<CorpusTextListResponse> {
+  const sp = new URLSearchParams()
+  if (params.limit) sp.set('limit', String(params.limit))
+  if (params.offset) sp.set('offset', String(params.offset))
+  if (params.dialect) sp.set('dialect', params.dialect)
+  if (params.genre) sp.set('genre', params.genre)
+  if (params.q) sp.set('q', params.q)
+  const res = await fetch(`${API_BASE}/corpus/texts?${sp.toString()}`)
+  if (!res.ok) throw new Error('API error')
+  return res.json()
+}
+
+export async function fetchCorpusTextDetail(id: string): Promise<CorpusTextDetail> {
+  const res = await fetch(`${API_BASE}/corpus/texts/${encodeURIComponent(id)}`)
+  if (!res.ok) throw new Error('API error')
+  return res.json()
+}
+
+export async function fetchCorpusStats(): Promise<CorpusTextStats> {
+  const res = await fetch(`${API_BASE}/corpus/stats`)
+  if (!res.ok) throw new Error('API error')
+  return res.json()
+}

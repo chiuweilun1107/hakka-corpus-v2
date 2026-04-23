@@ -6,6 +6,7 @@ import { Loader2, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { fetchStatsOverview } from '@/lib/api'
 import type { StatsOverview } from '@/lib/api'
+import { DIALECT_CHART_COLORS, GENRE_COLORS as GENRE_COLORS_LIB } from '@/lib/colors'
 import {
   ResponsiveContainer,
   LineChart,
@@ -23,6 +24,38 @@ import {
   Area,
   AreaChart,
 } from 'recharts'
+import { useTranslations, useLocale } from 'next-intl'
+import { HakkaLabel } from '@/components/ui/hakka-label'
+import { SectionHeader } from '@/components/ui/section-header'
+
+// 中文 → 英文 label 對照表（僅 en locale 使用；其他 locale 維持中文）
+const CHART_LABEL_EN: Record<string, string> = {
+  '四縣': 'Sixian',
+  '海陸': 'Hailu',
+  '大埔': 'Dapu',
+  '饒平': 'Raoping',
+  '詔安': 'Zhaoan',
+  '南四縣': 'Sihai',
+  '散文': 'Prose',
+  '口語': 'Speech',
+  '歌謠': 'Folk Song',
+  '戲劇': 'Drama',
+  '報導': 'News',
+  '飲食': 'Food',
+  '文化': 'Culture',
+  '教育': 'Education',
+  '觀光': 'Tourism',
+  '民俗': 'Folklore',
+}
+
+function useChartFmt() {
+  const locale = useLocale()
+  return (v: string | number | undefined | null): string => {
+    const s = String(v ?? '')
+    if (locale !== 'en') return s
+    return CHART_LABEL_EN[s] ?? s
+  }
+}
 
 // ============================================================
 // 【型別定義】兩軸選擇器：showWhat × dimension
@@ -38,24 +71,8 @@ type Dimension = 'overall' | 'by-genre' | 'by-topic' | 'by-time'
 // 【顏色定義】腔調 / 文體 / 主題
 // ============================================================
 
-/** 六大腔調顏色（四縣、海陸、大埔、饒平、詔安、南四縣） */
-const DIALECT_COLORS: Record<string, string> = {
-  四縣: '#009688',
-  海陸: '#4CAF50',
-  大埔: '#E91E63',
-  饒平: '#FF9800',
-  詔安: '#3F51B5',
-  南四縣: '#03A9F4',
-}
-
-/** 五大文體顏色 */
-const GENRE_COLORS: Record<string, string> = {
-  散文: '#009688',
-  口語: '#6366f1',
-  歌謠: '#f59e0b',
-  戲劇: '#ef4444',
-  報導: '#8b5cf6',
-}
+const DIALECT_COLORS = DIALECT_CHART_COLORS
+const GENRE_COLORS = GENRE_COLORS_LIB
 
 /** 五大主題顏色 */
 const TOPIC_COLORS: Record<string, string> = {
@@ -208,10 +225,11 @@ function isMockData(showWhat: ShowWhat, dimension: Dimension): boolean {
 // ============================================================
 
 function MockBadge() {
+  const t = useTranslations('stats')
   return (
     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 text-[10px] font-semibold">
       <AlertCircle className="h-3 w-3" />
-      模擬資料，待語料標注後替換
+      {t('mockBadge')}
     </span>
   )
 }
@@ -239,6 +257,7 @@ function StatCard({ label, value, loading }: { label: string; value: number; loa
 
 /** dialect + overall: 圓餅圖（真實 DB） */
 function DialectOverallChart({ data }: { data: Array<{ name: string; count: number }> }) {
+  const fmt = useChartFmt()
   const PIE_COLORS_LIST = Object.values(DIALECT_COLORS)
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -250,14 +269,14 @@ function DialectOverallChart({ data }: { data: Array<{ name: string; count: numb
           cx="50%"
           cy="50%"
           outerRadius={120}
-          label={({ name, count }: { name: string; count: number }) => `${name} ${count.toLocaleString()}`}
+          label={({ name, count }: { name: string; count: number }) => `${fmt(name)} ${count.toLocaleString()}`}
           labelLine={{ stroke: '#ccc', strokeWidth: 1 }}
         >
           {data.map((entry, index) => (
             <Cell key={entry.name} fill={PIE_COLORS_LIST[index % PIE_COLORS_LIST.length]} />
           ))}
         </Pie>
-        <Tooltip contentStyle={TOOLTIP_STYLE} />
+        <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: number, n: string) => [v, fmt(n)]} />
       </PieChart>
     </ResponsiveContainer>
   )
@@ -265,14 +284,15 @@ function DialectOverallChart({ data }: { data: Array<{ name: string; count: numb
 
 /** dialect + by-genre: 分組柱狀圖（X=文體） */
 function DialectByGenreChart() {
+  const fmt = useChartFmt()
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={MOCK_DIALECT_BY_GENRE} margin={{ left: 10, bottom: 10 }}>
         <CartesianGrid {...GRID_PROPS} />
-        <XAxis dataKey="genre" {...X_AXIS_PROPS} />
+        <XAxis dataKey="genre" tickFormatter={fmt} {...X_AXIS_PROPS} />
         <YAxis {...Y_AXIS_PROPS} />
-        <Tooltip contentStyle={TOOLTIP_STYLE} />
-        <Legend />
+        <Tooltip contentStyle={TOOLTIP_STYLE} labelFormatter={fmt} formatter={(v: number, n: string) => [v, fmt(n)]} />
+        <Legend formatter={fmt} />
         {DIALECT_KEYS.map((key) => (
           <Bar key={key} dataKey={key} fill={DIALECT_COLORS[key]} radius={[4, 4, 0, 0]} barSize={16} />
         ))}
@@ -283,14 +303,15 @@ function DialectByGenreChart() {
 
 /** dialect + by-topic: 分組柱狀圖（X=主題） */
 function DialectByTopicChart() {
+  const fmt = useChartFmt()
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={MOCK_DIALECT_BY_TOPIC} margin={{ left: 10, bottom: 10 }}>
         <CartesianGrid {...GRID_PROPS} />
-        <XAxis dataKey="topic" {...X_AXIS_PROPS} />
+        <XAxis dataKey="topic" tickFormatter={fmt} {...X_AXIS_PROPS} />
         <YAxis {...Y_AXIS_PROPS} />
-        <Tooltip contentStyle={TOOLTIP_STYLE} />
-        <Legend />
+        <Tooltip contentStyle={TOOLTIP_STYLE} labelFormatter={fmt} formatter={(v: number, n: string) => [v, fmt(n)]} />
+        <Legend formatter={fmt} />
         {DIALECT_KEYS.map((key) => (
           <Bar key={key} dataKey={key} fill={DIALECT_COLORS[key]} radius={[4, 4, 0, 0]} barSize={16} />
         ))}
@@ -301,14 +322,15 @@ function DialectByTopicChart() {
 
 /** dialect + by-time: 堆疊面積圖（X=年份） */
 function DialectByTimeChart() {
+  const fmt = useChartFmt()
   return (
     <ResponsiveContainer width="100%" height="100%">
       <AreaChart data={MOCK_DIALECT_BY_TIME}>
         <CartesianGrid {...GRID_PROPS} />
         <XAxis dataKey="year" {...X_AXIS_PROPS} />
         <YAxis {...Y_AXIS_PROPS} />
-        <Tooltip contentStyle={TOOLTIP_STYLE} />
-        <Legend />
+        <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: number, n: string) => [v, fmt(n)]} />
+        <Legend formatter={fmt} />
         {DIALECT_KEYS.map((key) => (
           <Area
             key={key}
@@ -328,13 +350,14 @@ function DialectByTimeChart() {
 
 /** genre + overall: 橫條圖 */
 function GenreOverallChart() {
+  const fmt = useChartFmt()
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={MOCK_GENRE_OVERALL} layout="vertical" margin={{ left: 40, right: 20 }}>
         <CartesianGrid {...GRID_PROPS} horizontal={false} vertical />
         <XAxis type="number" {...X_AXIS_PROPS} />
-        <YAxis type="category" dataKey="name" {...Y_AXIS_PROPS} width={50} />
-        <Tooltip contentStyle={TOOLTIP_STYLE} />
+        <YAxis type="category" dataKey="name" tickFormatter={fmt} {...Y_AXIS_PROPS} width={70} />
+        <Tooltip contentStyle={TOOLTIP_STYLE} labelFormatter={fmt} />
         <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={28}>
           {MOCK_GENRE_OVERALL.map((entry) => (
             <Cell key={entry.name} fill={GENRE_COLORS[entry.name] ?? '#94a3b8'} />
@@ -347,14 +370,15 @@ function GenreOverallChart() {
 
 /** genre + by-topic: 分組柱狀圖（X=主題） */
 function GenreByTopicChart() {
+  const fmt = useChartFmt()
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={MOCK_GENRE_BY_TOPIC} margin={{ left: 10, bottom: 10 }}>
         <CartesianGrid {...GRID_PROPS} />
-        <XAxis dataKey="topic" {...X_AXIS_PROPS} />
+        <XAxis dataKey="topic" tickFormatter={fmt} {...X_AXIS_PROPS} />
         <YAxis {...Y_AXIS_PROPS} />
-        <Tooltip contentStyle={TOOLTIP_STYLE} />
-        <Legend />
+        <Tooltip contentStyle={TOOLTIP_STYLE} labelFormatter={fmt} formatter={(v: number, n: string) => [v, fmt(n)]} />
+        <Legend formatter={fmt} />
         {GENRE_KEYS.map((key) => (
           <Bar key={key} dataKey={key} fill={GENRE_COLORS[key]} radius={[4, 4, 0, 0]} barSize={20} />
         ))}
@@ -365,14 +389,15 @@ function GenreByTopicChart() {
 
 /** genre + by-time: 面積圖（X=年份） */
 function GenreByTimeChart() {
+  const fmt = useChartFmt()
   return (
     <ResponsiveContainer width="100%" height="100%">
       <AreaChart data={MOCK_GENRE_BY_TIME}>
         <CartesianGrid {...GRID_PROPS} />
         <XAxis dataKey="year" {...X_AXIS_PROPS} />
         <YAxis {...Y_AXIS_PROPS} />
-        <Tooltip contentStyle={TOOLTIP_STYLE} />
-        <Legend />
+        <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: number, n: string) => [v, fmt(n)]} />
+        <Legend formatter={fmt} />
         {GENRE_KEYS.map((key) => (
           <Area
             key={key}
@@ -391,13 +416,14 @@ function GenreByTimeChart() {
 
 /** topic + overall: 直條圖 */
 function TopicOverallChart() {
+  const fmt = useChartFmt()
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={MOCK_TOPIC_OVERALL} margin={{ left: 10, bottom: 10 }}>
         <CartesianGrid {...GRID_PROPS} />
-        <XAxis dataKey="name" {...X_AXIS_PROPS} />
+        <XAxis dataKey="name" tickFormatter={fmt} {...X_AXIS_PROPS} />
         <YAxis {...Y_AXIS_PROPS} />
-        <Tooltip contentStyle={TOOLTIP_STYLE} />
+        <Tooltip contentStyle={TOOLTIP_STYLE} labelFormatter={fmt} />
         <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={40}>
           {MOCK_TOPIC_OVERALL.map((entry) => (
             <Cell key={entry.name} fill={TOPIC_COLORS[entry.name] ?? '#94a3b8'} />
@@ -410,14 +436,15 @@ function TopicOverallChart() {
 
 /** topic + by-genre: 分組柱狀圖（X=文體） */
 function TopicByGenreChart() {
+  const fmt = useChartFmt()
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={MOCK_TOPIC_BY_GENRE} margin={{ left: 10, bottom: 10 }}>
         <CartesianGrid {...GRID_PROPS} />
-        <XAxis dataKey="genre" {...X_AXIS_PROPS} />
+        <XAxis dataKey="genre" tickFormatter={fmt} {...X_AXIS_PROPS} />
         <YAxis {...Y_AXIS_PROPS} />
-        <Tooltip contentStyle={TOOLTIP_STYLE} />
-        <Legend />
+        <Tooltip contentStyle={TOOLTIP_STYLE} labelFormatter={fmt} formatter={(v: number, n: string) => [v, fmt(n)]} />
+        <Legend formatter={fmt} />
         {TOPIC_KEYS.map((key) => (
           <Bar key={key} dataKey={key} fill={TOPIC_COLORS[key]} radius={[4, 4, 0, 0]} barSize={20} />
         ))}
@@ -428,14 +455,15 @@ function TopicByGenreChart() {
 
 /** topic + by-time: 折線圖（X=年份） */
 function TopicByTimeChart() {
+  const fmt = useChartFmt()
   return (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={MOCK_TOPIC_BY_TIME}>
         <CartesianGrid {...GRID_PROPS} />
         <XAxis dataKey="year" {...X_AXIS_PROPS} />
         <YAxis {...Y_AXIS_PROPS} />
-        <Tooltip contentStyle={TOOLTIP_STYLE} />
-        <Legend />
+        <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: number, n: string) => [v, fmt(n)]} />
+        <Legend formatter={fmt} />
         {TOPIC_KEYS.map((key) => (
           <Line
             key={key}
@@ -452,27 +480,12 @@ function TopicByTimeChart() {
 }
 
 // ============================================================
-// 【按鈕定義】showWhat / dimension
-// ============================================================
-
-const SHOW_WHAT_OPTIONS: Array<{ key: ShowWhat; label: string }> = [
-  { key: 'dialect', label: '腔調分布' },
-  { key: 'genre', label: '文體分布' },
-  { key: 'topic', label: '主題分布' },
-]
-
-const DIMENSION_OPTIONS: Array<{ key: Dimension; label: string }> = [
-  { key: 'overall', label: '整體' },
-  { key: 'by-genre', label: '按文體' },
-  { key: 'by-topic', label: '按主題' },
-  { key: 'by-time', label: '按時間' },
-]
-
-// ============================================================
 // 【主組件】StatsSection
 // ============================================================
 
 export function StatsSection() {
+  const t = useTranslations('stats')
+
   // --- 真實 API 資料 ---
   const [stats, setStats] = useState<StatsOverview | null>(null)
   const [dialectData, setDialectData] = useState<Array<{ name: string; count: number }>>([])
@@ -481,6 +494,19 @@ export function StatsSection() {
   // --- 兩軸選擇器狀態 ---
   const [showWhat, setShowWhat] = useState<ShowWhat>('dialect')
   const [dimension, setDimension] = useState<Dimension>('overall')
+
+  const showWhatOptions: Array<{ key: ShowWhat; label: string }> = [
+    { key: 'dialect', label: t('showWhat.dialect') },
+    { key: 'genre', label: t('showWhat.genre') },
+    { key: 'topic', label: t('showWhat.topic') },
+  ]
+
+  const dimensionOptions: Array<{ key: Dimension; label: string }> = [
+    { key: 'overall', label: t('dimension.overall') },
+    { key: 'by-genre', label: t('dimension.byGenre') },
+    { key: 'by-topic', label: t('dimension.byTopic') },
+    { key: 'by-time', label: t('dimension.byTime') },
+  ]
 
   // 載入真實 API 資料（統計概覽 + 腔調分布）
   useEffect(() => {
@@ -531,51 +557,51 @@ export function StatsSection() {
 
   const showMockBadge = isMockData(showWhat, dimension)
 
-  // 圖表標題描述
-  const chartDescription = useMemo(() => {
+  // 圖表標題描述（分離 showWhat label 供 HakkaLabel 處理）
+  const chartTitleLabel = useMemo<string>(() => {
     const labels: Record<ShowWhat, string> = {
-      dialect: '腔調分布',
-      genre: '文體分布',
-      topic: '主題分布',
+      dialect: t('chartTitle.dialect'),
+      genre: t('chartTitle.genre'),
+      topic: t('chartTitle.topic'),
     }
+    return labels[showWhat]
+  }, [showWhat, t])
+
+  const chartDimLabel = useMemo<string>(() => {
     const dimLabels: Record<Dimension, string> = {
-      overall: '整體',
-      'by-genre': '按文體',
-      'by-topic': '按主題',
-      'by-time': '按時間',
+      overall: t('dimension.overall'),
+      'by-genre': t('dimension.byGenre'),
+      'by-topic': t('dimension.byTopic'),
+      'by-time': t('dimension.byTime'),
     }
-    return `${labels[showWhat]} - ${dimLabels[dimension]}`
-  }, [showWhat, dimension])
+    return dimLabels[dimension]
+  }, [dimension, t])
 
   return (
-    <section className="py-10 bg-hakka-warm-white/50 relative overflow-hidden">
-      <div className="container mx-auto px-4 relative z-10">
-        {/* Section header */}
-        <div className="text-center mb-10">
-          <h2 className="text-2xl font-bold text-foreground">統計趨勢化呈現</h2>
-          <p className="text-sm text-muted-foreground mt-2">
-            按類別、文體、主題分類，依不同維度呈現關聯變化
-          </p>
-        </div>
+    <section className="py-20 bg-muted/30 relative overflow-hidden">
+      <div className="container mx-auto px-4 max-w-6xl relative z-10">
+        <SectionHeader title={t('title')} subtitle={t('subtitle')} />
 
         {/* Stats Overview Cards — 真實 API 資料 */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-          <StatCard label="詞條數" value={stats?.dict_count ?? 0} loading={loading} />
-          <StatCard label="共現詞組" value={stats?.cooc_count ?? 0} loading={loading} />
-          <StatCard label="拼音索引" value={stats?.pinyin_count ?? 0} loading={loading} />
-          <StatCard label="今日查詢" value={stats?.total_queries_today ?? 0} loading={loading} />
+          <StatCard label={t('statCards.dictCount')} value={stats?.dict_count ?? 0} loading={loading} />
+          <StatCard label={t('statCards.coocCount')} value={stats?.cooc_count ?? 0} loading={loading} />
+          <StatCard label={t('statCards.pinyinCount')} value={stats?.pinyin_count ?? 0} loading={loading} />
+          <StatCard label={t('statCards.todayQueries')} value={stats?.total_queries_today ?? 0} loading={loading} />
         </div>
 
         {/* Chart area */}
-        <div className="border border-border rounded-xl bg-white overflow-hidden">
+        <div className="rounded-2xl bg-card shadow-sm overflow-hidden">
           <div className="pb-0 pt-5 px-6">
             {/* 圖表標題 */}
             <div className="mb-4">
-              <h3 className="text-lg font-bold text-foreground">{chartDescription}</h3>
+              <h3 className="text-lg font-bold text-foreground">
+                <HakkaLabel text={chartTitleLabel} /> – {chartDimLabel}
+              </h3>
               <p className="text-xs text-muted-foreground mt-1">
                 {showWhat === 'dialect' && dimension === 'overall'
-                  ? '各腔調拼音索引數量（真實資料）'
-                  : '選擇不同維度觀察語料數據的變化趨勢'
+                  ? t('realData')
+                  : t('mockHint')
                 }
               </p>
             </div>
@@ -583,9 +609,9 @@ export function StatsSection() {
             {/* 第一排：呈現什麼 */}
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-semibold text-slate-500 shrink-0">呈現：</span>
+                <span className="text-xs font-semibold text-slate-500 shrink-0">{t('showWhat.label')}</span>
                 <div className="flex gap-1 flex-wrap">
-                  {SHOW_WHAT_OPTIONS.map((opt) => (
+                  {showWhatOptions.map((opt) => (
                     <Button
                       key={opt.key}
                       variant={showWhat === opt.key ? 'default' : 'outline'}
@@ -601,9 +627,9 @@ export function StatsSection() {
 
               {/* 第二排：按什麼維度 + MockBadge */}
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-semibold text-slate-500 shrink-0">維度：</span>
+                <span className="text-xs font-semibold text-slate-500 shrink-0">{t('dimension.label')}</span>
                 <div className="flex gap-1 flex-wrap">
-                  {DIMENSION_OPTIONS.map((opt) => {
+                  {dimensionOptions.map((opt) => {
                     const disabled = isDimensionDisabled(showWhat, opt.key)
                     return (
                       <Button

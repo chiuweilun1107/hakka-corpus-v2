@@ -1,19 +1,21 @@
 'use client'
 
 import React, { useState } from 'react'
-import { 
-  Search, 
-  Download, 
-  Layers, 
-  LayoutGrid, 
-  Eye, 
+import {
+  Search,
+  Download,
+  Layers,
+  LayoutGrid,
+  Eye,
   Settings2,
   Info,
-  MoreHorizontal
+  MoreHorizontal,
+  ChevronDown,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
@@ -63,7 +65,7 @@ const SKETCH_DATA = {
 
 export default function WordSketchPage() {
   const [viewMode, setViewMode] = useState<'list' | 'viz'>('list')
-  const [keyword, setKeyword] = useState('客家')
+  const [keyword, setKeyword] = useState('')
   const [collocateCount, setCollocateCount] = useState([13])
   const [activeRelations, setActiveRelations] = useState({
     Modifies: true,
@@ -175,7 +177,7 @@ export default function WordSketchPage() {
                 {/* Count Slider */}
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <label className="text-sm font-bold text-muted-foreground">Number of collocates ({collocateCount})</label>
+                    <Label className="text-sm font-bold text-muted-foreground">Number of collocates ({collocateCount})</Label>
                   </div>
                   <Slider 
                     value={collocateCount} 
@@ -222,21 +224,3 @@ export default function WordSketchPage() {
   )
 }
 
-function ChevronDown(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m6 9 6 6 6-6" />
-    </svg>
-  )
-}

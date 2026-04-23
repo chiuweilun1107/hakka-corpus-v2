@@ -1,0 +1,368 @@
+{
+  "language": {
+    "zh-TW": "華語",
+    "hak-sixian": "客語（四縣）",
+    "hak-hailu": "客語（海陸）",
+    "en": "English"
+  },
+  "seo": {
+    "title": "臺灣客語語料庫",
+    "description": "探索六腔客語的語言寶庫，包含語料檢索、腔調探索、AI 智慧功能等",
+    "keywords": [
+      "客語",
+      "語料庫",
+      "臺灣客家",
+      "六腔",
+      "四縣",
+      "海陸",
+      "大埔",
+      "饒平",
+      "詔安",
+      "南四縣"
+    ]
+  },
+  "nav": {
+    "login": "登入",
+    "skipToContent": "跳至主要內容",
+    "corpus": "語料庫",
+    "dict": "辭典",
+    "search": "檢索",
+    "about": "關於",
+    "tools": "工具",
+    "home": "首頁",
+    "categories": {
+      "corpusSearch": {
+        "label": "語料檢索",
+        "children": {
+          "cooccurrence": "共現詞檢索",
+          "wordSketch": "詞彙剖析 (Word Sketch)",
+          "visualization": "共現詞視覺化",
+          "multimedia": "多媒體整合"
+        }
+      },
+      "languageResources": {
+        "label": "語言資源",
+        "children": {
+          "corpus": "文本語料庫（AI 分析）",
+          "coreVocabulary": "基礎詞彙檢索",
+          "gradedVocabulary": "詞語分級標準詞彙",
+          "semiAffix": "（類）詞綴表",
+          "coverage": "覆蓋率統計"
+        }
+      },
+      "aiFeatures": {
+        "label": "AI 智慧功能",
+        "children": {
+          "aiAssistant": "AI 助手",
+          "topicAnalysis": "文本主題分析",
+          "segmenter": "客語斷詞暨詞性標注"
+        }
+      },
+      "news": {
+        "label": "最新消息"
+      },
+      "about": {
+        "label": "關於",
+        "children": {
+          "aboutUs": "語料庫說明",
+          "corpusInfo": "語料庫元資訊",
+          "sitemap": "導覽地圖",
+          "copyright": "權利聲明"
+        }
+      }
+    }
+  },
+  "hero": {
+    "title": "臺灣客語語料庫",
+    "subtitle": "探索六腔客語的語言寶庫",
+    "searchPlaceholder": "輸入詞彙檢索...",
+    "searchButton": "開始檢索",
+    "dialects": "六腔分布",
+    "descText": "輸入關鍵詞檢索語料，或點擊地圖探索腔調分佈",
+    "tabs": {
+      "general": "一般檢索",
+      "cooccurrence": "共現詞檢索"
+    },
+    "searchForm": {
+      "placeholder": "請輸入關鍵字...",
+      "submit": "開始檢索",
+      "hint": "輸入關鍵詞檢索語料，或點擊地圖探索腔調分佈",
+      "type": "語料類型",
+      "coword1": "詞彙一",
+      "coword2": "詞彙二",
+      "distance": "5",
+      "distanceLabel": "間距：",
+      "distanceUnit": "詞",
+      "written": "書面語料",
+      "oral": "口語語料"
+    },
+    "popularSearch": {
+      "title": "熱門查詢",
+      "trySuggestions": "試試看",
+      "items": [
+        "山歌",
+        "擂茶",
+        "天光日",
+        "義民",
+        "粄條",
+        "油桐花"
+      ],
+      "labels": {
+        "entry": "詞條",
+        "coword": "共現詞",
+        "pinyin": "拼音"
+      }
+    },
+    "corpusType": {
+      "written": "書面語料",
+      "spoken": "口語語料"
+    },
+    "pinyin": {
+      "recommend": "客語拼音推薦"
+    },
+    "toast": {
+      "emptyKeyword": "請輸入關鍵字"
+    }
+  },
+  "cultureHub": {
+    "title": "客語文化探索",
+    "subtitle": "節慶、腔調、詞彙一體探索",
+    "tabs": {
+      "today": "今日選詞",
+      "quote": "每日一句",
+      "festival": "歲時節慶"
+    }
+  },
+  "wordOfDay": {
+    "title": "每日主題詞",
+    "subtitle": "今日精選詞彙，探索六腔發音與文化脈絡",
+    "subtitleRandom": "隨機探索一個客語詞彙",
+    "coocWords": "常見共現詞",
+    "coocWordsOf": "「{word}」常見共現詞",
+    "relatedProverbs": "相關諺語",
+    "relatedProverbsOf": "「{word}」相關諺語",
+    "randomBtn": "換一個詞",
+    "todayBtn": "今日主題詞",
+    "deepSearch": "深入查詢",
+    "readAloud": "朗讀「{word}」"
+  },
+  "dailyQuote": {
+    "selectDialect": "選擇腔調查看發音",
+    "readAloud": "朗讀「{text}」",
+    "refreshQuote": "換一句",
+    "reload": "重新載入",
+    "listen": "聆聽發音",
+    "errorLoad": "暫時無法載入每日一句，請稍後再試。",
+    "loadFailed": "諺語載入失敗",
+    "noData": "暫無資料",
+    "dailyQuoteTitle": "每日一句"
+  },
+  "dialectExplorer": {
+    "title": "腔調探索",
+    "subtitle": "選擇腔調，探索各地客語特色詞彙",
+    "representativeWords": "代表詞彙（依使用頻率排序）",
+    "noData": "暫無資料",
+    "populationEst": "估計使用人口 {n} 人"
+  },
+  "festivalCards": {
+    "title": "客家歲時節慶",
+    "subtitle": "節慶文化是語言的活化石，點擊探索節慶相關詞彙",
+    "today": "今",
+    "todayFestival": "今日節慶：",
+    "nextFestival": "下一個節慶：",
+    "daysUntil": "（還有 {n} 天）",
+    "clearFilter": "清除節慶篩選",
+    "monthSuffix": "{n}月",
+    "goToFestival": "前往{name}專題頁"
+  },
+  "randomExplore": {
+    "title": "隨機逛逛",
+    "subtitle": "不知道找什麼？讓我替你挑一個",
+    "randomWord": "隨機詞",
+    "randomProverb": "隨機諺語",
+    "randomCooc": "隨機共現詞組",
+    "dictEntry": "辭典詞",
+    "viewFull": "查看完整資料 →",
+    "word": "詞",
+    "coword": "共現詞",
+    "coocCount": "共現次數"
+  },
+  "a11y": {
+    "switchLanguage": "切換語言",
+    "prevFestival": "上一個節慶",
+    "nextFestival": "下一個節慶",
+    "jumpToFestival": "跳到 {name}",
+    "prevSpeaker": "上一位",
+    "nextSpeaker": "下一位"
+  },
+  "dialectPanel": {
+    "population": "使用人口",
+    "populationUnit": "人",
+    "representativeWords": "代表詞彙 · 依使用頻率排序",
+    "noData": "暫無資料",
+    "readAloud": "朗讀「{word}」"
+  },
+  "speaker": {
+    "title": "口語人物誌",
+    "subtitle": "客語語料庫受訪者——珍貴的族群記憶傳承者",
+    "rareSpeech": "珍貴語音",
+    "playAudio": "播放",
+    "pauseAudio": "暫停"
+  },
+  "trending": {
+    "title": "熱門查詢",
+    "titleTop10": "熱門查詢 Top 10",
+    "subtitle": "即時掌握語料庫熱搜詞彙",
+    "periods": {
+      "day": "每日",
+      "week": "每週",
+      "month": "每月",
+      "quarter": "每季",
+      "year": "每年"
+    },
+    "error": {
+      "fetch": "暫時無法載入熱門查詢，請稍後再試。"
+    },
+    "empty": "目前尚無查詢資料。",
+    "count": "{n} 次"
+  },
+  "news": {
+    "title": "最新動態",
+    "subtitle": "追蹤客語語料庫的最新消息與活動",
+    "tabs": {
+      "latest": "最新消息",
+      "realtime": "即時新聞",
+      "procurement": "採購訊息",
+      "newsletter": "電子報"
+    },
+    "moreNews": "更多消息",
+    "items": [
+      { "id": 1, "type": "latest", "title": "客家委員會「推展海內外客家事務交流合作活動補助要點」115年度受理公告", "date": "115-02-24" },
+      { "id": 2, "type": "realtime", "title": "舌尖上的客家記憶 越南客家會歡慶天穿日", "date": "115-03-31" },
+      { "id": 3, "type": "procurement", "title": "「客家影像故事」徵件倒數至4/30 總獎金 310 萬元等你來挑戰", "date": "115-03-30" },
+      { "id": 4, "type": "newsletter", "title": "模里西斯中華校友暨青年會慶祝天穿日 傳承文化美", "date": "115-03-30" }
+    ]
+  },
+  "stats": {
+    "title": "統計趨勢化呈現",
+    "subtitle": "按類別、文體、主題分類，依不同維度呈現關聯變化",
+    "statCards": {
+      "dictCount": "詞條數",
+      "coocCount": "共現詞組",
+      "pinyinCount": "拼音索引",
+      "todayQueries": "今日查詢"
+    },
+    "showWhat": {
+      "label": "呈現：",
+      "dialect": "腔調分布",
+      "genre": "文體分布",
+      "topic": "主題分布"
+    },
+    "dimension": {
+      "label": "維度：",
+      "overall": "整體",
+      "byGenre": "按文體",
+      "byTopic": "按主題",
+      "byTime": "按時間"
+    },
+    "chartTitle": {
+      "dialect": "腔調分布",
+      "genre": "文體分布",
+      "topic": "主題分布"
+    },
+    "mockBadge": "模擬資料，待語料標注後替換",
+    "realData": "各腔調拼音索引數量（真實資料）",
+    "mockHint": "選擇不同維度觀察語料數據的變化趨勢"
+  },
+  "pageLayout": {
+    "corpusSearch": "語料檢索",
+    "wordSketch": "Word Sketch",
+    "visualization": "視覺化",
+    "multimedia": "多媒體整合",
+    "aiAssistant": "AI 助手",
+    "adminPanel": "管理後台",
+    "backHome": "回首頁",
+    "copyright": "客家委員會 版權所有"
+  },
+  "footer": {
+    "about": "關於語料庫",
+    "contact": "聯絡方式",
+    "privacy": "隱私政策",
+    "copyright": "客家委員會 版權所有 © Hakka Affairs Council. All Rights Reserved.",
+    "address": "242030 新北市新莊區中平路439號北棟17樓 | (02) 8995-6988",
+    "description": "臺灣客語語料庫由客家委員會委託國立政治大學建置維護，保存六腔客語語言資產。",
+    "siteTitle": "臺灣客語語料庫",
+    "siteSubtitle": "Taiwan Hakka Corpus",
+    "executingUnit": "執行單位：國立政治大學臺灣客語語料庫團隊",
+    "guidingUnit": "指導單位：中華民國客家委員會",
+    "links": {
+      "privacy": "隱私權保護",
+      "security": "資訊安全",
+      "feedback": "意見信箱",
+      "rights": "權利聲明"
+    },
+    "sections": {
+      "corpusSystem": {
+        "title": "語料庫系統",
+        "links": {
+          "search": "語料檢索系統",
+          "segmentation": "客語斷詞標注",
+          "analysis": "客語詞彙剖析"
+        }
+      },
+      "languageResources": {
+        "title": "語言資源",
+        "links": {
+          "featured": "特色詞彙"
+        }
+      },
+      "aboutUs": {
+        "title": "關於我們",
+        "links": {
+          "news": "最新消息",
+          "guide": "使用說明",
+          "team": "研究團隊"
+        }
+      }
+    },
+    "backToTop": "回到頂部"
+  },
+  "theme": {
+    "title": "主題風格",
+    "dialectLabel": "腔調配色",
+    "fontLabel": "字型風格",
+    "traditional": "傳統楷體",
+    "modern": "現代黑體",
+    "playful": "活潑圓體",
+    "darkMode": "深色模式",
+    "dialects": {
+      "sixian": "四縣腔",
+      "hailu": "海陸腔",
+      "dapu": "大埔腔",
+      "raoping": "饒平腔",
+      "zhaoan": "詔安腔",
+      "sihai": "南四縣腔"
+    }
+  },
+  "common": {
+    "loading": "載入中...",
+    "error": "載入失敗",
+    "retry": "重試",
+    "refresh": "重新整理",
+    "viewMore": "查看更多",
+    "close": "關閉"
+  },
+  "map": {
+    "clickToInteract": "點擊地圖以進行互動",
+    "dialectDistribution": "腔調分佈",
+    "clickMarker": "點擊 marker 跳至腔調探索",
+    "switchedTo": "已切換至「腔調探索」→ 查看代表詞",
+    "resetView": "重新定位",
+    "population": "約 {n} 人",
+    "showAll": "顯示全部"
+  },
+  "dialectMap": {
+    "title": "腔調地圖",
+    "subtitle": "探索客語六腔的地理分佈"
+  }
+}

@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useCallback } from 'react'
 import type { CoocItem } from '@/lib/api'
+import { Button } from '@/components/ui/button'
+import { Plus, Minus, LocateFixed } from 'lucide-react'
 
 // Lazy-load echarts to avoid SSR issues
 let echartsModule: typeof import('echarts') | null = null
@@ -206,38 +208,33 @@ export function ForceGraph({ keyword, data, maxItems, metric, nodeMinSize, nodeM
 
       {/* Zoom controls */}
       <div className="absolute top-3 right-3 z-10 flex flex-col gap-0">
-        <button
+        <Button
+          variant="outline"
+          size="icon"
           onClick={() => handleZoom(1.3)}
           title="放大"
-          className="w-9 h-9 border border-gray-300 bg-white rounded-t-md flex items-center justify-center shadow-sm hover:bg-gray-100 transition-colors"
+          className="w-9 h-9 rounded-t-md rounded-b-none border-b-0 shadow-sm"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-        </button>
-        <button
+          <Plus className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
           onClick={() => handleZoom(0.7)}
           title="縮小"
-          className="w-9 h-9 border border-gray-300 border-t-0 bg-white flex items-center justify-center hover:bg-gray-100 transition-colors"
+          className="w-9 h-9 rounded-none border-b-0"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-        </button>
-        <button
+          <Minus className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
           onClick={handleReset}
           title="重新定位"
-          className="w-9 h-9 border border-gray-300 border-t-0 bg-white rounded-b-md flex items-center justify-center hover:bg-gray-100 transition-colors"
+          className="w-9 h-9 rounded-b-md rounded-t-none"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="2" x2="12" y2="6" />
-            <line x1="12" y1="18" x2="12" y2="22" />
-            <line x1="2" y1="12" x2="6" y2="12" />
-            <line x1="18" y1="12" x2="22" y2="12" />
-          </svg>
-        </button>
+          <LocateFixed className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Loading state */}

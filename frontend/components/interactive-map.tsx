@@ -4,21 +4,14 @@ import { useEffect, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Tooltip, useMap, ZoomControl } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { MousePointer2 } from 'lucide-react'
-import { DIALECTS, Dialect } from '@/lib/types'
+import { RotateCcw } from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
+import { DIALECTS, type Dialect } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { DIALECT_BG } from '@/lib/colors'
+import { DIALECT_DISTRIBUTION } from '@/lib/data/dialect-regions'
 
-const DIALECT_COLORS: Record<string, string> = {
-  sixian: 'bg-[#009688]',
-  hailu: 'bg-[#4CAF50]',
-  dapu: 'bg-[#E91E63]',
-  raoping: 'bg-[#FF9800]',
-  zhaoan: 'bg-[#3F51B5]',
-  sihai: 'bg-[#03A9F4]',
-}
-
-// 修正 Leaflet 標記顏色與立體感
-const createCustomIcon = (colorClass: string, isSelected: boolean) => {
+const createCustomIcon = (colorClass: string, _isSelected: boolean) => {
   return L.divIcon({
     className: 'custom-leaflet-icon',
     html: `
@@ -31,64 +24,14 @@ const createCustomIcon = (colorClass: string, isSelected: boolean) => {
   })
 }
 
-// 定義腔調分佈與具體縣市（含 tooltip 方向避免重疊）
-type TipDir = 'left' | 'right' | 'top' | 'bottom'
-interface DialectLocation { coords: [number, number]; label: string; tipDir: TipDir }
-const DIALECT_DISTRIBUTION: Record<Dialect, { locations: DialectLocation[]; color: string }> = {
-  sixian: {
-    locations: [
-      { coords: [24.56, 120.82], label: '苗栗', tipDir: 'left' },
-      { coords: [22.65, 120.52], label: '屏東六堆', tipDir: 'left' },
-      { coords: [23.15, 121.15], label: '臺東縱谷', tipDir: 'right' },
-      { coords: [24.95, 121.22], label: '桃園中壢', tipDir: 'right' },
-    ],
-    color: 'bg-[#009688]',
-  },
-  hailu: {
-    locations: [
-      { coords: [24.81, 121.05], label: '新竹', tipDir: 'right' },
-      { coords: [24.93, 121.08], label: '桃園新屋', tipDir: 'top' },
-      { coords: [23.85, 121.50], label: '花蓮鳳林', tipDir: 'right' },
-    ],
-    color: 'bg-[#4CAF50]',
-  },
-  dapu: {
-    locations: [
-      { coords: [24.26, 120.83], label: '東勢', tipDir: 'left' },
-      { coords: [24.40, 120.75], label: '卓蘭', tipDir: 'left' },
-    ],
-    color: 'bg-[#E91E63]',
-  },
-  raoping: {
-    locations: [
-      { coords: [24.87, 121.02], label: '竹北', tipDir: 'left' },
-      { coords: [24.03, 120.54], label: '員林', tipDir: 'left' },
-    ],
-    color: 'bg-[#FF9800]',
-  },
-  zhaoan: {
-    locations: [
-      { coords: [23.77, 120.35], label: '崙背', tipDir: 'left' },
-    ],
-    color: 'bg-[#3F51B5]',
-  },
-  sihai: {
-    locations: [
-      { coords: [25.05, 121.25], label: '桃園', tipDir: 'right' },
-      { coords: [23.40, 121.40], label: '花蓮玉里', tipDir: 'right' },
-    ],
-    color: 'bg-[#03A9F4]',
-  },
-}
-
-function ResetButton({ center, zoom }: { center: [number, number]; zoom: number }) {
+function ResetButton({ center, zoom, title }: { center: [number, number]; zoom: number; title: string }) {
   const map = useMap()
   return (
     <div className="leaflet-top leaflet-left" style={{ top: 80 }}>
       <div className="leaflet-control leaflet-bar">
         <button
           onClick={() => map.setView(center, zoom)}
-          title="重新定位"
+          title={title}
           className="flex items-center justify-center cursor-pointer"
           style={{ width: 32, height: 32, backgroundColor: 'white', border: 'none' }}
         >
@@ -105,19 +48,14 @@ function ResetButton({ center, zoom }: { center: [number, number]; zoom: number 
   )
 }
 
-function MapInitializer({ enabled }: { enabled: boolean }) {
+function MapInitializer() {
   const map = useMap()
-  
+
   useEffect(() => {
     if (!map) return
-    if (enabled) {
-      map.scrollWheelZoom.enable()
-      map.dragging.enable()
-    } else {
-      map.scrollWheelZoom.disable()
-      map.dragging.disable()
-    }
-  }, [map, enabled])
+    map.dragging.enable()
+    map.scrollWheelZoom.disable()
+  }, [map])
 
   useEffect(() => {
     if (!map) return
@@ -138,15 +76,17 @@ function MapInitializer({ enabled }: { enabled: boolean }) {
 
 interface InteractiveMapProps {
   selectedDialects: Set<string>
-  onDialectToggle: (id: string) => void
+  onMarkerClick?: (dialectId: string, label: string) => void
+  onShowAll?: () => void
+  showLegend?: boolean
 }
 
-export default function InteractiveMap({ selectedDialects, onDialectToggle }: InteractiveMapProps) {
+export default function InteractiveMap({ selectedDialects, onMarkerClick, onShowAll, showLegend = true }: InteractiveMapProps) {
+  const t = useTranslations('map')
+  const locale = useLocale()
   const [isMounted, setIsMounted] = useState(false)
   const [mapReady, setMapReady] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [isInteractionEnabled, setIsInteractionEnabled] = useState(false)
-
   useEffect(() => {
     setIsMounted(true)
     const checkMobile = () => setIsMobile(window.innerWidth < 1024)
@@ -163,9 +103,6 @@ export default function InteractiveMap({ selectedDialects, onDialectToggle }: In
   return (
     <div
       className="h-full w-full overflow-hidden relative group cursor-default z-0"
-      onClick={() => {
-        if (!isInteractionEnabled) setIsInteractionEnabled(true)
-      }}
     >
       <style>{`
         .leaflet-container {
@@ -216,16 +153,8 @@ export default function InteractiveMap({ selectedDialects, onDialectToggle }: In
         }
       `}</style>
       
-      {!isInteractionEnabled && (
-        <div className="absolute inset-0 z-10 bg-black/5 flex items-center justify-center cursor-pointer group-hover:bg-black/8 transition-colors duration-200">
-          <div className="bg-white/95 backdrop-blur-sm px-5 py-2.5 rounded-full shadow-lg ring-1 ring-black/5 flex items-center gap-2.5 animate-in fade-in zoom-in-95 duration-500">
-            <MousePointer2 className="h-4 w-4 text-hakka-light-brown animate-bounce" />
-            <span className="text-sm font-semibold text-hakka-light-brown">點擊地圖以進行互動</span>
-          </div>
-        </div>
-      )}
 
-      <MapContainer 
+<MapContainer 
         key={isMobile ? 'mobile' : 'desktop'}
         center={taiwanCenter} 
         zoom={defaultZoom} 
@@ -235,9 +164,9 @@ export default function InteractiveMap({ selectedDialects, onDialectToggle }: In
         zoomControl={false}
         whenReady={() => setMapReady(true)}
       >
-        <MapInitializer enabled={isInteractionEnabled} />
+        <MapInitializer />
         <ZoomControl position="topleft" />
-        <ResetButton center={taiwanCenter} zoom={defaultZoom} />
+        <ResetButton center={taiwanCenter} zoom={defaultZoom} title={t('resetView')} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
@@ -248,16 +177,16 @@ export default function InteractiveMap({ selectedDialects, onDialectToggle }: In
           if (!dist) return null
           if (!selectedDialects.has(d.id)) return null
 
-          return dist.locations.map((loc, idx) => (
+          return dist.locations.map((loc, idx) => {
+            const displayLabel = locale === 'en' ? loc.labelEn : loc.label
+            return (
             <Marker
               key={`${d.id}-${idx}`}
               position={loc.coords}
               icon={createCustomIcon(dist.color, true)}
               eventHandlers={{
                 click: () => {
-                  if (isInteractionEnabled) {
-                    onDialectToggle(d.id)
-                  }
+                  onMarkerClick?.(d.id, displayLabel)
                 },
               }}
             >
@@ -269,42 +198,56 @@ export default function InteractiveMap({ selectedDialects, onDialectToggle }: In
               >
                 <div className="flex items-center gap-1">
                   <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dist.color}`} />
-                  <span className="font-bold text-[11px] text-foreground leading-none whitespace-nowrap">{loc.label}</span>
+                  <span className="font-bold text-[11px] text-foreground leading-none whitespace-nowrap">{displayLabel}</span>
                 </div>
               </Tooltip>
             </Marker>
-          ))
+            )
+          })
         })}
       </MapContainer>
       
-      {/* 腔調選擇面板 */}
-      <div className="absolute bottom-4 right-4 z-10 bg-white/95 backdrop-blur-sm rounded-xl shadow-md ring-1 ring-black/5 p-3">
-        <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2 px-2">腔調分佈</div>
-        <div className="space-y-0.5">
-          {DIALECTS.map((d) => {
-            const isActive = selectedDialects.has(d.id)
-            return (
-              <button
-                key={d.id}
-                onClick={() => onDialectToggle(d.id)}
-                className={cn(
-                  'flex items-center gap-2 w-full text-left text-xs px-2 py-1.5 rounded-lg font-medium transition-all',
-                  isActive
-                    ? 'bg-primary/8 text-gray-800'
-                    : 'bg-transparent text-gray-400 hover:bg-gray-50 hover:text-gray-600'
-                )}
-              >
-                <span className={cn(
-                  'w-2.5 h-2.5 rounded-full shrink-0 transition-opacity',
-                  DIALECT_COLORS[d.id],
-                  !isActive && 'opacity-40'
-                )} />
-                {d.name}
-              </button>
-            )
-          })}
+      {showLegend && (
+        <div className="absolute bottom-4 right-4 z-10 bg-white/95 backdrop-blur-sm rounded-xl shadow-md ring-1 ring-black/5 p-3">
+          <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2 px-2">{t('dialectDistribution')}</div>
+          {selectedDialects.size < DIALECTS.length && (
+            <button
+              onClick={onShowAll}
+              className="flex items-center gap-2 w-full text-left text-xs px-2 py-1.5 rounded-lg font-medium bg-primary/8 hover:bg-primary/15 text-primary mb-1"
+            >
+              <RotateCcw className="w-3 h-3" />
+              {t('showAll')}
+            </button>
+          )}
+          <div className="space-y-0.5">
+            {DIALECTS.map((d) => {
+              const isActive = selectedDialects.has(d.id)
+              return (
+                <button
+                  key={d.id}
+                  onClick={() => onMarkerClick?.(d.id, locale === 'en' ? d.nameEn : d.name)}
+                  className={cn(
+                    'flex items-center gap-2 w-full text-left text-xs px-2 py-1.5 rounded-lg font-medium transition-all',
+                    isActive
+                      ? 'bg-primary/8 text-gray-800'
+                      : 'bg-transparent text-gray-400 hover:bg-gray-50 hover:text-gray-600'
+                  )}
+                >
+                  <span className={cn(
+                    'w-2.5 h-2.5 rounded-full shrink-0 transition-opacity',
+                    DIALECT_BG[d.id],
+                    !isActive && 'opacity-40'
+                  )} />
+                  {locale === 'en' ? d.nameEn : d.name}
+                </button>
+              )
+            })}
+          </div>
+          <div className="mt-2 pt-2 border-t border-gray-200/60 text-[10px] text-gray-500 leading-snug px-1">
+            {t('clickMarker')}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
