@@ -127,22 +127,6 @@ export function FestivalCarousel({ status }: Props) {
       </div>
 
       {/* Dots */}
-      <div className="flex justify-center gap-1.5">
-        {sorted.map((f, i) => (
-          <button
-            key={f.slug}
-            type="button"
-            onClick={() => emblaApi?.scrollTo(i)}
-            aria-label={t('jumpToFestival', { name: f.name })}
-            className={cn(
-              'h-1.5 rounded-full transition-all',
-              i === selectedIndex
-                ? 'w-6 bg-primary'
-                : 'w-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/50'
-            )}
-          />
-        ))}
-      </div>
     </div>
   )
 }

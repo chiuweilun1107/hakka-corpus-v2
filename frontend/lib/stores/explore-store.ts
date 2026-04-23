@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { Dialect } from '@/lib/types'
 
-export type HubTab = 'today' | 'quote' | 'festival'
+export type HubTab = 'today' | 'quote' | 'trending'
 
 interface ExploreState {
   activeDialect: Dialect

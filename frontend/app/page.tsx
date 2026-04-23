@@ -3,7 +3,7 @@
 import { Header } from '@/components/header'
 import { HeroSection } from '@/components/hero-section'
 import { DialectMapSection } from '@/components/dialect-map-section'
-import { CultureHub } from '@/components/culture-hub'
+import { FestivalSection } from '@/components/festival-section'
 import { SpeakerProfile } from '@/components/speaker-profile'
 import { TrendingSection } from '@/components/trending-section'
 import { StatsSection } from '@/components/stats-section'
@@ -15,9 +15,9 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
+        <FestivalSection />
         <HeroSection />
         <DialectMapSection />
-        <CultureHub />
         <SpeakerProfile />
         <TrendingSection />
         <StatsSection />

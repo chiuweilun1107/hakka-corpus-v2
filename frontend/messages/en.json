@@ -130,6 +130,7 @@
     "tabs": {
       "today": "Word of the Day",
       "quote": "Daily Proverb",
+      "trending": "Trending",
       "festival": "Seasonal Festivals"
     }
   },
@@ -237,10 +238,30 @@
     },
     "moreNews": "More News",
     "items": [
-      { "id": 1, "type": "latest", "title": "Hakka Affairs Council — 2026 guidelines for overseas Hakka exchange-program subsidies now open", "date": "2026-02-24" },
-      { "id": 2, "type": "realtime", "title": "Hakka tastes, Hakka memory: Vietnam Hakka Association celebrates Tianchuan Day", "date": "2026-03-31" },
-      { "id": 3, "type": "procurement", "title": "\"Hakka Visual Stories\" call for entries closes April 30 — NT$3.1M prize pool", "date": "2026-03-30" },
-      { "id": 4, "type": "newsletter", "title": "Mauritius Chinese Alumni & Youth Association marks Tianchuan Day, passing on Hakka culture", "date": "2026-03-30" }
+      {
+        "id": 1,
+        "type": "latest",
+        "title": "Hakka Affairs Council — 2026 guidelines for overseas Hakka exchange-program subsidies now open",
+        "date": "2026-02-24"
+      },
+      {
+        "id": 2,
+        "type": "realtime",
+        "title": "Hakka tastes, Hakka memory: Vietnam Hakka Association celebrates Tianchuan Day",
+        "date": "2026-03-31"
+      },
+      {
+        "id": 3,
+        "type": "procurement",
+        "title": "\"Hakka Visual Stories\" call for entries closes April 30 — NT$3.1M prize pool",
+        "date": "2026-03-30"
+      },
+      {
+        "id": 4,
+        "type": "newsletter",
+        "title": "Mauritius Chinese Alumni & Youth Association marks Tianchuan Day, passing on Hakka culture",
+        "date": "2026-03-30"
+      }
     ]
   },
   "stats": {

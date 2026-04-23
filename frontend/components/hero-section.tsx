@@ -16,6 +16,7 @@ import { fetchPinyinRecommend, type PinyinRecommendResponse } from '@/lib/api'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 import { HakkaLabel } from '@/components/ui/hakka-label'
+import { CultureHub } from '@/components/culture-hub'
 
 
 export function HeroSection() {
@@ -37,9 +38,6 @@ export function HeroSection() {
 
   return (
     <>
-      {/* Spacer for fixed header (mobile only) */}
-      <div className="h-16 lg:hidden" />
-
       {/* === MOBILE + TABLET (<1024px) === */}
       <section className="lg:hidden bg-hakka-light-brown px-5 sm:px-8 pt-6 pb-10">
         <SearchPanel
@@ -53,20 +51,29 @@ export function HeroSection() {
         />
       </section>
 
-      {/* === DESKTOP (>=1024px): 全幅置中 === */}
-      <section className="hidden lg:flex flex-col bg-hakka-light-brown" style={{ minHeight: '100svh' }}>
-        <div className="h-16 flex-shrink-0" />
-        <div className="flex-1 flex items-center justify-center px-12 py-12">
-          <div className="w-full max-w-xl xl:max-w-2xl">
-            <SearchPanel
-              searchMode={searchMode} setSearchMode={setSearchMode}
-              searchQuery={searchQuery} setSearchQuery={setSearchQuery}
-              searchQuery2={searchQuery2} setSearchQuery2={setSearchQuery2}
-              distance={distance} setDistance={setDistance}
-              corpusType={corpusType} setCorpusType={setCorpusType}
-              onSearch={handleSearch}
-              descText={t('searchForm.hint')}
-            />
+      {/* === DESKTOP (>=1024px): 左右兩欄分色 === */}
+      <section className="hidden lg:block">
+        <div className="container mx-auto px-4 max-w-6xl py-8">
+          <div className="grid grid-cols-[420px_1fr] xl:grid-cols-[480px_1fr] rounded-2xl overflow-hidden shadow-sm ring-1 ring-black/5">
+            {/* Left column: search on deep brown */}
+            <div className="bg-hakka-light-brown flex items-start px-10 xl:px-14 py-12">
+              <div className="w-full">
+                <SearchPanel
+                  searchMode={searchMode} setSearchMode={setSearchMode}
+                  searchQuery={searchQuery} setSearchQuery={setSearchQuery}
+                  searchQuery2={searchQuery2} setSearchQuery2={setSearchQuery2}
+                  distance={distance} setDistance={setDistance}
+                  corpusType={corpusType} setCorpusType={setCorpusType}
+                  onSearch={handleSearch}
+                  descText={t('searchForm.hint')}
+                />
+              </div>
+            </div>
+
+            {/* Right column: CultureHub (inline, no section wrapper) */}
+            <div className="bg-background overflow-y-auto no-scrollbar px-10 xl:px-16 py-12">
+              <CultureHub inline />
+            </div>
           </div>
         </div>
       </section>
@@ -176,7 +183,6 @@ function SearchPanel({
         <div ref={searchRef} className="relative">
         <form className="space-y-3" onSubmit={onSearch}>
           {searchMode === 'simple' ? (
-            /* Search input + corpus type merged into one row */
             <div className="flex items-center bg-white rounded-xl shadow-md ring-1 ring-black/5">
               <Search className="h-4 w-4 text-hakka-light-brown/70 shrink-0 ml-4" />
               <Input
@@ -259,84 +265,6 @@ function SearchPanel({
         </div>
       </div>
 
-      {/* Stats + Trending + Suggestions (outside the card) */}
-      <HeroPanelExtras onSearch={(q) => { setSearchQuery(q); }} />
     </div>
-  )
-}
-
-/* === 搜尋面板下方的統計、熱門查詢、推薦 === */
-function HeroPanelExtras({ onSearch }: { onSearch: (q: string) => void }) {
-  const t = useTranslations('hero')
-  const [stats, setStats] = useState<{ dict_count: number; cooc_count: number; pinyin_count: number } | null>(null)
-  const [trending, setTrending] = useState<Array<{ word: string; count: number }>>([])
-
-  useEffect(() => {
-    fetch('/api/v1/stats/overview').then(r => r.json()).then(setStats).catch(() => {})
-    fetch('/api/v1/stats/trending?period=monthly&limit=6').then(r => r.json())
-      .then(d => setTrending(d?.items ?? []))
-      .catch(() => {})
-  }, [])
-
-  const suggestions = t.raw('popularSearch.items') as string[]
-
-  return (
-    <>
-      {/* Mini stats */}
-      {stats && (
-        <div className="mt-6 pt-5 border-t border-white/15">
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { value: stats.dict_count ?? 0, label: t('popularSearch.labels.entry') },
-              { value: stats.cooc_count ?? 0, label: t('popularSearch.labels.coword') },
-              { value: stats.pinyin_count ?? 0, label: t('popularSearch.labels.pinyin') },
-            ].map(({ value, label }) => (
-              <div key={label} className="bg-white/8 rounded-lg px-3 py-2 text-center">
-                <div className="text-white/90 text-base font-extrabold tabular-nums leading-none">{(value ?? 0).toLocaleString()}</div>
-                <div className="text-white/45 text-[11px] mt-0.5">{label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Trending */}
-      {trending.length > 0 && (
-        <div className="mt-5">
-          <div className="text-[11px] font-semibold text-white/40 uppercase tracking-wider mb-2">{t('popularSearch.title')}</div>
-          <div className="flex flex-wrap gap-1.5">
-            {trending.map(item => (
-              <Button
-                key={item.word}
-                variant="ghost"
-                size="sm"
-                onClick={() => { onSearch(item.word); window.location.href = `/sketch?q=${encodeURIComponent(item.word)}` }}
-                className="px-2.5 py-1 h-auto rounded-lg bg-white/10 text-white/80 text-xs font-medium hover:bg-white/20 hover:text-white"
-              >
-                {item.word}
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Suggestions */}
-      <div className="mt-4">
-        <div className="text-[11px] font-semibold text-white/40 uppercase tracking-wider mb-2">{t('popularSearch.trySuggestions')}</div>
-        <div className="flex flex-wrap gap-1.5">
-          {suggestions.map(s => (
-            <Button
-              key={s}
-              variant="ghost"
-              size="sm"
-              onClick={() => { onSearch(s); window.location.href = `/sketch?q=${encodeURIComponent(s)}` }}
-              className="px-2.5 py-1 h-auto rounded-lg border border-white/15 text-white/60 text-xs font-medium hover:bg-white/10 hover:text-white/90"
-            >
-              {s}
-            </Button>
-          ))}
-        </div>
-      </div>
-    </>
   )
 }
