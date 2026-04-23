@@ -5,7 +5,6 @@ import { HeroSection } from '@/components/hero-section'
 import { DialectMapSection } from '@/components/dialect-map-section'
 import { FestivalSection } from '@/components/festival-section'
 import { SpeakerProfile } from '@/components/speaker-profile'
-import { TrendingSection } from '@/components/trending-section'
 import { StatsSection } from '@/components/stats-section'
 import { NewsSection } from '@/components/news-section'
 import { Footer } from '@/components/footer'
@@ -19,7 +18,6 @@ export default function HomePage() {
         <HeroSection />
         <DialectMapSection />
         <SpeakerProfile />
-        <TrendingSection />
         <StatsSection />
         <NewsSection />
       </main>

@@ -8,7 +8,6 @@ import { cn } from '@/lib/utils'
 import { Logo } from '@/components/logo'
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { useTranslations } from 'next-intl'
-import { HakkaLabel } from '@/components/ui/hakka-label'
 
 interface NavItem {
   name: string
@@ -84,7 +83,7 @@ function Dropdown({ item }: { item: NavItem }) {
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1 px-3 py-1.5 h-auto text-sm font-medium text-foreground/80 hover:text-primary"
       >
-        <HakkaLabel text={item.name} />
+        {item.name}
         <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")} />
       </Button>
       {open && (
@@ -99,7 +98,7 @@ function Dropdown({ item }: { item: NavItem }) {
                 className="flex items-center justify-between px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-primary transition-colors"
                 onClick={() => setOpen(false)}
               >
-                <HakkaLabel text={child.name} />
+                {child.name}
                 <ExternalLink className="h-3 w-3 text-muted-foreground" />
               </a>
             ) : (
@@ -109,7 +108,7 @@ function Dropdown({ item }: { item: NavItem }) {
                 className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted hover:text-primary transition-colors"
                 onClick={() => setOpen(false)}
               >
-                <HakkaLabel text={child.name} />
+                {child.name}
               </Link>
             )
           ))}
@@ -166,7 +165,7 @@ export function Header() {
                 rel="noopener noreferrer"
                 className="px-3 py-1.5 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
               >
-                <HakkaLabel text={item.name} />
+                {item.name}
               </a>
             ) : (
               <Link
@@ -174,7 +173,7 @@ export function Header() {
                 href={item.href || '/'}
                 className="px-3 py-1.5 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
               >
-                <HakkaLabel text={item.name} />
+                {item.name}
               </Link>
             )
           )}
@@ -185,7 +184,7 @@ export function Header() {
           <LanguageSwitcher />
           <Button className="hidden md:flex rounded-full px-5 h-9 text-sm shadow-md hover:shadow-lg transition-all bg-primary hover:bg-primary/90">
             <User className="h-4 w-4 mr-1.5" />
-            <HakkaLabel text={t('login')} />
+            {t('login')}
           </Button>
 
           <Button
@@ -212,7 +211,7 @@ export function Header() {
             <div key={item.name}>
               {item.children ? (
                 <>
-                  <div className="px-3 py-2 text-sm font-bold text-foreground"><HakkaLabel text={item.name} /></div>
+                  <div className="px-3 py-2 text-sm font-bold text-foreground">{item.name}</div>
                   {item.children.map((child) => (
                     child.external ? (
                       <a
@@ -223,7 +222,7 @@ export function Header() {
                         className="flex items-center justify-between px-6 py-2 text-sm text-muted-foreground hover:text-primary"
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        <HakkaLabel text={child.name} />
+                        {child.name}
                         <ExternalLink className="h-3 w-3" />
                       </a>
                     ) : (
@@ -233,7 +232,7 @@ export function Header() {
                         className="block px-6 py-2 text-sm text-muted-foreground hover:text-primary"
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        <HakkaLabel text={child.name} />
+                        {child.name}
                       </Link>
                     )
                   ))}
@@ -247,7 +246,7 @@ export function Header() {
                     className="block px-3 py-2 text-sm font-bold text-foreground hover:text-primary"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <HakkaLabel text={item.name} />
+                    {item.name}
                   </a>
                 ) : (
                   <Link
@@ -255,14 +254,14 @@ export function Header() {
                     className="block px-3 py-2 text-sm font-bold text-foreground hover:text-primary"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <HakkaLabel text={item.name} />
+                    {item.name}
                   </Link>
                 )
               )}
             </div>
           ))}
           <div className="pt-3 mt-2 border-t border-border">
-            <Button className="w-full rounded-full bg-primary hover:bg-primary/90"><HakkaLabel text={t('login')} /></Button>
+            <Button className="w-full rounded-full bg-primary hover:bg-primary/90">{t('login')}</Button>
           </div>
         </nav>
       </div>

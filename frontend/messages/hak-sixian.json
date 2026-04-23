@@ -23,20 +23,20 @@
     ]
   },
   "nav": {
-    "login": "登入 (denˊ ngib)",
+    "login": "登入",
     "skipToContent": "跳去主要內容",
-    "corpus": "語料庫 (ngiˊ liau ku)",
-    "dict": "辭典 (ciiˇ dienˋ)",
-    "search": "尋 (qimˇ)",
+    "corpus": "語料庫",
+    "dict": "辭典",
+    "search": "尋",
     "about": "關於",
-    "tools": "傢伙 (gaˊ foˋ)",
-    "home": "頭擺 (thèu-pái)",
+    "tools": "傢伙",
+    "home": "頭擺",
     "categories": {
       "corpusSearch": {
-        "label": "語料尋 (ngiˊ liau qimˇ)",
+        "label": "語料尋",
         "children": {
-          "cooccurrence": "共現詞尋 (kiung hien ciiˇ qimˇ)",
-          "wordSketch": "詞彙剖析 (Word Sketch)",
+          "cooccurrence": "共現詞尋",
+          "wordSketch": "詞彙剖析",
           "visualization": "共現詞視覺化",
           "multimedia": "多媒體整合"
         }
@@ -45,7 +45,7 @@
         "label": "語言資源",
         "children": {
           "corpus": "文本語料庫（AI 分析）",
-          "coreVocabulary": "基礎詞彙尋 (giˊ cu ciiˇ fi qimˇ)",
+          "coreVocabulary": "基礎詞彙尋",
           "gradedVocabulary": "詞語分級標準詞彙",
           "semiAffix": "（類）詞綴表",
           "coverage": "覆蓋率統計"
@@ -60,7 +60,7 @@
         }
       },
       "news": {
-        "label": "最新个消息 (zui xinˊ ge seuˊ xidˋ)"
+        "label": "最新个消息"
       },
       "about": {
         "label": "關於",

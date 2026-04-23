@@ -578,7 +578,7 @@ export function StatsSection() {
   }, [dimension, t])
 
   return (
-    <section className="py-20 bg-muted/30 relative overflow-hidden">
+    <section className="py-20 bg-background border-t border-border/20 relative overflow-hidden">
       <div className="container mx-auto px-4 max-w-6xl relative z-10">
         <SectionHeader title={t('title')} subtitle={t('subtitle')} />
 

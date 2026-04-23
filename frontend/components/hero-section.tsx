@@ -52,8 +52,8 @@ export function HeroSection() {
       </section>
 
       {/* === DESKTOP (>=1024px): 左右兩欄分色 === */}
-      <section className="hidden lg:block">
-        <div className="container mx-auto px-4 max-w-6xl py-8">
+      <section className="hidden lg:block bg-muted/30 border-t border-border/20">
+        <div className="container mx-auto px-4 max-w-6xl py-12">
           <div className="grid grid-cols-[420px_1fr] xl:grid-cols-[480px_1fr] rounded-2xl overflow-hidden shadow-sm ring-1 ring-black/5">
             {/* Left column: search on deep brown */}
             <div className="bg-hakka-light-brown flex items-start px-10 xl:px-14 py-12">

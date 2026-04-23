@@ -40,7 +40,7 @@ export function DialectMapSection() {
   const handleShowAll = () => setShowAllOnMap(true)
 
   return (
-    <section id="dialect-map" className="py-20 scroll-mt-20">
+    <section id="dialect-map" className="py-20 bg-background border-t border-border/20 scroll-mt-20">
       <div className="container mx-auto px-4 max-w-6xl">
         <SectionHeader title={t('title')} subtitle={t('subtitle')} />
 

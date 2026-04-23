@@ -10,7 +10,7 @@ export function SpeakerProfile() {
   const t = useTranslations('speaker')
 
   return (
-    <section className="py-20 bg-muted/30">
+    <section className="py-20 bg-muted/30 border-t border-border/20">
       <div className="container mx-auto px-4 max-w-3xl">
         <SectionHeader title={t('title')} subtitle={t('subtitle')} />
 
