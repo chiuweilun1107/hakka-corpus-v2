@@ -170,10 +170,7 @@ function MediaContent() {
           </p>
           {q ? (
             loadingImg ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                <span className="ml-2 text-sm text-muted-foreground">搜尋圖片中...</span>
-              </div>
+              <LoadingState message="搜尋圖片中..." />
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {coocImages.map((item) => (
@@ -232,10 +229,7 @@ function MediaContent() {
           </p>
           {q ? (
             loadingYT ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                <span className="ml-2 text-sm text-muted-foreground">搜尋影片中...</span>
-              </div>
+              <LoadingState message="搜尋影片中..." />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {coocVideos.map((item) => (
@@ -329,17 +323,7 @@ function MediaContent() {
           )}
         </section>
 
-        {/* Data sources */}
-        <div className="py-4 border-t border-border flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          <span className="font-semibold text-foreground">資料來源：</span>
-          <a href="https://www.moedict.tw/" target="_blank" rel="noopener noreferrer" className="hover:text-primary flex items-center gap-1">
-            萌典 Moedict <ExternalLink className="h-3 w-3" />
-          </a>
-          <span>|</span>
-          <a href="https://corpus.hakka.gov.tw/" target="_blank" rel="noopener noreferrer" className="hover:text-primary flex items-center gap-1">
-            臺灣客語語料庫 <ExternalLink className="h-3 w-3" />
-          </a>
-        </div>
+        <DataSources />
       </div>
     </>
   )
@@ -347,11 +331,7 @@ function MediaContent() {
 
 export default function MediaPage() {
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    }>
+    <Suspense fallback={<LoadingState />}>
       <MediaContent />
     </Suspense>
   )

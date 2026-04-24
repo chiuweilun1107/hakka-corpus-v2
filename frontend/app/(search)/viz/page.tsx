@@ -3,7 +3,7 @@
 import { Suspense, useState, useEffect, useMemo, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { Loader2, Network, CircleDot, Download } from 'lucide-react'
+import { Network, CircleDot, Download } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
@@ -507,13 +507,7 @@ function ControlCard({ title, children }: { title?: string; children: React.Reac
 // ===== Page wrapper =====
 export default function VizPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingState />}>
       <VizContent />
     </Suspense>
   )
