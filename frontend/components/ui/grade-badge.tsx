@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
 const GRADE_STYLES: Record<string, string> = {
@@ -26,14 +27,21 @@ export function GradeBadge({ grade, className }: { grade: string; className?: st
 }
 
 export function InlineWordGrade({ word, grade }: { word: string; grade: string | null }) {
-  if (!grade) return <span className="text-foreground">{word}</span>
+  const href = `/cooccurrence?q=${encodeURIComponent(word)}`
+  if (!grade) {
+    return (
+      <Link href={href} className="text-foreground hover:text-primary transition-colors">
+        {word}
+      </Link>
+    )
+  }
   const style = GRADE_STYLES[grade] ?? 'bg-muted/50 text-muted-foreground border-border/40'
   return (
-    <span className="inline-flex items-baseline gap-0.5 group">
+    <Link href={href} className="inline-flex items-baseline gap-0.5 hover:opacity-80 transition-opacity">
       <span className="text-foreground">{word}</span>
       <span className={cn('text-[9px] px-1 py-px rounded border leading-none', style)}>
         {grade}
       </span>
-    </span>
+    </Link>
   )
 }
