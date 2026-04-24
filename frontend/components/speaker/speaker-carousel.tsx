@@ -87,7 +87,7 @@ export function SpeakerCarousel({ speakers }: SpeakerCarouselProps) {
           </div>
 
           {/* 計數器 */}
-          <span className="text-[11px] font-mono text-muted-foreground/50 tabular-nums w-8 text-center">
+          <span className="text-[11px] font-mono text-muted-foreground/50 tabular-nums whitespace-nowrap text-center">
             {selectedIndex + 1} / {speakers.length}
           </span>
 

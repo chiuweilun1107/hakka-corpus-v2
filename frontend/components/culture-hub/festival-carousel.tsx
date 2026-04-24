@@ -75,7 +75,7 @@ export function FestivalCarousel({ status }: Props) {
                   i !== selectedIndex && 'opacity-40'
                 )}
               >
-                <article className="relative overflow-hidden bg-muted rounded-2xl shadow-lg">
+                <article className="relative overflow-hidden bg-muted rounded-2xl">
                   {/* Hero image */}
                   <div className="relative aspect-[16/7] md:aspect-[21/9] w-full">
                     <Image
@@ -92,7 +92,7 @@ export function FestivalCarousel({ status }: Props) {
                     {/* Status badge */}
                     {(isToday || isUpcoming) && (
                       <span className={cn(
-                        'absolute top-4 right-4 text-[11px] font-bold text-white px-2.5 py-1 rounded-full shadow-md',
+                        'absolute top-4 right-4 text-[11px] font-bold text-white px-2.5 py-1 rounded-full',
                         isToday ? 'bg-primary' : 'bg-black/50 backdrop-blur-sm'
                       )}>
                         {isToday ? '今日節慶' : `還有 ${status.daysUntilUpcoming} 天`}

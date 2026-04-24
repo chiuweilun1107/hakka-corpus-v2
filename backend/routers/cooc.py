@@ -21,12 +21,14 @@ class SortField(str, Enum):
     logdice = "logdice"
     mi = "mi"
     freq = "freq"
+    word_freq = "word_freq"
 
 
 _SORT_MAP = {
     SortField.logdice: Cooccurrence.logdice.desc(),
     SortField.mi: Cooccurrence.mi_score.desc(),
     SortField.freq: Cooccurrence.co_count.desc(),
+    SortField.word_freq: Cooccurrence.word_freq.desc(),
 }
 
 
