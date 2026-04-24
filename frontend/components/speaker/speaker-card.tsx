@@ -1,13 +1,16 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import { Quote } from 'lucide-react'
 import { DIALECT_CHART_COLORS } from '@/lib/colors'
 import { StaticPortrait } from './static-portrait'
 import { AudioPlayer } from './audio-player'
+import { VideoModal } from './video-modal'
 import type { Speaker } from '@/hooks/use-speakers'
 
 export function SpeakerCard({ speaker }: { speaker: Speaker }) {
+  const [videoOpen, setVideoOpen] = useState(false)
   const accentColor = DIALECT_CHART_COLORS[speaker.dialect] ?? '#009688'
 
   const meta = [
@@ -16,10 +19,11 @@ export function SpeakerCard({ speaker }: { speaker: Speaker }) {
   ].filter(Boolean)
 
   return (
+    <>
     <div className="grid grid-cols-1 md:grid-cols-[42%_58%] md:aspect-video rounded-3xl overflow-hidden">
 
-      {/* ── 左欄：純圖片，無疊字無漸層 ── */}
-      <div className="relative aspect-[4/3] md:aspect-auto">
+      {/* ── 左欄：圖片 > 靜態畫面 ── */}
+      <div className="relative aspect-[4/3] md:aspect-auto bg-black">
         {speaker.portrait_url ? (
           <Image
             src={speaker.portrait_url}
@@ -118,8 +122,34 @@ export function SpeakerCard({ speaker }: { speaker: Speaker }) {
             />
           </div>
         </div>
+
+        {/* 影像按鈕（僅有影片者顯示） */}
+        {speaker.has_video && speaker.video_url && (
+          <div className="flex-shrink-0">
+            <button
+              onClick={() => setVideoOpen(true)}
+              className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 active:opacity-75"
+              style={{ background: accentColor }}
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                <polygon points="3,1 13,7 3,13" />
+              </svg>
+              觀看訪談影片
+            </button>
+          </div>
+        )}
       </div>
     </div>
+
+    {speaker.has_video && speaker.video_url && (
+      <VideoModal
+        videoUrl={speaker.video_url}
+        speakerName={speaker.name}
+        open={videoOpen}
+        onOpenChange={setVideoOpen}
+      />
+    )}
+    </>
   )
 }
 

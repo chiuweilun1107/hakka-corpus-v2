@@ -18,6 +18,7 @@ class SpeakerItem(BaseModel):
     audio_duration: int = 0
     media_timestamps: str = ""
     media_script:   str = ""
+    video_url:      str = ""
     has_video:      bool = False
     sort_order:     int = 0
 

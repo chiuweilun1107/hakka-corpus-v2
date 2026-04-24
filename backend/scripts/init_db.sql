@@ -157,6 +157,7 @@ CREATE TABLE IF NOT EXISTS speakers (
     portrait_url   TEXT NOT NULL DEFAULT '',
     audio_url      TEXT NOT NULL DEFAULT '',
     audio_duration INTEGER NOT NULL DEFAULT 0,
+    video_url      TEXT NOT NULL DEFAULT '',
     has_video      BOOLEAN NOT NULL DEFAULT false,
     sort_order     SMALLINT NOT NULL DEFAULT 0,
     is_active      BOOLEAN NOT NULL DEFAULT true,
