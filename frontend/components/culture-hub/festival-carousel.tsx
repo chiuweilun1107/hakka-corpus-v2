@@ -21,8 +21,8 @@ export function FestivalCarousel({ status }: Props) {
   const t = useTranslations('a11y')
   const sorted = getFestivalSortedByDate()
   const [emblaRef, emblaApi] = useEmblaCarousel(
-    { loop: true, align: 'center' },
-    [Autoplay({ delay: 5000, stopOnInteraction: true, stopOnMouseEnter: true })]
+    { loop: true, align: 'center', containScroll: false },
+    [Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true })]
   )
   const [selectedIndex, setSelectedIndex] = useState(0)
 
@@ -40,12 +40,24 @@ export function FestivalCarousel({ status }: Props) {
     return () => { emblaApi.off('select', onSelect) }
   }, [emblaApi, initialIdx])
 
+  // 分頁切到背景時暫停，切回來恢復
+  useEffect(() => {
+    if (!emblaApi) return
+    const autoplay = emblaApi.plugins().autoplay
+    if (!autoplay) return
+    const onVisibility = () => {
+      document.hidden ? autoplay.stop() : autoplay.play()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, [emblaApi])
+
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi])
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi])
 
   return (
     <div className="relative">
-      <div ref={emblaRef} className="overflow-hidden rounded-2xl shadow-lg">
+      <div ref={emblaRef} className="overflow-hidden">
         <div className="flex">
           {sorted.map((f, i) => {
             const dateStr = getFestivalSolarDate(f.slug)
@@ -56,8 +68,14 @@ export function FestivalCarousel({ status }: Props) {
             const isUpcoming = !isToday && status.upcoming?.slug === f.slug
 
             return (
-              <div key={f.slug} className="flex-[0_0_100%] min-w-0">
-                <article className="relative overflow-hidden bg-muted">
+              <div
+                key={f.slug}
+                className={cn(
+                  'flex-[0_0_92%] mx-3 transition-opacity duration-500',
+                  i !== selectedIndex && 'opacity-40'
+                )}
+              >
+                <article className="relative overflow-hidden bg-muted rounded-2xl shadow-lg">
                   {/* Hero image */}
                   <div className="relative aspect-[16/7] md:aspect-[21/9] w-full">
                     <Image
@@ -69,7 +87,7 @@ export function FestivalCarousel({ status }: Props) {
                       priority={i === initialIdx}
                     />
                     {/* Gradient overlay for text */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
 
                     {/* Status badge */}
                     {(isToday || isUpcoming) && (

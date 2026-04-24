@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Tabs, TabsContent } from '@/components/ui/tabs'
+import useEmblaCarousel from 'embla-carousel-react'
+import Autoplay from 'embla-carousel-autoplay'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useExploreStore } from '@/lib/stores/explore-store'
 import { fetchWordOfDay } from '@/lib/api'
@@ -13,6 +14,8 @@ import { TrendingPanel } from '@/components/culture-hub/trending-panel'
 import { useTranslations } from 'next-intl'
 import { SectionHeader } from '@/components/ui/section-header'
 import type { HubTab } from '@/lib/stores/explore-store'
+
+const TAB_ORDER: HubTab[] = ['today', 'quote', 'trending']
 
 const DB_LABEL_TO_DIALECT: Record<string, Dialect> = {
   '四縣': 'sixian',
@@ -28,10 +31,40 @@ export function CultureHub({ inline = false }: { inline?: boolean }) {
   const { setActiveDialect, setActiveWord, activeHubTab, setActiveHubTab } = useExploreStore()
   const [localTab, setLocalTab] = useState<HubTab>('today')
   const hubTab = activeHubTab ?? localTab
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { align: 'start', watchDrag: true, loop: true },
+    [Autoplay({ delay: 7000, stopOnInteraction: false, stopOnMouseEnter: true })]
+  )
+
   const setHubTab = (v: HubTab) => {
     setLocalTab(v)
     setActiveHubTab(v)
+    emblaApi?.scrollTo(TAB_ORDER.indexOf(v))
   }
+
+  useEffect(() => {
+    if (!emblaApi) return
+    const onSelect = () => {
+      const idx = emblaApi.selectedScrollSnap()
+      const tab = TAB_ORDER[idx]
+      setLocalTab(tab)
+      setActiveHubTab(tab)
+    }
+    emblaApi.on('select', onSelect)
+    return () => { emblaApi.off('select', onSelect) }
+  }, [emblaApi, setActiveHubTab])
+
+  // 分頁切到背景時暫停，切回來恢復
+  useEffect(() => {
+    if (!emblaApi) return
+    const autoplay = emblaApi.plugins().autoplay
+    if (!autoplay) return
+    const onVisibility = () => {
+      document.hidden ? autoplay.stop() : autoplay.play()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, [emblaApi])
   const [data, setData] = useState<WordOfDayData | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -57,36 +90,36 @@ export function CultureHub({ inline = false }: { inline?: boolean }) {
   const inner = (
     <>
       {!inline && <SectionHeader title={t('title')} subtitle={t('subtitle')} />}
-      <Tabs value={hubTab} onValueChange={(v) => setHubTab(v as HubTab)}>
-        <div className="flex justify-center mb-8">
-          <ToggleGroup
-            type="single"
-            value={hubTab}
-            onValueChange={(v) => { if (v) setHubTab(v as HubTab) }}
-            className="gap-1"
-          >
-            <ToggleGroupItem value="today" className="text-xs h-8 px-4 rounded-md font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground text-muted-foreground hover:text-foreground hover:bg-muted">{t('tabs.today')}</ToggleGroupItem>
-            <ToggleGroupItem value="quote" className="text-xs h-8 px-4 rounded-md font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground text-muted-foreground hover:text-foreground hover:bg-muted">{t('tabs.quote')}</ToggleGroupItem>
-            <ToggleGroupItem value="trending" className="text-xs h-8 px-4 rounded-md font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground text-muted-foreground hover:text-foreground hover:bg-muted">{t('tabs.trending')}</ToggleGroupItem>
-          </ToggleGroup>
+      <div className="flex justify-center border-b border-border/20 mb-8">
+        <ToggleGroup
+          type="single"
+          value={hubTab}
+          onValueChange={(v) => { if (v) setHubTab(v as HubTab) }}
+          className="gap-0"
+        >
+          <ToggleGroupItem value="today" className="pb-3 px-5 rounded-none border-b-2 -mb-px bg-transparent shadow-none font-medium text-sm data-[state=on]:border-primary data-[state=on]:text-foreground data-[state=on]:bg-transparent data-[state=on]:shadow-none text-muted-foreground hover:text-foreground transition-colors">{t('tabs.today')}</ToggleGroupItem>
+          <ToggleGroupItem value="quote" className="pb-3 px-5 rounded-none border-b-2 -mb-px bg-transparent shadow-none font-medium text-sm data-[state=on]:border-primary data-[state=on]:text-foreground data-[state=on]:bg-transparent data-[state=on]:shadow-none text-muted-foreground hover:text-foreground transition-colors">{t('tabs.quote')}</ToggleGroupItem>
+          <ToggleGroupItem value="trending" className="pb-3 px-5 rounded-none border-b-2 -mb-px bg-transparent shadow-none font-medium text-sm data-[state=on]:border-primary data-[state=on]:text-foreground data-[state=on]:bg-transparent data-[state=on]:shadow-none text-muted-foreground hover:text-foreground transition-colors">{t('tabs.trending')}</ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+
+      <div ref={emblaRef} className="overflow-hidden">
+        <div className="flex">
+          <div className="flex-[0_0_100%] min-w-0">
+            <ThemeWordHero
+              data={data}
+              loading={loading}
+              onRefresh={() => loadWordOfDay({ random: true })}
+            />
+          </div>
+          <div className="flex-[0_0_100%] min-w-0">
+            <DailyQuotePanel />
+          </div>
+          <div className="flex-[0_0_100%] min-w-0">
+            <TrendingPanel />
+          </div>
         </div>
-
-        <TabsContent value="today" className="mt-0">
-          <ThemeWordHero
-            data={data}
-            loading={loading}
-            onRefresh={() => loadWordOfDay({ random: true })}
-          />
-        </TabsContent>
-
-        <TabsContent value="quote" className="mt-0">
-          <DailyQuotePanel />
-        </TabsContent>
-
-        <TabsContent value="trending" className="mt-0">
-          <TrendingPanel />
-        </TabsContent>
-      </Tabs>
+      </div>
     </>
   )
 

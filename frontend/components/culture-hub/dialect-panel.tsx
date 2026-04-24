@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Volume2, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Volume2, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -12,12 +12,14 @@ import { DIALECT_BG } from '@/lib/colors'
 import { fetchDialectWords } from '@/lib/api'
 import type { DialectWord } from '@/lib/api'
 import { useTranslations } from 'next-intl'
+import { cn } from '@/lib/utils'
 
 export function DialectPanel() {
   const t = useTranslations('dialectPanel')
   const { activeDialect, setActiveDialect } = useExploreStore()
   const [words, setWords] = useState<DialectWord[]>([])
   const [loading, setLoading] = useState(false)
+  const [isWordsOpen, setIsWordsOpen] = useState(false)
 
   const currentIndex = DIALECTS.findIndex(d => d.id === activeDialect)
   const goPrev = () => {
@@ -30,6 +32,7 @@ export function DialectPanel() {
   }
 
   useEffect(() => {
+    setIsWordsOpen(false)
     let cancelled = false
     setLoading(true)
     fetchDialectWords(activeDialect, 12)
@@ -97,9 +100,25 @@ export function DialectPanel() {
 
                 {/* 代表詞彙 */}
                 <div>
-                  <p className="text-[11px] font-medium text-muted-foreground/50 tracking-widest uppercase mb-3">
+                  {/* Mobile: accordion toggle */}
+                  <button
+                    type="button"
+                    onClick={() => setIsWordsOpen(v => !v)}
+                    className="md:hidden w-full flex items-center justify-between mb-3 py-1"
+                  >
+                    <p className="text-[11px] font-medium text-muted-foreground/50 tracking-widest uppercase">
+                      {t('representativeWords')}
+                    </p>
+                    <ChevronDown
+                      size={14}
+                      className={cn('text-muted-foreground/40 transition-transform duration-200', isWordsOpen && 'rotate-180')}
+                    />
+                  </button>
+                  {/* Desktop: always visible label */}
+                  <p className="hidden md:block text-[11px] font-medium text-muted-foreground/50 tracking-widest uppercase mb-3">
                     {t('representativeWords')}
                   </p>
+                  <div className={cn('md:block', isWordsOpen ? 'block' : 'hidden')}>
                   {loading ? (
                     <div className="grid grid-cols-2 gap-2">
                       {Array.from({ length: 12 }).map((_, i) => (
@@ -138,6 +157,7 @@ export function DialectPanel() {
                       ))}
                     </div>
                   )}
+                  </div>
                 </div>
               </div>
             </TabsContent>

@@ -15,7 +15,7 @@ export function FestivalSection() {
   return (
     <section id="festival" className="bg-background scroll-mt-0">
       <div className="h-16" />
-      <div className="container mx-auto px-4 max-w-6xl pt-6 pb-14">
+      <div className="pt-6 pb-14">
         <FestivalCarousel status={festivalStatus} />
       </div>
     </section>

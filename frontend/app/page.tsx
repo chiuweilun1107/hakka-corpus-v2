@@ -1,7 +1,7 @@
 'use client'
 
 import { Header } from '@/components/header'
-import { HeroSection } from '@/components/hero-section'
+import { SearchSection } from '@/components/search-section'
 import { DialectMapSection } from '@/components/dialect-map-section'
 import { FestivalSection } from '@/components/festival-section'
 import { SpeakerProfile } from '@/components/speaker-profile'
@@ -14,7 +14,7 @@ export default function HomePage() {
       <Header />
       <main className="flex-1">
         <FestivalSection />
-        <HeroSection />
+        <SearchSection />
         <DialectMapSection />
         <SpeakerProfile />
         <StatsSection />

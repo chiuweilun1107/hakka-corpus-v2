@@ -18,8 +18,9 @@ import { useTranslations } from 'next-intl'
 import { HakkaLabel } from '@/components/ui/hakka-label'
 import { CultureHub } from '@/components/culture-hub'
 
+const QUICK_EXPLORE = ['美食', '節慶', '客家話', '山歌']
 
-export function HeroSection() {
+export function SearchSection() {
   const [searchMode, setSearchMode] = useState<'simple' | 'cooccurrence'>('simple')
   const [searchQuery, setSearchQuery] = useState('')
   const [searchQuery2, setSearchQuery2] = useState('美食')
@@ -66,12 +67,13 @@ export function HeroSection() {
                   corpusType={corpusType} setCorpusType={setCorpusType}
                   onSearch={handleSearch}
                   descText={t('searchForm.hint')}
+                  showQuickExplore
                 />
               </div>
             </div>
 
             {/* Right column: CultureHub (inline, no section wrapper) */}
-            <div className="bg-background overflow-y-auto no-scrollbar px-10 xl:px-16 py-12">
+            <div className="bg-hakka-warm-white overflow-y-auto no-scrollbar px-10 xl:px-16 py-12">
               <CultureHub inline />
             </div>
           </div>
@@ -95,6 +97,7 @@ interface SearchPanelProps {
   setCorpusType: (v: string) => void
   onSearch: (e: React.FormEvent) => void
   descText: string
+  showQuickExplore?: boolean
 }
 
 function SearchPanel({
@@ -105,6 +108,7 @@ function SearchPanel({
   corpusType, setCorpusType,
   onSearch,
   descText,
+  showQuickExplore = false,
 }: SearchPanelProps) {
   const t = useTranslations('hero')
   const [pinyinData, setPinyinData] = useState<PinyinRecommendResponse | null>(null)
@@ -263,6 +267,25 @@ function SearchPanel({
           </div>
         )}
         </div>
+
+        {/* Quick explore chips (desktop only) */}
+        {showQuickExplore && (
+          <div className="pt-5">
+            <p className="text-[11px] text-white/50 tracking-widest uppercase mb-2">快速探索</p>
+            <div className="flex flex-wrap gap-2">
+              {QUICK_EXPLORE.map((word) => (
+                <button
+                  key={word}
+                  type="button"
+                  onClick={() => { window.location.href = `/sketch?q=${encodeURIComponent(word)}` }}
+                  className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white text-xs transition-colors"
+                >
+                  {word}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
     </div>
