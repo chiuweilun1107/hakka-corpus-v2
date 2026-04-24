@@ -4,10 +4,10 @@ import { useCallback, useEffect, useState } from 'react'
 import { Volume2, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { DialectPillGroup } from '@/components/ui/dialect-pill'
 import { fetchRandomProverb, fetchProverbPinyinByDialect, fetchCertifiedVocabBatch } from '@/lib/api'
 import type { ProverbItem, PinyinByDialect } from '@/lib/api'
 import { useExploreStore } from '@/lib/stores/explore-store'
-import { DIALECT_CHART_COLORS } from '@/lib/colors'
 import { cn } from '@/lib/utils'
 import type { Dialect } from '@/lib/types'
 import { useTranslations } from 'next-intl'
@@ -20,15 +20,6 @@ const DB_LABEL_TO_DIALECT: Record<string, Dialect> = {
   '大埔': 'dapu',
   '饒平': 'raoping',
   '詔安': 'zhaoan',
-}
-
-const DB_LABEL_DISPLAY: Record<string, string> = {
-  '四縣': '四縣',
-  '南四縣': '四海',
-  '海陸': '海陸',
-  '大埔': '大埔',
-  '饒平': '饒平',
-  '詔安': '詔安',
 }
 
 export function DailyQuotePanel() {
@@ -171,31 +162,11 @@ export function DailyQuotePanel() {
       {/* 腔調 pills + 拼音（對齊 ThemeWordHero） */}
       {uniqueDialects.length > 0 && (
         <div className="relative space-y-2">
-          <div className="flex justify-center gap-1.5 flex-wrap">
-            {uniqueDialects.map((p) => {
-              const dialectCode = DB_LABEL_TO_DIALECT[p.dialect]
-              const isActive = dialectCode === activeDialect
-              return (
-                <button
-                  key={p.dialect}
-                  onClick={() => dialectCode && setActiveDialect(dialectCode)}
-                  className={cn(
-                    'flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all',
-                    isActive
-                      ? 'text-white shadow-sm'
-                      : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground'
-                  )}
-                  style={isActive ? { backgroundColor: DIALECT_CHART_COLORS[p.dialect] ?? '#666' } : undefined}
-                >
-                  <span
-                    className={cn('w-1.5 h-1.5 rounded-full flex-shrink-0', isActive ? 'bg-white/70' : '')}
-                    style={!isActive ? { backgroundColor: DIALECT_CHART_COLORS[p.dialect] ?? '#999' } : undefined}
-                  />
-                  {DB_LABEL_DISPLAY[p.dialect] ?? p.dialect}
-                </button>
-              )
-            })}
-          </div>
+          <DialectPillGroup
+            dialects={uniqueDialects.map(p => p.dialect)}
+            activeDialect={activeDialect}
+            onSelect={setActiveDialect}
+          />
           <div className="flex items-baseline justify-center gap-3">
             {activePinyin ? (
               <span className="text-sm md:text-base font-mono text-primary/80 tracking-wider break-all max-w-3xl">

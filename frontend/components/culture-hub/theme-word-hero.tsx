@@ -4,8 +4,8 @@ import { Volume2, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
+import { DialectPillGroup } from '@/components/ui/dialect-pill'
 import { useExploreStore } from '@/lib/stores/explore-store'
-import { DIALECT_CHART_COLORS } from '@/lib/colors'
 import type { WordOfDayData } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import type { Dialect } from '@/lib/types'
@@ -17,15 +17,6 @@ const DB_LABEL_TO_DIALECT: Record<string, Dialect> = {
   '大埔': 'dapu',
   '饒平': 'raoping',
   '詔安': 'zhaoan',
-}
-
-const DB_LABEL_DISPLAY: Record<string, string> = {
-  '四縣': '四縣',
-  '南四縣': '四海',
-  '海陸': '海陸',
-  '大埔': '大埔',
-  '饒平': '饒平',
-  '詔安': '詔安',
 }
 
 interface Props {
@@ -107,33 +98,11 @@ export function ThemeWordHero({ data, loading, onRefresh }: Props) {
 
       {/* 腔調選擇列 + 拼音 + 查詢連結（同一視覺群組） */}
       <div className="space-y-2">
-        {uniqueDialects.length > 0 && (
-          <div className="flex justify-center gap-1.5 flex-wrap">
-            {uniqueDialects.map((p) => {
-              const dialectCode = DB_LABEL_TO_DIALECT[p.dialect]
-              const isActive = dialectCode === activeDialect
-              return (
-                <button
-                  key={p.dialect}
-                  onClick={() => dialectCode && setActiveDialect(dialectCode)}
-                  className={cn(
-                    'flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all',
-                    isActive
-                      ? 'text-white shadow-sm'
-                      : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground'
-                  )}
-                  style={isActive ? { backgroundColor: DIALECT_CHART_COLORS[p.dialect] ?? '#666' } : undefined}
-                >
-                  <span
-                    className={cn('w-1.5 h-1.5 rounded-full flex-shrink-0', isActive ? 'bg-white/70' : '')}
-                    style={!isActive ? { backgroundColor: DIALECT_CHART_COLORS[p.dialect] ?? '#999' } : undefined}
-                  />
-                  {DB_LABEL_DISPLAY[p.dialect] ?? p.dialect}
-                </button>
-              )
-            })}
-          </div>
-        )}
+        <DialectPillGroup
+          dialects={uniqueDialects.map(p => p.dialect)}
+          activeDialect={activeDialect}
+          onSelect={setActiveDialect}
+        />
 
         {/* 拼音 + 深入查詢（同行，查詢為次要輔助連結） */}
         <div className="flex items-baseline justify-center gap-3">
