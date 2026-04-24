@@ -26,14 +26,14 @@ function CooccurrenceContent() {
     setLoading(true)
     setError('')
     try {
-      const data = await fetchCooc(q, sortKey, 50)
+      const data = await fetchCooc(q, 'logdice', 50)
       setCoocData(Array.isArray(data) ? data : (data?.results ?? []))
     } catch {
       setError('無法載入共現詞資料，請確認伺服器已啟動。')
     } finally {
       setLoading(false)
     }
-  }, [q, sortKey])
+  }, [q])
 
   useEffect(() => { loadData() }, [loadData])
 
