@@ -5,13 +5,14 @@ import Link from 'next/link'
 import { RefreshButton } from '@/components/ui/refresh-button'
 import { TtsButton } from '@/components/ui/tts-button'
 import { DialectPinyinSwitcher } from '@/components/ui/dialect-pinyin-switcher'
-import { fetchRandomProverb, fetchProverbPinyinByDialect, fetchCertifiedVocabBatch } from '@/lib/api'
+import { fetchRandomProverb, fetchProverbPinyinByDialect } from '@/lib/api'
 import type { ProverbItem, PinyinByDialect } from '@/lib/api'
 import { useExploreStore } from '@/lib/stores/explore-store'
-import { DB_LABEL_TO_DIALECT } from '@/lib/dialect'
+import { labelFromDialect } from '@/lib/dialect'
 import { useTranslations } from 'next-intl'
 import { CertifiedBadge, GradeBadge } from '@/components/ui/grade-badge'
-import { GRADE_ORDER, CJK_REGEX } from '@/lib/text'
+import { CJK_REGEX } from '@/lib/text'
+import { useVocabGrades } from '@/lib/hooks/use-vocab-grades'
 
 export function DailyQuotePanel() {
   const t = useTranslations('dailyQuote')
@@ -19,8 +20,11 @@ export function DailyQuotePanel() {
   const [quote, setQuote] = useState<ProverbItem | null>(null)
   const [pinyinByDialect, setPinyinByDialect] = useState<PinyinByDialect[]>([])
   const [loading, setLoading] = useState(false)
-  const [gradeMap, setGradeMap] = useState<Record<string, string | null>>({})
-  const [highestGrade, setHighestGrade] = useState<string | null>(null)
+
+  // vocab grade — cached via Zustand, shared with examples page
+  const quoteChars = quote ? [...quote.title].filter(c => CJK_REGEX.test(c)) : []
+  const dialectLabel = labelFromDialect(activeDialect)
+  const { gradeMap, highestGrade } = useVocabGrades(quoteChars, dialectLabel)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -45,29 +49,6 @@ export function DailyQuotePanel() {
   useEffect(() => {
     load()
   }, [load])
-
-  useEffect(() => {
-    if (!quote) return
-    const chars = [...quote.title].filter(c => CJK_REGEX.test(c))
-    if (chars.length === 0) return
-    const dialectLabel = Object.keys(DB_LABEL_TO_DIALECT).find(k => DB_LABEL_TO_DIALECT[k] === activeDialect)
-    fetchCertifiedVocabBatch(chars, dialectLabel)
-      .then(results => {
-        const map: Record<string, string | null> = {}
-        let top: string | null = null
-        results.forEach(r => {
-          map[r.word] = r.grade
-          if (r.grade) {
-            const idx = GRADE_ORDER.indexOf(r.grade as typeof GRADE_ORDER[number])
-            const topIdx = top ? GRADE_ORDER.indexOf(top as typeof GRADE_ORDER[number]) : 999
-            if (idx !== -1 && idx < topIdx) top = r.grade
-          }
-        })
-        setGradeMap(map)
-        setHighestGrade(top)
-      })
-      .catch(() => {})
-  }, [quote, activeDialect])
 
   if (loading && !quote) {
     return (

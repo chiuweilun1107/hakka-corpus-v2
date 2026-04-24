@@ -9,7 +9,6 @@ import { CertifiedBadge, GradeBadge, InlineWordGrade, TagPill } from '@/componen
 import {
   fetchProverbById,
   fetchProverbPinyinByDialect,
-  fetchCertifiedVocabBatch,
   fetchCorpusTexts,
 } from '@/lib/api'
 import type { ProverbItem, PinyinByDialect, CorpusTextSummary } from '@/lib/api'
@@ -21,7 +20,8 @@ import { LabeledDivider } from '@/components/ui/labeled-divider'
 import { BackLink } from '@/components/ui/back-link'
 import { SectionHeader } from '@/components/ui/section-header'
 import { PinyinText } from '@/components/ui/pinyin-text'
-import { GRADE_ORDER, getHighestGrade, CJK_REGEX } from '@/lib/text'
+import { CJK_REGEX } from '@/lib/text'
+import { useVocabGrades } from '@/lib/hooks/use-vocab-grades'
 
 export default function ExampleDetailPage() {
   const params = useParams()
@@ -30,11 +30,15 @@ export default function ExampleDetailPage() {
 
   const [proverb, setProverb] = useState<ProverbItem | null>(null)
   const [pinyinByDialect, setPinyinByDialect] = useState<PinyinByDialect[]>([])
-  const [gradeMap, setGradeMap] = useState<Record<string, string | null>>({})
-  const [gradeLoaded, setGradeLoaded] = useState(false)
   const [corpusItems, setCorpusItems] = useState<CorpusTextSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+
+  // vocab grade cache（shared across pages via Zustand store）
+  const titleChars = proverb ? [...proverb.title].filter(c => CJK_REGEX.test(c)) : []
+  const dialectLabel = activeDialect ? labelFromDialect(activeDialect) : undefined
+  const { gradeMap, highestGrade, loaded: gradeLoaded } = useVocabGrades(titleChars, dialectLabel)
+  const hasGrades = Object.values(gradeMap).some(v => v !== null)
 
   const load = useCallback(async () => {
     if (!id || isNaN(id)) return
@@ -60,29 +64,6 @@ export default function ExampleDetailPage() {
     load()
   }, [load])
 
-  // Fetch vocab grades after proverb loads
-  useEffect(() => {
-    if (!proverb) return
-    const chars = [...proverb.title].filter(c => CJK_REGEX.test(c))
-    if (chars.length === 0) {
-      setGradeLoaded(true)
-      return
-    }
-    const dialectLabel = activeDialect ? labelFromDialect(activeDialect) : undefined
-    fetchCertifiedVocabBatch(chars, dialectLabel)
-      .then(results => {
-        const map: Record<string, string | null> = {}
-        results.forEach(r => {
-          map[r.word] = r.grade
-        })
-        setGradeMap(map)
-        setGradeLoaded(true)
-      })
-      .catch(() => {
-        setGradeLoaded(true)
-      })
-  }, [proverb, activeDialect])
-
   // Fetch corpus texts related to this proverb
   useEffect(() => {
     if (!proverb) return
@@ -90,9 +71,6 @@ export default function ExampleDetailPage() {
       .then(r => setCorpusItems(r.items))
       .catch(() => setCorpusItems([]))
   }, [proverb])
-
-  const highestGrade = getHighestGrade(gradeMap)
-  const hasGrades = Object.values(gradeMap).some(v => v !== null)
 
   if (loading) {
     return (
@@ -124,8 +102,6 @@ export default function ExampleDetailPage() {
       </PageLayout>
     )
   }
-
-  const titleChars = [...proverb.title].filter(c => CJK_REGEX.test(c))
 
   return (
     <PageLayout>
