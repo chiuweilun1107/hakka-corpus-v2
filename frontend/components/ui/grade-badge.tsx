@@ -1,26 +1,30 @@
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
-const GRADE_STYLES: Record<string, string> = {
-  '基礎級': 'bg-slate-50 text-slate-600 border-slate-200',
-  '初級':   'bg-emerald-50 text-emerald-700 border-emerald-200',
-  '中級':   'bg-blue-50 text-blue-700 border-blue-200',
-  '中高級': 'bg-amber-50 text-amber-700 border-amber-200',
-  '高級':   'bg-rose-50 text-rose-700 border-rose-200',
+// Solid colors matching dialect pill "active" visual language
+const GRADE_COLORS: Record<string, string> = {
+  '基礎級': '#94a3b8',  // slate
+  '初級':   '#34d399',  // emerald
+  '中級':   '#60a5fa',  // blue
+  '中高級': '#fbbf24',  // amber
+  '高級':   '#f87171',  // rose
 }
+
+const PILL_BASE = 'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-white'
 
 export function CertifiedBadge({ className }: { className?: string }) {
   return (
-    <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border bg-emerald-50 text-emerald-700 border-emerald-200', className)}>
-      ✓ 客委會認證
+    <span className={cn(PILL_BASE, className)} style={{ backgroundColor: '#34d399' }}>
+      <span className="w-1.5 h-1.5 rounded-full bg-white/70 flex-shrink-0" />
+      客委會認證
     </span>
   )
 }
 
 export function GradeBadge({ grade, className }: { grade: string; className?: string }) {
-  const style = GRADE_STYLES[grade] ?? 'bg-muted/50 text-muted-foreground border-border/40'
+  const color = GRADE_COLORS[grade] ?? '#94a3b8'
   return (
-    <span className={cn('inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border', style, className)}>
+    <span className={cn(PILL_BASE, className)} style={{ backgroundColor: color }}>
       {grade}
     </span>
   )
@@ -28,20 +32,18 @@ export function GradeBadge({ grade, className }: { grade: string; className?: st
 
 export function InlineWordGrade({ word, grade }: { word: string; grade: string | null }) {
   const href = `/cooccurrence?q=${encodeURIComponent(word)}`
-  if (!grade) {
-    return (
-      <Link href={href} className="text-foreground hover:text-primary transition-colors">
-        {word}
-      </Link>
-    )
-  }
-  const style = GRADE_STYLES[grade] ?? 'bg-muted/50 text-muted-foreground border-border/40'
+  const color = grade ? (GRADE_COLORS[grade] ?? '#94a3b8') : undefined
   return (
-    <Link href={href} className="inline-flex items-baseline gap-0.5 hover:opacity-80 transition-opacity">
-      <span className="text-foreground">{word}</span>
-      <span className={cn('text-[9px] px-1 py-px rounded border leading-none', style)}>
-        {grade}
-      </span>
+    <Link href={href} className="inline-flex items-baseline gap-0.5 hover:opacity-75 transition-opacity">
+      <span className="text-foreground font-medium">{word}</span>
+      {grade && (
+        <span
+          className="text-[9px] px-1.5 py-px rounded-full text-white leading-none"
+          style={{ backgroundColor: color }}
+        >
+          {grade}
+        </span>
+      )}
     </Link>
   )
 }
