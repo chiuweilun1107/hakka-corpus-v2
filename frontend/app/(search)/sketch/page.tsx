@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { BookOpen, BarChart3, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { LoadingState } from '@/components/loading-state'
 import { EmptyState } from '@/components/empty-state'
@@ -72,8 +71,7 @@ function SketchContent() {
         {/* Title */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-              <BookOpen className="h-6 w-6 text-primary" />
+            <h1 className="text-2xl font-bold text-foreground">
               Word Sketch
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
@@ -81,28 +79,6 @@ function SketchContent() {
                 <>「<span className="font-semibold text-primary">{q}</span>」{sketchData ? '語法分類' : '共現詞列表'}</>
               ) : '輸入關鍵詞後顯示語法分類結果'}
             </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-muted-foreground" suppressHydrationWarning>Based on Sketch Engine methodology</span>
-            <Button
-              variant="default"
-              size="sm"
-              className="rounded-lg shadow-md"
-              disabled={!q}
-              asChild={!!q}
-            >
-              {q ? (
-                <Link href={`/viz?q=${encodeURIComponent(q)}`}>
-                  <BarChart3 className="h-4 w-4 mr-1.5" />
-                  視覺化呈現
-                </Link>
-              ) : (
-                <span>
-                  <BarChart3 className="h-4 w-4 mr-1.5" />
-                  視覺化呈現
-                </span>
-              )}
-            </Button>
           </div>
         </div>
 
