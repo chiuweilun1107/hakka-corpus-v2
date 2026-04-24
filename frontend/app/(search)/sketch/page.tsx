@@ -5,8 +5,6 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { BookOpen, BarChart3, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { PageLayout } from '@/components/page-layout'
-import { PageSearchBar } from '@/components/page-search-bar'
 import { LoadingState } from '@/components/loading-state'
 import { EmptyState } from '@/components/empty-state'
 import { DataSources } from '@/components/data-sources'
@@ -70,8 +68,6 @@ function SketchContent() {
 
   return (
     <>
-      <PageSearchBar defaultQuery={q} targetPath="/sketch" />
-
       <div className="container mx-auto px-4 py-6">
         {/* Title */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -249,10 +245,8 @@ function SketchContent() {
 
 export default function SketchPage() {
   return (
-    <PageLayout>
-      <Suspense fallback={<LoadingState />}>
-        <SketchContent />
-      </Suspense>
-    </PageLayout>
+    <Suspense fallback={<LoadingState />}>
+      <SketchContent />
+    </Suspense>
   )
 }

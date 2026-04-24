@@ -3,8 +3,6 @@
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Play, Image, Globe, ExternalLink, Loader2 } from 'lucide-react'
-import { PageLayout } from '@/components/page-layout'
-import { PageSearchBar } from '@/components/page-search-bar'
 import { fetchYoutube, fetchImages, fetchCooc, type CoocItem } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 
@@ -94,8 +92,6 @@ function MediaContent() {
 
   return (
     <>
-      <PageSearchBar defaultQuery={q} targetPath="/media" />
-
       <div className="container mx-auto px-4 py-6 space-y-8">
         {/* ===== Google 網頁搜尋 ===== */}
         <section>
@@ -341,14 +337,12 @@ function MediaContent() {
 
 export default function MediaPage() {
   return (
-    <PageLayout>
-      <Suspense fallback={
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      }>
-        <MediaContent />
-      </Suspense>
-    </PageLayout>
+    <Suspense fallback={
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <MediaContent />
+    </Suspense>
   )
 }

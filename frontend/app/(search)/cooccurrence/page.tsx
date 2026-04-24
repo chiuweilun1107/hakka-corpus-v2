@@ -6,8 +6,6 @@ import { Search, ArrowUpDown, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { PageLayout } from '@/components/page-layout'
-import { PageSearchBar } from '@/components/page-search-bar'
 import { LoadingState } from '@/components/loading-state'
 import { EmptyState } from '@/components/empty-state'
 import { DataSources } from '@/components/data-sources'
@@ -51,8 +49,6 @@ function CooccurrenceContent() {
 
   return (
     <>
-      <PageSearchBar defaultQuery={q} targetPath="/cooccurrence" />
-
       <div className="container mx-auto px-4 py-6">
         {/* Title + Sort */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -205,10 +201,8 @@ function CooccurrenceContent() {
 
 export default function CooccurrencePage() {
   return (
-    <PageLayout>
-      <Suspense fallback={<LoadingState />}>
-        <CooccurrenceContent />
-      </Suspense>
-    </PageLayout>
+    <Suspense fallback={<LoadingState />}>
+      <CooccurrenceContent />
+    </Suspense>
   )
 }

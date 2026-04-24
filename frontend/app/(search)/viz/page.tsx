@@ -4,8 +4,6 @@ import { Suspense, useState, useEffect, useMemo, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { Loader2, Network, CircleDot, Download } from 'lucide-react'
-import { PageLayout } from '@/components/page-layout'
-import { PageSearchBar } from '@/components/page-search-bar'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
@@ -169,8 +167,6 @@ function VizContent() {
 
   return (
     <>
-      <PageSearchBar defaultQuery={keyword} targetPath="/viz" />
-
       <div className="container mx-auto px-4 py-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           {/* Header */}
@@ -521,16 +517,14 @@ function ControlCard({ title, children }: { title?: string; children: React.Reac
 // ===== Page wrapper =====
 export default function VizPage() {
   return (
-    <PageLayout>
-      <Suspense
-        fallback={
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        }
-      >
-        <VizContent />
-      </Suspense>
-    </PageLayout>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      }
+    >
+      <VizContent />
+    </Suspense>
   )
 }

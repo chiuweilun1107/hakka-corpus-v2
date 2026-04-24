@@ -34,7 +34,7 @@ export function SearchSection() {
       toast.error(t('toast.emptyKeyword'))
       return
     }
-    window.location.href = `/sketch?q=${encodeURIComponent(searchQuery)}`
+    window.location.href = `/cooccurrence?q=${encodeURIComponent(searchQuery)}`
   }
 
   return (
@@ -277,7 +277,7 @@ function SearchPanel({
                 <button
                   key={word}
                   type="button"
-                  onClick={() => { window.location.href = `/sketch?q=${encodeURIComponent(word)}` }}
+                  onClick={() => { window.location.href = `/cooccurrence?q=${encodeURIComponent(word)}` }}
                   className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white text-xs transition-colors"
                 >
                   {word}
