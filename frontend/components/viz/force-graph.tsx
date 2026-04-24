@@ -89,11 +89,14 @@ export function ForceGraph({ keyword, data, maxItems, metric, nodeMinSize, nodeM
       lineStyle: Record<string, unknown>
     }
 
+    const w = chartRef.current.offsetWidth
+    const h = chartRef.current.offsetHeight
+
     const nodes: GraphNode[] = [{
       name: keyword,
       symbolSize: 60,
-      x: 300,
-      y: 280,
+      x: w / 2,
+      y: h / 2,
       itemStyle: { color: '#007278', shadowBlur: 20, shadowColor: 'rgba(0,114,120,0.4)' },
       label: { fontSize: 16, fontWeight: 'bold', color: '#fff' },
       fixed: true,
