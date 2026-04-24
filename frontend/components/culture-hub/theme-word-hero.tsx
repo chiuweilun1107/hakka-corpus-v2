@@ -1,6 +1,7 @@
 'use client'
 
-import { Volume2, RefreshCw, ExternalLink } from 'lucide-react'
+import { Volume2, RefreshCw } from 'lucide-react'
+import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { useExploreStore } from '@/lib/stores/explore-store'
@@ -76,9 +77,12 @@ export function ThemeWordHero({ data, loading, onRefresh }: Props) {
       {/* 主題詞（真正置中，按鈕絕對定位不影響對齊） */}
       <div className="flex justify-center">
         <div className="relative px-14">
-          <h3 className="text-6xl md:text-8xl font-bold text-primary tracking-tight leading-none">
+          <Link
+            href={`/sketch?q=${encodeURIComponent(data.entry.title)}`}
+            className="block text-6xl md:text-8xl font-bold text-primary tracking-tight leading-none hover:opacity-70 transition-opacity"
+          >
             {data.entry.title}
-          </h3>
+          </Link>
           <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-1.5">
             <Button
               size="icon" variant="ghost"
@@ -142,13 +146,6 @@ export function ThemeWordHero({ data, loading, onRefresh }: Props) {
               <span className="text-sm text-muted-foreground">{tQuote('selectDialect')}</span>
             )
           ) : null}
-          <a
-            href={`/sketch?q=${encodeURIComponent(data.entry.title)}`}
-            className="inline-flex items-center gap-0.5 text-xs text-muted-foreground/40 hover:text-primary transition-colors"
-          >
-            <ExternalLink size={10} />
-            {t('deepSearch')}
-          </a>
         </div>
       </div>
 
