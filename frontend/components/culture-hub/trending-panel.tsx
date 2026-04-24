@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Loader2 } from 'lucide-react'
 import { fetchTrending } from '@/lib/api'
 import type { TrendingItem } from '@/lib/api'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { useTranslations } from 'next-intl'
 
 type TimePeriod = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly'
@@ -78,22 +78,13 @@ export function TrendingPanel() {
   return (
     <div>
       <div className="flex justify-center mb-6">
-        <ToggleGroup
-          type="single"
+        <SegmentedControl
+          items={timePeriods.map((p) => ({ value: p.id, label: p.label }))}
           value={period}
-          onValueChange={(v) => { if (v) setPeriod(v as TimePeriod) }}
-          className="gap-1 flex-wrap"
-        >
-          {timePeriods.map((p) => (
-            <ToggleGroupItem
-              key={p.id}
-              value={p.id}
-              className="text-xs h-7 px-3 rounded-md font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground text-muted-foreground hover:text-foreground hover:bg-muted"
-            >
-              {p.label}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
+          onValueChange={(v) => setPeriod(v as TimePeriod)}
+          variant="primary"
+          size="sm"
+        />
       </div>
 
       {loading ? (

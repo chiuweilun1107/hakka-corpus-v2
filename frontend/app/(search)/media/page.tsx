@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { LoadingState } from '@/components/loading-state'
 import { DataSources } from '@/components/data-sources'
 import { PageHeader } from '@/components/page-header'
+import { ContentCard } from '@/components/ui/content-card'
 
 interface CoocImage {
   word: string
@@ -150,10 +151,10 @@ function MediaContent() {
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="bg-card rounded-xl border border-border/50 p-4 text-center">
+                <ContentCard key={i} variant="default" padding="sm" className="text-center">
                   <div className="w-10 h-10 rounded-full bg-muted/40 mx-auto mb-2" />
                   <div className="h-4 bg-muted/30 rounded w-16 mx-auto" />
-                </div>
+                </ContentCard>
               ))}
             </div>
           )}
@@ -179,7 +180,7 @@ function MediaContent() {
                     href={`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(item.query)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-card rounded-xl border border-border overflow-hidden hover:border-primary/50 hover:shadow-md transition-all group"
+                    className="bg-card rounded-xl border border-border/50 shadow-sm overflow-hidden hover:border-primary/50 hover:shadow-md transition-all group"
                   >
                     <div className="aspect-video bg-muted overflow-hidden">
                       {item.thumb ? (
@@ -206,13 +207,13 @@ function MediaContent() {
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="bg-card rounded-xl border border-border/50 overflow-hidden">
+                <ContentCard key={i} variant="default" padding="sm" className="overflow-hidden !p-0">
                   <div className="aspect-video bg-muted/30" />
                   <div className="p-3 space-y-2">
                     <div className="h-4 bg-muted/30 rounded w-3/4" />
                     <div className="h-3 bg-muted/20 rounded w-1/2" />
                   </div>
-                </div>
+                </ContentCard>
               ))}
             </div>
           )}
@@ -233,9 +234,11 @@ function MediaContent() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {coocVideos.map((item) => (
-                  <div
+                  <ContentCard
                     key={item.word}
-                    className="bg-card rounded-xl border border-border overflow-hidden hover:border-primary/50 hover:shadow-md transition-all"
+                    variant="default"
+                    padding="sm"
+                    className="overflow-hidden !p-0 hover:border-primary/50 hover:shadow-md transition-all"
                   >
                     {item.video ? (
                       <>
@@ -302,14 +305,14 @@ function MediaContent() {
                         </div>
                       </a>
                     )}
-                  </div>
+                  </ContentCard>
                 ))}
               </div>
             )
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="bg-card rounded-xl border border-border/50 overflow-hidden">
+                <ContentCard key={i} variant="default" padding="sm" className="overflow-hidden !p-0">
                   <div className="aspect-video bg-muted/30 flex items-center justify-center">
                     <Play className="h-8 w-8 text-muted-foreground/30" />
                   </div>
@@ -317,7 +320,7 @@ function MediaContent() {
                     <div className="h-4 bg-muted/30 rounded w-3/4" />
                     <div className="h-3 bg-muted/20 rounded w-1/2" />
                   </div>
-                </div>
+                </ContentCard>
               ))}
             </div>
           )}

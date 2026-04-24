@@ -1,12 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Volume2 } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { TtsButton } from '@/components/ui/tts-button'
 import { useExploreStore } from '@/lib/stores/explore-store'
 import { DIALECTS, type Dialect } from '@/lib/types'
 import { DIALECT_INFO } from '@/lib/data/dialects'
@@ -99,20 +98,13 @@ export function DialectExplorer() {
                                   <div className="text-xs text-muted-foreground mt-1 line-clamp-1">{w.definition}</div>
                                 )}
                               </div>
-                              <Button
-                                size="icon"
+                              <TtsButton
+                                text={w.word}
+                                size="sm"
                                 variant="ghost"
                                 className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity h-7 w-7"
                                 title={tWord('readAloud', { word: w.word })}
-                                onClick={() => {
-                                  const audio = new Audio(
-                                    `/api/v1/tts?text=${encodeURIComponent(w.word)}`
-                                  )
-                                  audio.play().catch(() => {})
-                                }}
-                              >
-                                <Volume2 size={14} />
-                              </Button>
+                              />
                             </CardContent>
                           </Card>
                         ))}

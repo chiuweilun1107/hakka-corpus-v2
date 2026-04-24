@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { Search, ArrowRightLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,11 +12,12 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { fetchPinyinRecommend, type PinyinRecommendResponse } from '@/lib/api'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 import { HakkaLabel } from '@/components/ui/hakka-label'
 import { CultureHub } from '@/components/culture-hub'
+import { usePinyinSuggest } from '@/lib/hooks/use-pinyin-suggest'
+import { PinyinSuggestPanel } from '@/components/ui/pinyin-suggest-panel'
 
 const QUICK_EXPLORE = ['美食', '節慶', '客家話', '山歌']
 
@@ -118,43 +119,8 @@ function SearchPanel({
   showQuickExplore = false,
 }: SearchPanelProps) {
   const t = useTranslations('hero')
-  const [pinyinData, setPinyinData] = useState<PinyinRecommendResponse | null>(null)
-  const [showPinyin, setShowPinyin] = useState(false)
-  const [pinyinQuery, setPinyinQuery] = useState('')
-  const isUserTyping = useRef(false)
-  const searchRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!pinyinQuery || !isUserTyping.current) { setPinyinData(null); return }
-    const timer = setTimeout(() => {
-      fetchPinyinRecommend(pinyinQuery)
-        .then((data) => {
-          if (data?.items?.length > 0) { setPinyinData(data); setShowPinyin(true) }
-          else setPinyinData(null)
-        })
-        .catch(() => setPinyinData(null))
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [pinyinQuery])
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setShowPinyin(false)
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  const dedupedItems = pinyinData?.items.reduce<typeof pinyinData.items>((acc, item) => {
-    const existing = acc.find(i => i.word === item.word)
-    if (existing) {
-      const seen = new Set(existing.dialects.map(d => d.dialect))
-      item.dialects.forEach(d => { if (!seen.has(d.dialect)) existing.dialects.push(d) })
-    } else {
-      acc.push({ ...item, dialects: [...item.dialects] })
-    }
-    return acc
-  }, []) ?? []
+  const [isTyping, setIsTyping] = useState(false)
+  const { dedupedItems, showPanel, containerRef } = usePinyinSuggest(searchQuery, isTyping)
 
   return (
     <div className="animate-in fade-in duration-500">
@@ -191,14 +157,14 @@ function SearchPanel({
           </TabsList>
         </Tabs>
 
-        <div ref={searchRef} className="relative">
+        <div ref={containerRef} className="relative">
         <form className="space-y-3" onSubmit={onSearch}>
           {searchMode === 'simple' ? (
             <div className="flex items-center bg-white rounded-xl shadow-md ring-1 ring-black/5">
               <Search className="h-4 w-4 text-hakka-light-brown/70 shrink-0 ml-4" />
               <Input
                 type="text" placeholder={t('searchForm.placeholder')}
-                value={searchQuery} onChange={(e) => { isUserTyping.current = true; setPinyinQuery(e.target.value); setSearchQuery(e.target.value) }}
+                value={searchQuery} onChange={(e) => { setIsTyping(true); setSearchQuery(e.target.value) }}
                 className="h-11 flex-1 border-0 bg-transparent text-sm text-gray-900 focus-visible:ring-0 px-3 placeholder:text-gray-400 font-medium"
               />
               <div className="h-6 w-px bg-gray-200 shrink-0" />
@@ -216,10 +182,10 @@ function SearchPanel({
             <div className="space-y-2">
               <div className="flex items-center bg-white rounded-xl shadow-md ring-1 ring-black/5">
                 <Search className="h-4 w-4 text-hakka-light-brown/70 shrink-0 ml-4" />
-                <Input placeholder={t('searchForm.coword1')} value={searchQuery} onChange={(e) => { isUserTyping.current = true; setPinyinQuery(e.target.value); setSearchQuery(e.target.value) }}
+                <Input placeholder={t('searchForm.coword1')} value={searchQuery} onChange={(e) => { setIsTyping(true); setSearchQuery(e.target.value) }}
                   className="h-11 flex-1 border-0 bg-transparent text-sm focus-visible:ring-0 px-3 placeholder:text-gray-400 font-medium" />
                 <div className="h-6 w-px bg-gray-200 shrink-0" />
-                <Input placeholder={t('searchForm.coword2')} value={searchQuery2} onChange={(e) => { isUserTyping.current = true; setPinyinQuery(e.target.value); setSearchQuery2(e.target.value) }}
+                <Input placeholder={t('searchForm.coword2')} value={searchQuery2} onChange={(e) => setSearchQuery2(e.target.value)}
                   className="h-11 flex-1 border-0 bg-transparent text-sm focus-visible:ring-0 px-3 placeholder:text-gray-400 font-medium" />
                 <div className="h-6 w-px bg-gray-200 shrink-0" />
                 <Select value={corpusType} onValueChange={setCorpusType}>
@@ -253,26 +219,7 @@ function SearchPanel({
         </form>
 
         {/* Pinyin dropdown */}
-        {showPinyin && dedupedItems.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg ring-1 ring-black/5 p-3 z-50">
-            <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">{t('pinyin.recommend')}</div>
-            <div className="space-y-2">
-              {dedupedItems.map((item) => (
-                <div key={item.word} className="space-y-1">
-                  <div className="text-sm font-bold text-foreground">{item.word}</div>
-                  <div className="flex flex-wrap gap-1">
-                    {item.dialects.map((d, di) => (
-                      <span key={`${d.dialect}-${di}`} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/5 text-xs">
-                        <span className="font-semibold text-primary">{d.dialect}</span>
-                        <span className="text-gray-500 font-mono">{d.pinyin_full}</span>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {showPanel && <PinyinSuggestPanel items={dedupedItems} />}
         </div>
 
         {/* Quick explore chips (desktop only) */}

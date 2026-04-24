@@ -8,6 +8,7 @@ import { LoadingState } from '@/components/loading-state'
 import { EmptyState } from '@/components/empty-state'
 import { DataSources } from '@/components/data-sources'
 import { PageHeader } from '@/components/page-header'
+import { ContentCard } from '@/components/ui/content-card'
 import { fetchCooc, type CoocItem } from '@/lib/api'
 
 type SortKey = 'logdice' | 'mi' | 'count' | 'freq'
@@ -91,7 +92,7 @@ function CooccurrenceContent() {
         {q && loading && <LoadingState />}
         {q && error && <EmptyState title={error} />}
 
-        <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+        <ContentCard variant="default" padding="sm" className="overflow-hidden !p-0">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -235,7 +236,7 @@ function CooccurrenceContent() {
               </div>
             )}
           </div>
-        </div>
+        </ContentCard>
 
         <DataSources />
       </div>

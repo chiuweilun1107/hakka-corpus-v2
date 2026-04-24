@@ -3,24 +3,7 @@
 import { cn } from '@/lib/utils'
 import { DIALECT_CHART_COLORS } from '@/lib/colors'
 import type { Dialect } from '@/lib/types'
-
-const DB_LABEL_TO_DIALECT: Record<string, Dialect> = {
-  '四縣': 'sixian',
-  '南四縣': 'sihai',
-  '海陸': 'hailu',
-  '大埔': 'dapu',
-  '饒平': 'raoping',
-  '詔安': 'zhaoan',
-}
-
-const DB_LABEL_DISPLAY: Record<string, string> = {
-  '四縣': '四縣',
-  '南四縣': '四海',
-  '海陸': '海陸',
-  '大埔': '大埔',
-  '饒平': '饒平',
-  '詔安': '詔安',
-}
+import { DB_LABEL_TO_DIALECT, DIALECT_DISPLAY_LABEL } from '@/lib/dialect'
 
 interface DialectPillProps {
   dialect: string        // DB label e.g. '四縣'
@@ -45,7 +28,7 @@ export function DialectPill({ dialect, isActive, onClick }: DialectPillProps) {
         className={cn('w-1.5 h-1.5 rounded-full flex-shrink-0', isActive ? 'bg-white/70' : '')}
         style={!isActive ? { backgroundColor: color } : undefined}
       />
-      {DB_LABEL_DISPLAY[dialect] ?? dialect}
+      {DIALECT_DISPLAY_LABEL[dialect] ?? dialect}
     </button>
   )
 }

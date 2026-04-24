@@ -7,6 +7,7 @@ import { LoadingState } from '@/components/loading-state'
 import { EmptyState } from '@/components/empty-state'
 import { DataSources } from '@/components/data-sources'
 import { PageHeader } from '@/components/page-header'
+import { ContentCard } from '@/components/ui/content-card'
 import { fetchCooc, fetchDict, type CoocItem, type DictEntry } from '@/lib/api'
 
 const SKETCH_DATA_CACHE: Record<string, Record<string, string[]>> = {
@@ -78,7 +79,7 @@ function SketchContent() {
 
         {/* Dict info card */}
         {q && dictData && (
-          <div className="bg-card rounded-xl border border-border p-4 mb-6 shadow-sm">
+          <ContentCard variant="default" padding="sm" className="mb-6">
             <div className="flex items-start gap-3">
               <div className="flex-1">
                 <div className="text-lg font-bold text-foreground">{dictData.title}</div>
@@ -99,7 +100,7 @@ function SketchContent() {
                 萌典 Moedict
               </span>
             </div>
-          </div>
+          </ContentCard>
         )}
 
         {/* Loading */}
@@ -112,7 +113,7 @@ function SketchContent() {
         {!q && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {Object.entries(CAT_META).map(([cat, meta]) => (
-              <div key={cat} className="bg-card rounded-xl border border-border/50 shadow-sm overflow-hidden">
+              <ContentCard key={cat} variant="default" padding="sm" className="overflow-hidden !p-0">
                 <div className="px-4 py-3 border-b-2" style={{ borderBottomColor: meta.color }}>
                   <div className="font-bold text-sm" style={{ color: meta.color }}>{meta.label}</div>
                   <div className="text-xs text-muted-foreground">{meta.desc}</div>
@@ -125,7 +126,7 @@ function SketchContent() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </ContentCard>
             ))}
           </div>
         )}
@@ -136,7 +137,7 @@ function SketchContent() {
             {Object.entries(sketchData).map(([cat, words]) => {
               const meta = CAT_META[cat]
               return (
-                <div key={cat} className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+                <ContentCard key={cat} variant="default" padding="sm" className="overflow-hidden !p-0">
                   <div
                     className="px-4 py-3 border-b-2"
                     style={{ borderBottomColor: meta.color }}
@@ -160,7 +161,7 @@ function SketchContent() {
                       </Button>
                     ))}
                   </div>
-                </div>
+                </ContentCard>
               )
             })}
           </div>
@@ -173,7 +174,7 @@ function SketchContent() {
               const chunkSize = Math.ceil(coocData.length / 3)
               const chunk = coocData.slice(col * chunkSize, (col + 1) * chunkSize)
               return (
-                <div key={col} className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+                <ContentCard key={col} variant="default" padding="sm" className="overflow-hidden !p-0">
                   <div className="px-4 py-3 border-b-2 border-primary">
                     <div className="font-bold text-sm text-primary">共現詞 ({col + 1})</div>
                     <div className="text-xs text-muted-foreground">LogDice 排序</div>
@@ -192,7 +193,7 @@ function SketchContent() {
                       </Button>
                     ))}
                   </div>
-                </div>
+                </ContentCard>
               )
             })}
           </div>

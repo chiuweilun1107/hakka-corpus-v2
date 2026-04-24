@@ -1,14 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Volume2, ExternalLink, RefreshCw } from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { RefreshButton } from '@/components/ui/refresh-button'
+import { TtsButton } from '@/components/ui/tts-button'
+import { CoocWordCloud } from '@/components/ui/cooc-word-cloud'
 import { fetchWordOfDay, fetchRandomDict } from '@/lib/api'
 import type { WordOfDayData } from '@/lib/api'
 import { DIALECT_CHART_COLORS } from '@/lib/colors'
 import { useTranslations } from 'next-intl'
 import { HakkaLabel } from '@/components/ui/hakka-label'
+import { PinyinText } from '@/components/ui/pinyin-text'
 
 // 腔調 DB label → 顯示名稱對照
 const DIALECT_LABEL_MAP: Record<string, string> = {
@@ -81,20 +85,12 @@ export function WordOfDay() {
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center gap-4">
                 <h3 className="text-5xl md:text-7xl font-bold text-primary">{data.entry.title}</h3>
-                <Button
-                  size="icon"
+                <TtsButton
+                  text={data.entry.title}
                   variant="outline"
-                  className="rounded-full h-12 w-12"
+                  size="lg"
                   title={t('readAloud', { word: data.entry.title })}
-                  onClick={() => {
-                    const audio = new Audio(
-                      `/api/v1/tts?text=${encodeURIComponent(data.entry.title)}`
-                    )
-                    audio.play().catch(() => {})
-                  }}
-                >
-                  <Volume2 size={20} />
-                </Button>
+                />
               </div>
 
               {/* 六腔拼音對照 */}
@@ -110,7 +106,7 @@ export function WordOfDay() {
                         style={{ backgroundColor: DIALECT_CHART_COLORS[p.dialect] ?? '#999' }}
                       />
                       <span className="text-xs text-muted-foreground">{DIALECT_LABEL_MAP[p.dialect] ?? p.dialect}</span>
-                      <span className="text-sm font-mono text-primary">{p.pinyin_full}</span>
+                      <PinyinText value={p.pinyin_full} size="sm" />
                     </div>
                   ))}
                 </div>
@@ -123,24 +119,7 @@ export function WordOfDay() {
                 <Card>
                   <CardContent className="pt-5">
                     <h4 className="font-semibold text-sm text-muted-foreground mb-3">{t('coocWords')}</h4>
-                    <div className="flex flex-wrap gap-2 items-baseline">
-                      {data.cooc_words.map((c) => {
-                        // logdice 越高字越大：最大 1.2rem，最小 0.7rem
-                        const maxLogdice = data.cooc_words[0]?.logdice ?? 1
-                        const ratio = maxLogdice > 0 ? c.logdice / maxLogdice : 0.5
-                        const fontSize = 0.7 + ratio * 0.5
-                        return (
-                          <a
-                            key={c.partner}
-                            href={`/cooccurrence?q=${encodeURIComponent(c.partner)}`}
-                            className="text-foreground/80 hover:text-primary transition-colors"
-                            style={{ fontSize: `${fontSize}rem` }}
-                          >
-                            {c.partner}
-                          </a>
-                        )
-                      })}
-                    </div>
+                    <CoocWordCloud items={data.cooc_words} />
                   </CardContent>
                 </Card>
               )}
@@ -166,9 +145,12 @@ export function WordOfDay() {
             {/* 操作列 */}
             <div className="flex flex-wrap justify-center gap-3">
               {!isRandom && (
-                <Button variant="outline" onClick={loadRandom} className="rounded-full gap-2">
-                  <RefreshCw size={15} /> <HakkaLabel text={t('randomBtn')} />
-                </Button>
+                <RefreshButton
+                  onClick={loadRandom}
+                  loading={loading}
+                  size="md"
+                  title={t('randomBtn')}
+                />
               )}
               {isRandom && (
                 <Button variant="outline" onClick={loadToday} className="rounded-full gap-2">

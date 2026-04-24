@@ -1,23 +1,14 @@
 'use client'
 
-import { Volume2, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { Button } from '@/components/ui/button'
-import { DialectPillGroup } from '@/components/ui/dialect-pill'
+import { TtsButton } from '@/components/ui/tts-button'
+import { RefreshButton } from '@/components/ui/refresh-button'
+import { DialectPinyinSwitcher } from '@/components/ui/dialect-pinyin-switcher'
+import { CoocWordCloud } from '@/components/ui/cooc-word-cloud'
 import { useExploreStore } from '@/lib/stores/explore-store'
 import type { WordOfDayData } from '@/lib/api'
 import { cn } from '@/lib/utils'
-import type { Dialect } from '@/lib/types'
-
-const DB_LABEL_TO_DIALECT: Record<string, Dialect> = {
-  '四縣': 'sixian',
-  '南四縣': 'sihai',
-  '海陸': 'hailu',
-  '大埔': 'dapu',
-  '饒平': 'raoping',
-  '詔安': 'zhaoan',
-}
 
 interface Props {
   data: WordOfDayData | null
@@ -37,10 +28,6 @@ export function ThemeWordHero({ data, loading, onRefresh }: Props) {
       )
     : []
 
-  const activePinyin = uniqueDialects.find(
-    p => DB_LABEL_TO_DIALECT[p.dialect] === activeDialect
-  )
-
   if (loading) {
     return (
       <div className="py-6 space-y-6">
@@ -58,7 +45,6 @@ export function ThemeWordHero({ data, loading, onRefresh }: Props) {
 
   const coocWords = data.cooc_words
   const proverbs = data.related_proverbs
-  const maxLogdice = coocWords[0]?.logdice ?? 1
 
   // 詞的第一條定義（供「今日選詞」標示詞義）
   const primaryDef = data.entry.heteronyms?.[0]?.definitions?.[0]
@@ -75,48 +61,28 @@ export function ThemeWordHero({ data, loading, onRefresh }: Props) {
             {data.entry.title}
           </Link>
           <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-1.5">
-            <Button
-              size="icon" variant="ghost"
-              className="rounded-full h-8 w-8 text-muted-foreground hover:text-foreground"
+            <TtsButton
+              text={data.entry.title}
+              size="sm"
+              variant="ghost"
               title={t('readAloud', { word: data.entry.title })}
-              onClick={() => {
-                new Audio(`/api/v1/tts?text=${encodeURIComponent(data.entry.title)}`).play().catch(() => {})
-              }}
-            >
-              <Volume2 size={14} />
-            </Button>
-            <Button
-              size="icon" variant="ghost"
-              className="rounded-full h-8 w-8 text-muted-foreground hover:text-foreground"
-              title={t('randomBtn')} onClick={onRefresh}
-            >
-              <RefreshCw size={14} />
-            </Button>
+            />
+            <RefreshButton
+              onClick={onRefresh}
+              title={t('randomBtn')}
+            />
           </div>
         </div>
       </div>
 
       {/* 腔調選擇列 + 拼音 + 查詢連結（同一視覺群組） */}
-      <div className="space-y-2">
-        <DialectPillGroup
-          dialects={uniqueDialects.map(p => p.dialect)}
-          activeDialect={activeDialect}
-          onSelect={setActiveDialect}
-        />
-
-        {/* 拼音 + 深入查詢（同行，查詢為次要輔助連結） */}
-        <div className="flex items-baseline justify-center gap-3">
-          {uniqueDialects.length > 0 ? (
-            activePinyin ? (
-              <span className="text-xl font-mono text-primary/80 tracking-widest">
-                {activePinyin.pinyin_full}
-              </span>
-            ) : (
-              <span className="text-sm text-muted-foreground">{tQuote('selectDialect')}</span>
-            )
-          ) : null}
-        </div>
-      </div>
+      <DialectPinyinSwitcher
+        pinyinByDialect={uniqueDialects}
+        activeDialect={activeDialect}
+        onSelect={setActiveDialect}
+        size="md"
+        emptyHint={tQuote('selectDialect')}
+      />
 
       {/* 詞義（詞性 + 釋義，一行精簡） */}
       {primaryDef && (
@@ -138,22 +104,7 @@ export function ThemeWordHero({ data, loading, onRefresh }: Props) {
           <p className="text-center text-[11px] font-medium text-muted-foreground/50 tracking-widest uppercase mb-2">
             {t('coocWords')}
           </p>
-          <div className="flex flex-wrap gap-2 items-baseline justify-center">
-            {coocWords.map((c) => {
-              const ratio = maxLogdice > 0 ? c.logdice / maxLogdice : 0.5
-              const fontSize = 0.7 + ratio * 0.5
-              return (
-                <a
-                  key={c.partner}
-                  href={`/cooccurrence?q=${encodeURIComponent(c.partner)}`}
-                  className="text-foreground/70 hover:text-primary transition-colors"
-                  style={{ fontSize: `${fontSize}rem` }}
-                >
-                  {c.partner}
-                </a>
-              )
-            })}
-          </div>
+          <CoocWordCloud items={coocWords} />
         </div>
       )}
 

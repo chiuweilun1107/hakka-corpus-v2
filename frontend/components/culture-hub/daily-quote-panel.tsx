@@ -1,26 +1,16 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { Volume2, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { DialectPillGroup } from '@/components/ui/dialect-pill'
+import { RefreshButton } from '@/components/ui/refresh-button'
+import { TtsButton } from '@/components/ui/tts-button'
+import { DialectPinyinSwitcher } from '@/components/ui/dialect-pinyin-switcher'
 import { fetchRandomProverb, fetchProverbPinyinByDialect, fetchCertifiedVocabBatch } from '@/lib/api'
 import type { ProverbItem, PinyinByDialect } from '@/lib/api'
 import { useExploreStore } from '@/lib/stores/explore-store'
-import { cn } from '@/lib/utils'
-import type { Dialect } from '@/lib/types'
+import { DB_LABEL_TO_DIALECT } from '@/lib/dialect'
 import { useTranslations } from 'next-intl'
 import { CertifiedBadge, GradeBadge } from '@/components/ui/grade-badge'
-
-const DB_LABEL_TO_DIALECT: Record<string, Dialect> = {
-  '四縣': 'sixian',
-  '南四縣': 'sihai',
-  '海陸': 'hailu',
-  '大埔': 'dapu',
-  '饒平': 'raoping',
-  '詔安': 'zhaoan',
-}
 
 export function DailyQuotePanel() {
   const t = useTranslations('dailyQuote')
@@ -97,15 +87,6 @@ export function DailyQuotePanel() {
     )
   }
 
-  // 去重：同一腔調只取第一筆
-  const uniqueDialects = Array.from(
-    new Map(pinyinByDialect.map((p) => [p.dialect, p])).values()
-  )
-
-  const activePinyin = uniqueDialects.find(
-    (p) => DB_LABEL_TO_DIALECT[p.dialect] === activeDialect
-  )
-
   return (
     <div className="relative overflow-hidden py-2 space-y-4">
       {/* 引號水印 */}
@@ -134,53 +115,32 @@ export function DailyQuotePanel() {
             {quote.title}
           </Link>
           <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-1.5">
-            <Button
-              size="icon"
+            <TtsButton
+              text={quote.title}
+              size="sm"
               variant="ghost"
-              className="rounded-full h-8 w-8 text-muted-foreground hover:text-foreground"
               title={t('readAloud', { text: quote.title })}
-              onClick={() => {
-                new Audio(`/api/v1/tts?text=${encodeURIComponent(quote.title)}`).play().catch(() => {})
-              }}
-            >
-              <Volume2 size={14} />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="rounded-full h-8 w-8 text-muted-foreground hover:text-foreground disabled:opacity-50"
-              title={t('refreshQuote')}
+            />
+            <RefreshButton
               onClick={load}
-              disabled={loading}
-            >
-              <RefreshCw size={14} className={cn(loading && 'animate-spin')} />
-            </Button>
+              loading={loading}
+              title={t('refreshQuote')}
+            />
           </div>
         </div>
       </div>
 
       {/* 腔調 pills + 拼音（對齊 ThemeWordHero） */}
-      {uniqueDialects.length > 0 && (
-        <div className="relative space-y-2">
-          <DialectPillGroup
-            dialects={uniqueDialects.map(p => p.dialect)}
-            activeDialect={activeDialect}
-            onSelect={setActiveDialect}
-          />
-          <div className="flex items-baseline justify-center gap-3">
-            {activePinyin ? (
-              <span className="text-sm md:text-base font-mono text-primary/80 tracking-wider break-all max-w-3xl">
-                {activePinyin.pinyin_full}
-              </span>
-            ) : (
-              <span className="text-sm text-muted-foreground">{t('selectDialect')}</span>
-            )}
-          </div>
-        </div>
-      )}
+      <DialectPinyinSwitcher
+        pinyinByDialect={pinyinByDialect}
+        activeDialect={activeDialect}
+        onSelect={setActiveDialect}
+        size="md"
+        emptyHint={t('selectDialect')}
+      />
 
       {/* Fallback：若多腔合成失敗，回退至單腔 pinyin */}
-      {uniqueDialects.length === 0 && quote.pinyin && (
+      {pinyinByDialect.length === 0 && quote.pinyin && (
         <p className="relative text-center text-base text-primary/80 font-mono tracking-widest">
           {quote.pinyin}
         </p>

@@ -7,7 +7,7 @@ import { Network, CircleDot, Download } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { fetchCooc, type CoocItem } from '@/lib/api'
 import { LoadingState } from '@/components/loading-state'
 import { DataSources } from '@/components/data-sources'
@@ -158,27 +158,16 @@ function VizContent() {
   }, [keyword])
 
   const viewToggle = (
-    <ToggleGroup
-      type="single"
+    <SegmentedControl
+      items={[
+        { value: 'network', label: '網路圖', icon: Network },
+        { value: 'bubble', label: '泡泡詞雲', icon: CircleDot },
+      ]}
       value={viewMode}
-      onValueChange={(v) => v && setViewMode(v as ViewMode)}
-      className="gap-0"
-    >
-      <ToggleGroupItem
-        value="network"
-        className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-l-md rounded-r-none border border-border data-[state=on]:bg-primary data-[state=on]:text-white data-[state=on]:border-primary data-[state=off]:bg-card data-[state=off]:text-muted-foreground data-[state=off]:hover:bg-muted/50"
-      >
-        <Network className="h-3.5 w-3.5" />
-        網路圖
-      </ToggleGroupItem>
-      <ToggleGroupItem
-        value="bubble"
-        className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-r-md rounded-l-none border border-l-0 border-border data-[state=on]:bg-primary data-[state=on]:text-white data-[state=on]:border-primary data-[state=off]:bg-card data-[state=off]:text-muted-foreground data-[state=off]:hover:bg-muted/50"
-      >
-        <CircleDot className="h-3.5 w-3.5" />
-        泡泡詞雲
-      </ToggleGroupItem>
-    </ToggleGroup>
+      onValueChange={(v) => setViewMode(v as ViewMode)}
+      variant="primary"
+      size="sm"
+    />
   )
 
   return (
@@ -317,25 +306,19 @@ function NetworkControls({
 
       {/* Metric toggle */}
       <ControlCard title="排序與連線依據">
-        <ToggleGroup
-          type="single"
-          value={metric}
-          onValueChange={(v) => v && setMetric(v as MetricType)}
-          className="gap-1 mt-1.5 w-full"
-        >
-          <ToggleGroupItem
-            value="logdice"
-            className="flex-1 py-1.5 h-auto text-xs font-semibold data-[state=on]:bg-primary data-[state=on]:text-white data-[state=off]:bg-card data-[state=off]:text-muted-foreground data-[state=off]:border data-[state=off]:border-border"
-          >
-            LogDice
-          </ToggleGroupItem>
-          <ToggleGroupItem
-            value="mi"
-            className="flex-1 py-1.5 h-auto text-xs font-semibold data-[state=on]:bg-primary data-[state=on]:text-white data-[state=off]:bg-card data-[state=off]:text-muted-foreground data-[state=off]:border data-[state=off]:border-border"
-          >
-            MI-score
-          </ToggleGroupItem>
-        </ToggleGroup>
+        <div className="mt-1.5">
+          <SegmentedControl
+            items={[
+              { value: 'logdice', label: 'LogDice' },
+              { value: 'mi', label: 'MI-score' },
+            ]}
+            value={metric}
+            onValueChange={(v) => setMetric(v as MetricType)}
+            variant="primary"
+            size="sm"
+            className="w-full"
+          />
+        </div>
         <p className="text-[11px] text-muted-foreground mt-1.5">切換後會重新排序共現詞</p>
       </ControlCard>
 

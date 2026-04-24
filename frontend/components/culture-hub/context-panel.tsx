@@ -1,10 +1,9 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { RefreshCw } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { Button } from '@/components/ui/button'
-import { fetchDailyQuote } from '@/lib/api'
+import { RefreshButton } from '@/components/ui/refresh-button'
+import { CoocWordCloud } from '@/components/ui/cooc-word-cloud'
+import { PinyinText } from '@/components/ui/pinyin-text'
 import type { WordOfDayData, DailyQuoteData } from '@/lib/api'
 
 interface Props {
@@ -23,8 +22,6 @@ export function ContextPanel({ data, fallbackQuote, onLoadFallback }: Props) {
 
   if (!hasCooc && !hasProverbs && !fallbackQuote) return null
 
-  const maxLogdice = coocWords[0]?.logdice ?? 1
-
   return (
     <div className="border-t border-dashed border-border/50 pt-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -34,22 +31,7 @@ export function ContextPanel({ data, fallbackQuote, onLoadFallback }: Props) {
             <h4 className="font-semibold text-sm text-muted-foreground mb-3">
               {tWord('coocWordsOf', { word: data!.entry.title })}
             </h4>
-            <div className="flex flex-wrap gap-2 items-baseline min-h-[4rem]">
-              {coocWords.map((c) => {
-                const ratio = maxLogdice > 0 ? c.logdice / maxLogdice : 0.5
-                const fontSize = 0.7 + ratio * 0.5
-                return (
-                  <a
-                    key={c.partner}
-                    href={`/cooccurrence?q=${encodeURIComponent(c.partner)}`}
-                    className="text-foreground/80 hover:text-primary transition-colors"
-                    style={{ fontSize: `${fontSize}rem` }}
-                  >
-                    {c.partner}
-                  </a>
-                )
-              })}
-            </div>
+            <CoocWordCloud items={coocWords} className="min-h-[4rem] justify-start" />
           </div>
         )}
 
@@ -73,19 +55,16 @@ export function ContextPanel({ data, fallbackQuote, onLoadFallback }: Props) {
             <>
               <div className="flex items-center justify-between mb-3">
                 <h4 className="font-semibold text-sm text-muted-foreground">{tQuote('dailyQuoteTitle')}</h4>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 px-2 text-xs gap-1 text-muted-foreground"
+                <RefreshButton
                   onClick={onLoadFallback}
-                >
-                  <RefreshCw size={11} /> {tQuote('refreshQuote')}
-                </Button>
+                  size="sm"
+                  title={tQuote('refreshQuote')}
+                />
               </div>
               <div className="space-y-2 border-l-2 border-primary/20 pl-3">
                 <div className="font-medium">{fallbackQuote.title}</div>
                 {fallbackQuote.pinyin && (
-                  <div className="text-sm font-mono text-primary">{fallbackQuote.pinyin}</div>
+                  <PinyinText value={fallbackQuote.pinyin} size="sm" />
                 )}
                 <div className="text-sm text-muted-foreground">{fallbackQuote.definition}</div>
               </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
-import { ChevronLeft, BookOpen } from 'lucide-react'
+import { BookOpen } from 'lucide-react'
 import Link from 'next/link'
 import { PageLayout } from '@/components/page-layout'
 import { CertifiedBadge, GradeBadge, InlineWordGrade, TagPill } from '@/components/ui/grade-badge'
@@ -14,17 +14,13 @@ import {
 } from '@/lib/api'
 import type { ProverbItem, PinyinByDialect, CorpusTextSummary } from '@/lib/api'
 import { useExploreStore } from '@/lib/stores/explore-store'
-import { DialectPillGroup } from '@/components/ui/dialect-pill'
-import type { Dialect } from '@/lib/types'
-
-const DB_LABEL_TO_DIALECT: Record<string, Dialect> = {
-  '四縣': 'sixian',
-  '南四縣': 'sihai',
-  '海陸': 'hailu',
-  '大埔': 'dapu',
-  '饒平': 'raoping',
-  '詔安': 'zhaoan',
-}
+import { DialectPinyinSwitcher } from '@/components/ui/dialect-pinyin-switcher'
+import { labelFromDialect } from '@/lib/dialect'
+import { ContentCard } from '@/components/ui/content-card'
+import { LabeledDivider } from '@/components/ui/labeled-divider'
+import { BackLink } from '@/components/ui/back-link'
+import { SectionHeader } from '@/components/ui/section-header'
+import { PinyinText } from '@/components/ui/pinyin-text'
 
 const GRADE_ORDER = ['高級', '中高級', '中級', '初級', '基礎級']
 
@@ -84,9 +80,7 @@ export default function ExampleDetailPage() {
       setGradeLoaded(true)
       return
     }
-    const dialectLabel = Object.keys(DB_LABEL_TO_DIALECT).find(
-      k => DB_LABEL_TO_DIALECT[k] === activeDialect
-    )
+    const dialectLabel = activeDialect ? labelFromDialect(activeDialect) : undefined
     fetchCertifiedVocabBatch(chars, dialectLabel)
       .then(results => {
         const map: Record<string, string | null> = {}
@@ -109,14 +103,6 @@ export default function ExampleDetailPage() {
       .catch(() => setCorpusItems([]))
   }, [proverb])
 
-  const uniqueDialects = Array.from(
-    new Map(pinyinByDialect.map(p => [p.dialect, p])).values()
-  )
-
-  const activePinyin = uniqueDialects.find(
-    p => DB_LABEL_TO_DIALECT[p.dialect] === activeDialect
-  )
-
   const highestGrade = getHighestGrade(gradeMap)
   const hasGrades = Object.values(gradeMap).some(v => v !== null)
 
@@ -126,12 +112,12 @@ export default function ExampleDetailPage() {
         <div className="container mx-auto px-4 py-8 max-w-3xl">
           <div className="space-y-4">
             <div className="h-5 w-24 rounded bg-muted animate-pulse" />
-            <div className="bg-card rounded-2xl px-8 py-7 space-y-4 shadow-sm">
+            <ContentCard variant="hero" padding="lg" className="space-y-4">
               <div className="h-8 w-2/3 mx-auto rounded bg-muted animate-pulse" />
               <div className="h-5 w-1/2 mx-auto rounded bg-muted animate-pulse" />
               <div className="h-4 w-full rounded bg-muted animate-pulse" />
               <div className="h-4 w-4/5 rounded bg-muted animate-pulse" />
-            </div>
+            </ContentCard>
           </div>
         </div>
       </PageLayout>
@@ -142,10 +128,7 @@ export default function ExampleDetailPage() {
     return (
       <PageLayout>
         <div className="container mx-auto px-4 py-8 max-w-3xl">
-          <Link href="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
-            <ChevronLeft size={14} />
-            每日一句
-          </Link>
+          <BackLink href="/" label="每日一句" className="mb-6" />
           <div className="text-center py-16 text-muted-foreground">
             無法載入例句資料，請稍後再試。
           </div>
@@ -160,16 +143,10 @@ export default function ExampleDetailPage() {
     <PageLayout>
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         {/* Back link */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
-        >
-          <ChevronLeft size={14} />
-          每日一句
-        </Link>
+        <BackLink href="/" label="每日一句" className="mb-6" />
 
         {/* Header card */}
-        <div className="bg-card rounded-2xl px-8 py-7 space-y-5 shadow-sm border border-border/50 mb-6">
+        <ContentCard variant="hero" padding="lg" className="space-y-5 mb-6">
           {/* Category + certification badges */}
           <div className="flex items-center justify-center gap-2 flex-wrap">
             {proverb.category && (
@@ -186,41 +163,25 @@ export default function ExampleDetailPage() {
             {proverb.title}
           </h1>
 
-          {/* Multi-dialect pills */}
-          {uniqueDialects.length > 0 && (
-            <div className="space-y-2">
-              <DialectPillGroup
-                dialects={uniqueDialects.map(p => p.dialect)}
-                activeDialect={activeDialect}
-                onSelect={setActiveDialect}
-              />
-              <div className="flex items-baseline justify-center">
-                {activePinyin ? (
-                  <span className="text-sm font-mono text-primary/80 tracking-wider break-all max-w-3xl text-center">
-                    {activePinyin.pinyin_full}
-                  </span>
-                ) : (
-                  <span className="text-sm text-muted-foreground">選擇腔調查看發音</span>
-                )}
-              </div>
-            </div>
-          )}
+          {/* Multi-dialect pills + pinyin */}
+          <DialectPinyinSwitcher
+            pinyinByDialect={pinyinByDialect}
+            activeDialect={activeDialect}
+            onSelect={setActiveDialect}
+            size="sm"
+          />
 
           {/* Fallback single pinyin */}
-          {uniqueDialects.length === 0 && proverb.pinyin && (
-            <p className="text-center text-base text-primary/80 font-mono tracking-widest">
-              {proverb.pinyin}
+          {pinyinByDialect.length === 0 && proverb.pinyin && (
+            <p className="text-center">
+              <PinyinText value={proverb.pinyin} size="md" tracking="widest" />
             </p>
           )}
 
           {/* Divider: 華語對譯 */}
           {proverb.definition && (
             <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <div className="flex-1 h-px bg-border/60" />
-                <span className="text-[11px] text-muted-foreground/70 font-medium px-1">華語對譯</span>
-                <div className="flex-1 h-px bg-border/60" />
-              </div>
+              <LabeledDivider label="華語對譯" />
               <p className="text-sm text-foreground/80 leading-relaxed text-center">{proverb.definition}</p>
             </div>
           )}
@@ -228,22 +189,14 @@ export default function ExampleDetailPage() {
           {/* Divider: 例句 */}
           {proverb.example && (
             <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <div className="flex-1 h-px bg-border/60" />
-                <span className="text-[11px] text-muted-foreground/70 font-medium px-1">例句</span>
-                <div className="flex-1 h-px bg-border/60" />
-              </div>
+              <LabeledDivider label="例句" />
               <p className="text-sm text-muted-foreground italic leading-relaxed text-center">{proverb.example}</p>
             </div>
           )}
 
           {/* Divider: 詞彙認證分級 */}
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="flex-1 h-px bg-border/60" />
-              <span className="text-[11px] text-muted-foreground/70 font-medium px-1">詞彙認證分級</span>
-              <div className="flex-1 h-px bg-border/60" />
-            </div>
+            <LabeledDivider label="詞彙認證分級" />
             {!gradeLoaded ? (
               <div className="flex justify-center gap-2">
                 {titleChars.slice(0, 4).map((_, i) => (
@@ -262,22 +215,22 @@ export default function ExampleDetailPage() {
               </p>
             )}
           </div>
-        </div>
+        </ContentCard>
 
         {/* Corpus usage section */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-foreground flex items-center gap-1.5">
-              <BookOpen size={15} className="text-primary" />
-              在語料庫中的使用
-            </h2>
-            <Link
-              href={`/corpus?q=${encodeURIComponent(proverb.title)}`}
-              className="text-xs text-primary hover:underline underline-offset-2"
-            >
-              查看全部語料
-            </Link>
-          </div>
+          <SectionHeader
+            title="在語料庫中的使用"
+            icon={BookOpen}
+            variant="section"
+            hakka={false}
+            action={
+              <Link href={`/corpus?q=${encodeURIComponent(proverb.title)}`}
+                className="text-xs text-primary hover:underline underline-offset-2">
+                查看全部語料
+              </Link>
+            }
+          />
 
           {corpusItems.length === 0 ? (
             <p className="text-sm text-muted-foreground py-4 text-center">語料庫中暫無相關文本</p>
@@ -289,7 +242,7 @@ export default function ExampleDetailPage() {
                   href={`/corpus/${encodeURIComponent(item.id)}`}
                   className="block"
                 >
-                  <div className="bg-card border border-border/50 rounded-xl px-5 py-3.5 hover:border-primary/40 hover:shadow-sm transition-all">
+                  <ContentCard variant="compact" padding="md" hoverable>
                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                       {item.genre && <TagPill label={item.genre} />}
                       {item.dialect && <TagPill label={item.dialect} />}
@@ -303,7 +256,7 @@ export default function ExampleDetailPage() {
                         {item.summary}
                       </p>
                     )}
-                  </div>
+                  </ContentCard>
                 </Link>
               ))}
             </div>

@@ -2,9 +2,8 @@
 
 import { useState } from 'react'
 import { ChevronRight } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { useTranslations } from 'next-intl'
 import { SectionHeader } from '@/components/ui/section-header'
 
@@ -34,22 +33,13 @@ export function NewsSection() {
 
         {/* Tabs：置中 */}
         <div className="flex justify-center mb-6">
-          <ToggleGroup
-            type="single"
+          <SegmentedControl
+            items={tabs.map((tab) => ({ value: tab.id, label: tab.label }))}
             value={activeTab}
-            onValueChange={(v) => { if (v) setActiveTab(v) }}
-            className="gap-1"
-          >
-            {tabs.map((tab) => (
-              <ToggleGroupItem
-                key={tab.id}
-                value={tab.id}
-                className="text-xs h-8 px-4 rounded-md font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground text-muted-foreground hover:text-foreground hover:bg-muted"
-              >
-                {tab.label}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
+            onValueChange={(v) => setActiveTab(v)}
+            variant="primary"
+            size="md"
+          />
         </div>
 
         {/* List */}

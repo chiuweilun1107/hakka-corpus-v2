@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { RefreshCw, Volume2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { RefreshButton } from '@/components/ui/refresh-button'
+import { TtsButton } from '@/components/ui/tts-button'
 import { fetchDailyQuote } from '@/lib/api'
 import type { DailyQuoteData } from '@/lib/api'
 
@@ -37,9 +37,12 @@ export function DailyQuote() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center space-y-4">
             <p className="text-muted-foreground">{t('errorLoad')}</p>
-            <Button variant="outline" onClick={loadQuote} className="rounded-full gap-2 px-6">
-              <RefreshCw size={16} /> {t('reload')}
-            </Button>
+            <RefreshButton
+              onClick={loadQuote}
+              loading={isRefreshing}
+              size="md"
+              title={t('reload')}
+            />
           </div>
         </div>
       </section>
@@ -76,12 +79,19 @@ export function DailyQuote() {
             </div>
 
             <div className="flex justify-center gap-4 pt-4">
-              <Button variant="outline" onClick={loadQuote} disabled={isRefreshing} className="rounded-full gap-2 px-6">
-                <RefreshCw className={isRefreshing ? 'animate-spin' : ''} size={16} /> {t('refreshQuote')}
-              </Button>
-              <Button className="rounded-full gap-2 px-6 shadow-lg shadow-primary/20">
-                <Volume2 size={16} /> {t('listen')}
-              </Button>
+              <RefreshButton
+                onClick={loadQuote}
+                loading={isRefreshing}
+                size="md"
+                title={t('refreshQuote')}
+              />
+              <TtsButton
+                text={quote.title}
+                size="md"
+                variant="ghost"
+                title={t('listen')}
+                className="rounded-full px-6 shadow-lg shadow-primary/20"
+              />
             </div>
           </div>
         </div>
