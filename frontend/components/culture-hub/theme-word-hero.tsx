@@ -79,7 +79,7 @@ export function ThemeWordHero({ data, loading, onRefresh }: Props) {
         <div className="relative px-14">
           <Link
             href={`/sketch?q=${encodeURIComponent(data.entry.title)}`}
-            className="block text-6xl md:text-8xl font-bold text-primary tracking-tight leading-none hover:opacity-70 transition-opacity"
+            className="block text-6xl md:text-8xl font-bold text-primary tracking-tight leading-none hover:underline decoration-primary/40 underline-offset-8 transition-colors"
           >
             {data.entry.title}
           </Link>
