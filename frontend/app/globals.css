@@ -6,6 +6,7 @@
 :root {
   /* 參考最新截圖：溫潤的人文淺棕色系 */
   --background: oklch(0.99 0.01 85); /* 米白色背景 */
+  --header-bg: rgba(255, 252, 248, 0.82); /* 預設：暖白毛玻璃 */
   --foreground: oklch(0.32 0.03 65); /* 深褐文字 */
   
   --card: oklch(1 0 0);
@@ -110,4 +111,82 @@
 }
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* ── 四縣腔：山嵐墨綠主題色 + 薄霧底色（讓白花瓣可見）── */
+html.dialect-sixian body {
+  /* 山嵐薄霧色，讓白色油桐花在背景層清楚顯現 */
+  background-color: #EEF2EC;
+}
+
+html.dialect-sixian {
+  --header-bg: rgba(212, 226, 208, 0.82); /* 山嵐綠毛玻璃 */
+  --primary: oklch(0.47 0.07 145);
+  --primary-foreground: oklch(0.99 0 0);
+  --accent: oklch(0.72 0.04 145);
+  --accent-foreground: oklch(0.22 0.05 145);
+  --ring: oklch(0.47 0.07 145);
+  --hakka-dark-teal: oklch(0.35 0.06 145);
+  --hakka-light-brown: oklch(0.47 0.07 145);
+  --background: transparent; /* 讓 section 透出花瓣層（z-[-1] in z-[2] stacking context） */
+}
+
+/* ── 海陸腔：花布底紋 + 緋紅金主題色 ── */
+html.dialect-hailu {
+  --header-bg: rgba(250, 242, 234, 0.84); /* 暖杏毛玻璃 */
+  --primary: oklch(0.37 0.12 25);
+  --primary-foreground: oklch(0.99 0 0);
+  --accent: oklch(0.63 0.14 80);
+  --accent-foreground: oklch(0.20 0.02 80);
+  --ring: oklch(0.37 0.12 25);
+  --hakka-dark-teal: oklch(0.28 0.10 25);
+  --hakka-light-brown: oklch(0.37 0.12 25);
+  background-image: url('/patterns/peony-tile.svg');
+  background-size: 320px 320px;
+  background-attachment: fixed;
+}
+
+html.dialect-hailu body {
+  /* 半透明暖白罩住花布：讓圖案退為紋理，文字區段仍可讀；
+     有 bg-* 的卡片會蓋住 body 色，完全不受影響 */
+  background-color: rgba(250, 247, 243, 0.72);
+}
+
+/* 區段標題在花布底紋上加白暈，確保深色文字可讀 */
+html.dialect-hailu .section-header-title {
+  text-shadow: 0 0 24px rgba(250, 247, 243, 1), 0 1px 4px rgba(250, 247, 243, 0.95);
+}
+html.dialect-hailu .section-header-subtitle {
+  text-shadow: 0 1px 3px rgba(250, 247, 243, 1), 0 0 12px rgba(250, 247, 243, 0.9);
+}
+
+/* ── Dialect Hero animations ─────────────────────────────── */
+@keyframes hakka-petal-fall {
+  0%   { transform: translateY(-8vh) translateX(0px) rotate(0deg); opacity: 0; }
+  8%   { opacity: var(--petal-opacity, 0.7); }
+  92%  { opacity: var(--petal-opacity, 0.6); }
+  100% { transform: translateY(108vh) translateX(var(--drift, 0px)) rotate(420deg); opacity: 0; }
+}
+
+@keyframes hakka-mist-drift {
+  0%, 100% { transform: translateX(0px) translateY(0px); }
+  33%       { transform: translateX(22px) translateY(-8px); }
+  66%       { transform: translateX(-14px) translateY(6px); }
+}
+
+.hakka-petal-fall {
+  animation-name: hakka-petal-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.hakka-mist-drift {
+  animation: hakka-mist-drift 18s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hakka-petal-fall,
+  .hakka-mist-drift {
+    animation: none !important;
+  }
 }

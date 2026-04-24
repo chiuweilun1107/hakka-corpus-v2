@@ -2,6 +2,7 @@ import dynamic from 'next/dynamic'
 import { Header } from '@/components/header'
 import { SearchSection } from '@/components/search-section'
 import { Footer } from '@/components/footer'
+import { DialectAtmosphere, SixianPetalLayer } from '@/components/dialect-hero/dialect-atmosphere'
 
 const DialectMapSection = dynamic(
   () => import('@/components/dialect-map-section').then(m => ({ default: m.DialectMapSection })),
@@ -28,15 +29,20 @@ const FestivalSection = dynamic(
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1">
-        <FestivalSection />
-        <SearchSection />
-        <DialectMapSection />
-        <SpeakerProfile />
-        <StatsSection />
-      </main>
-      <Footer />
+      <DialectAtmosphere />
+      {/* z-[2] stacking context；SixianPetalLayer 在內部用 z-[-1] 讓花瓣在 section 背景之前、content 之後 */}
+      <div className="relative z-[2] flex flex-col flex-1">
+        <SixianPetalLayer />
+        <Header />
+        <main className="flex-1">
+          <FestivalSection />
+          <SearchSection />
+          <DialectMapSection />
+          <SpeakerProfile />
+          <StatsSection />
+        </main>
+        <Footer />
+      </div>
     </div>
   )
 }

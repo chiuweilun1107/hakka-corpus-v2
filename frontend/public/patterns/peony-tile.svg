@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="280" viewBox="0 0 280 280" overflow="hidden">
+  <defs>
+    <!-- Peony centered at local origin; used via <use transform="translate(cx,cy)"> -->
+    <g id="peony">
+      <!-- 5 outer petals at 72° intervals -->
+      <ellipse cx="0" cy="-36" rx="16" ry="28" fill="#F3D68A" stroke="#B8860B" stroke-width="1.2"/>
+      <ellipse cx="0" cy="-36" rx="16" ry="28" fill="#F3D68A" stroke="#B8860B" stroke-width="1.2" transform="rotate(72)"/>
+      <ellipse cx="0" cy="-36" rx="16" ry="28" fill="#F3D68A" stroke="#B8860B" stroke-width="1.2" transform="rotate(144)"/>
+      <ellipse cx="0" cy="-36" rx="16" ry="28" fill="#F3D68A" stroke="#B8860B" stroke-width="1.2" transform="rotate(216)"/>
+      <ellipse cx="0" cy="-36" rx="16" ry="28" fill="#F3D68A" stroke="#B8860B" stroke-width="1.2" transform="rotate(288)"/>
+      <!-- 5 inner petals at 36° offset, smaller -->
+      <ellipse cx="0" cy="-23" rx="11" ry="18" fill="#FAE9AE" stroke="#B8860B" stroke-width="0.8" transform="rotate(36)"/>
+      <ellipse cx="0" cy="-23" rx="11" ry="18" fill="#FAE9AE" stroke="#B8860B" stroke-width="0.8" transform="rotate(108)"/>
+      <ellipse cx="0" cy="-23" rx="11" ry="18" fill="#FAE9AE" stroke="#B8860B" stroke-width="0.8" transform="rotate(180)"/>
+      <ellipse cx="0" cy="-23" rx="11" ry="18" fill="#FAE9AE" stroke="#B8860B" stroke-width="0.8" transform="rotate(252)"/>
+      <ellipse cx="0" cy="-23" rx="11" ry="18" fill="#FAE9AE" stroke="#B8860B" stroke-width="0.8" transform="rotate(324)"/>
+      <!-- Center -->
+      <circle cx="0" cy="0" r="11" fill="#FAE9AE" stroke="#B8860B" stroke-width="1.2"/>
+      <circle cx="0" cy="0" r="5" fill="#C8901A"/>
+    </g>
+    <!-- Leaf pair pointing upward at local origin -->
+    <g id="leaf-pair">
+      <ellipse cx="-7" cy="-15" rx="6" ry="14" fill="#4A7A3A" stroke="#2A5A1A" stroke-width="0.8" transform="rotate(-18,-7,-15)"/>
+      <ellipse cx="7" cy="-15" rx="6" ry="14" fill="#4A7A3A" stroke="#2A5A1A" stroke-width="0.8" transform="rotate(18,7,-15)"/>
+    </g>
+  </defs>
+
+  <!-- Background -->
+  <rect width="280" height="280" fill="#8B2C2C"/>
+
+  <!-- Subtle gold diamond trellis -->
+  <g stroke="#D4A017" stroke-width="0.8" opacity="0.22" fill="none">
+    <line x1="0" y1="140" x2="140" y2="0"/>
+    <line x1="0" y1="140" x2="140" y2="280"/>
+    <line x1="140" y1="0" x2="280" y2="140"/>
+    <line x1="140" y1="280" x2="280" y2="140"/>
+  </g>
+
+  <!-- Gold accent dots at trellis nodes -->
+  <g fill="#D4A017" opacity="0.45">
+    <circle cx="140" cy="0" r="2.5"/>
+    <circle cx="0" cy="140" r="2.5"/>
+    <circle cx="280" cy="140" r="2.5"/>
+    <circle cx="140" cy="280" r="2.5"/>
+    <circle cx="70" cy="70" r="1.8"/>
+    <circle cx="210" cy="70" r="1.8"/>
+    <circle cx="70" cy="210" r="1.8"/>
+    <circle cx="210" cy="210" r="1.8"/>
+  </g>
+
+  <!-- Leaves at the 4 diagonal midpoints between peonies -->
+  <use href="#leaf-pair" transform="translate(70,70) rotate(45)"/>
+  <use href="#leaf-pair" transform="translate(210,70) rotate(135)"/>
+  <use href="#leaf-pair" transform="translate(70,210) rotate(-45)"/>
+  <use href="#leaf-pair" transform="translate(210,210) rotate(-135)"/>
+
+  <!-- ── PEONIES ──────────────────────────────────────────── -->
+  <!-- Center: fully visible -->
+  <use href="#peony" transform="translate(140,140)"/>
+
+  <!-- Edge half-peonies (clipped by viewBox → seamless tiling) -->
+  <use href="#peony" transform="translate(140,0)"/>
+  <use href="#peony" transform="translate(140,280)"/>
+  <use href="#peony" transform="translate(0,140)"/>
+  <use href="#peony" transform="translate(280,140)"/>
+
+  <!-- Corner quarter-peonies -->
+  <use href="#peony" transform="translate(0,0)"/>
+  <use href="#peony" transform="translate(280,0)"/>
+  <use href="#peony" transform="translate(0,280)"/>
+  <use href="#peony" transform="translate(280,280)"/>
+</svg>

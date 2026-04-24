@@ -35,12 +35,12 @@ export function SectionHeader({
 
   return (
     <div className={cn('mb-10 text-center', className)}>
-      <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+      <h2 className="section-header-title text-2xl md:text-3xl font-bold tracking-tight text-foreground">
         {Icon && <Icon size={24} className="inline-block mr-2 text-primary" />}
         {hakka ? <HakkaLabel text={title} /> : title}
       </h2>
       {subtitle && (
-        <p className="text-muted-foreground mt-3 text-sm leading-relaxed max-w-2xl mx-auto">
+        <p className="section-header-subtitle text-muted-foreground mt-3 text-sm leading-relaxed max-w-2xl mx-auto">
           {subtitle}
         </p>
       )}
