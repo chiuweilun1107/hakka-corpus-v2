@@ -9,6 +9,9 @@ import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { fetchCooc, type CoocItem } from '@/lib/api'
+import { LoadingState } from '@/components/loading-state'
+import { DataSources } from '@/components/data-sources'
+import { PageHeader } from '@/components/page-header'
 import {
   CAT_COLORS,
   CAT_LABELS,
@@ -19,24 +22,13 @@ import {
 // Dynamic imports (no SSR for chart components)
 const BubbleCloud = dynamic(
   () => import('@/components/viz/bubble-cloud').then((m) => ({ default: m.BubbleCloud })),
-  { ssr: false, loading: () => <ChartLoading /> }
+  { ssr: false, loading: () => <LoadingState message="正在載入圖表..." className="h-[560px] py-0" /> }
 )
 
 const ForceGraph = dynamic(
   () => import('@/components/viz/force-graph').then((m) => ({ default: m.ForceGraph })),
-  { ssr: false, loading: () => <ChartLoading /> }
+  { ssr: false, loading: () => <LoadingState message="正在載入圖表..." className="h-[560px] py-0" /> }
 )
-
-function ChartLoading() {
-  return (
-    <div className="flex items-center justify-center" style={{ height: 560 }}>
-      <div className="flex items-center gap-2 text-gray-500">
-        <Loader2 className="h-5 w-5 animate-spin" />
-        <span className="text-sm">正在載入共現詞資料...</span>
-      </div>
-    </div>
-  )
-}
 
 type ViewMode = 'network' | 'bubble'
 type MetricType = 'logdice' | 'mi'
@@ -165,62 +157,58 @@ function VizContent() {
     img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr)
   }, [keyword])
 
+  const viewToggle = (
+    <ToggleGroup
+      type="single"
+      value={viewMode}
+      onValueChange={(v) => v && setViewMode(v as ViewMode)}
+      className="gap-0"
+    >
+      <ToggleGroupItem
+        value="network"
+        className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-l-md rounded-r-none border border-border data-[state=on]:bg-primary data-[state=on]:text-white data-[state=on]:border-primary data-[state=off]:bg-card data-[state=off]:text-muted-foreground data-[state=off]:hover:bg-muted/50"
+      >
+        <Network className="h-3.5 w-3.5" />
+        網路圖
+      </ToggleGroupItem>
+      <ToggleGroupItem
+        value="bubble"
+        className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-r-md rounded-l-none border border-l-0 border-border data-[state=on]:bg-primary data-[state=on]:text-white data-[state=on]:border-primary data-[state=off]:bg-card data-[state=off]:text-muted-foreground data-[state=off]:hover:bg-muted/50"
+      >
+        <CircleDot className="h-3.5 w-3.5" />
+        泡泡詞雲
+      </ToggleGroupItem>
+    </ToggleGroup>
+  )
+
   return (
     <>
       <div className="container mx-auto px-4 py-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          {/* Header */}
-          <div className="px-6 pt-6 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">
-                {viewMode === 'network' ? '共現詞網路圖' : 'Word Sketch 泡泡詞雲'}
-              </h1>
-              <p className="text-sm text-gray-500 mt-1">
-                以「<span className="font-semibold text-primary">{keyword}</span>」為中心的
-                {viewMode === 'network' ? '力導向關係圖' : '語法分類詞雲'}
-              </p>
-            </div>
+        <PageHeader
+          title={viewMode === 'network' ? '共現詞網路圖' : 'Word Sketch 泡泡詞雲'}
+          subtitle={keyword ? (
+            <>以「<span className="font-semibold text-primary">{keyword}</span>」為中心的{viewMode === 'network' ? '力導向關係圖' : '語法分類詞雲'}</>
+          ) : '輸入關鍵詞後顯示視覺化圖表'}
+          action={viewToggle}
+        />
 
-            {/* View mode toggle */}
-            <ToggleGroup
-              type="single"
-              value={viewMode}
-              onValueChange={(v) => v && setViewMode(v as ViewMode)}
-              className="gap-0"
-            >
-              <ToggleGroupItem
-                value="network"
-                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-l-md rounded-r-none border border-gray-300 data-[state=on]:bg-primary data-[state=on]:text-white data-[state=on]:border-primary data-[state=off]:bg-white data-[state=off]:text-gray-500 data-[state=off]:hover:bg-gray-50"
-              >
-                <Network className="h-3.5 w-3.5" />
-                網路圖
-              </ToggleGroupItem>
-              <ToggleGroupItem
-                value="bubble"
-                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-r-md rounded-l-none border border-l-0 border-gray-300 data-[state=on]:bg-primary data-[state=on]:text-white data-[state=on]:border-primary data-[state=off]:bg-white data-[state=off]:text-gray-500 data-[state=off]:hover:bg-gray-50"
-              >
-                <CircleDot className="h-3.5 w-3.5" />
-                泡泡詞雲
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </div>
-
+        <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
           {/* Main layout: chart + controls */}
           <div className="flex flex-col lg:flex-row">
             {/* Chart area */}
-            <div className="flex-1 min-w-0 border-t border-gray-100">
+            <div className="flex-1 min-w-0">
               {!keyword ? (
-                <div className="flex items-center justify-center text-gray-400 text-sm" style={{ height: 560 }}>
+                <div className="flex items-center justify-center text-muted-foreground text-sm" style={{ height: 560 }}>
                   請在上方搜尋欄輸入關鍵詞
                 </div>
               ) : loading ? (
-                <ChartLoading />
+                <LoadingState message="正在載入共現詞資料..." className="h-[560px] py-0" />
               ) : error ? (
-                <div className="flex items-center justify-center text-gray-500 text-sm" style={{ height: 560 }}>
+                <div className="flex items-center justify-center text-muted-foreground text-sm" style={{ height: 560 }}>
                   {error}
                 </div>
               ) : coocData.length === 0 ? (
-                <div className="flex items-center justify-center text-gray-500 text-sm" style={{ height: 560 }}>
+                <div className="flex items-center justify-center text-muted-foreground text-sm" style={{ height: 560 }}>
                   查無共現詞資料
                 </div>
               ) : viewMode === 'network' ? (
@@ -249,7 +237,7 @@ function VizContent() {
             </div>
 
             {/* Right control panel */}
-            <div className="w-full lg:w-64 border-t lg:border-t-0 lg:border-l border-gray-100 p-4 space-y-4 bg-gray-50/50">
+            <div className="w-full lg:w-64 border-t lg:border-t-0 lg:border-l border-border p-4 space-y-4 bg-muted/30">
               {viewMode === 'network' ? (
                 <NetworkControls
                   data={coocData}
@@ -280,6 +268,8 @@ function VizContent() {
             </div>
           </div>
         </div>
+
+        <DataSources />
       </div>
     </>
   )
@@ -318,9 +308,9 @@ function NetworkControls({
           onValueChange={(val) => setMaxItems(val[0])}
           className="mt-2"
         />
-        <div className="flex justify-between text-[11px] text-gray-400 mt-1">
+        <div className="flex justify-between text-[11px] text-muted-foreground mt-1">
           <span>5</span>
-          <span className="font-semibold text-gray-600">{maxItems}</span>
+          <span className="font-semibold text-foreground">{maxItems}</span>
           <span>{data.length || 20}</span>
         </div>
       </ControlCard>
@@ -335,25 +325,25 @@ function NetworkControls({
         >
           <ToggleGroupItem
             value="logdice"
-            className="flex-1 py-1.5 h-auto text-xs font-semibold data-[state=on]:bg-primary data-[state=on]:text-white data-[state=off]:bg-white data-[state=off]:text-gray-500 data-[state=off]:border data-[state=off]:border-gray-200"
+            className="flex-1 py-1.5 h-auto text-xs font-semibold data-[state=on]:bg-primary data-[state=on]:text-white data-[state=off]:bg-card data-[state=off]:text-muted-foreground data-[state=off]:border data-[state=off]:border-border"
           >
             LogDice
           </ToggleGroupItem>
           <ToggleGroupItem
             value="mi"
-            className="flex-1 py-1.5 h-auto text-xs font-semibold data-[state=on]:bg-primary data-[state=on]:text-white data-[state=off]:bg-white data-[state=off]:text-gray-500 data-[state=off]:border data-[state=off]:border-gray-200"
+            className="flex-1 py-1.5 h-auto text-xs font-semibold data-[state=on]:bg-primary data-[state=on]:text-white data-[state=off]:bg-card data-[state=off]:text-muted-foreground data-[state=off]:border data-[state=off]:border-border"
           >
             MI-score
           </ToggleGroupItem>
         </ToggleGroup>
-        <p className="text-[11px] text-gray-400 mt-1.5">切換後會重新排序共現詞</p>
+        <p className="text-[11px] text-muted-foreground mt-1.5">切換後會重新排序共現詞</p>
       </ControlCard>
 
       {/* Node size range */}
       <ControlCard title="節點大小">
         <div className="space-y-2.5 mt-2">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 w-7 shrink-0">最小</span>
+            <span className="text-xs text-muted-foreground w-7 shrink-0">最小</span>
             <Slider
               min={5}
               max={40}
@@ -362,10 +352,10 @@ function NetworkControls({
               onValueChange={(val) => setNodeMinSize(val[0])}
               className="flex-1"
             />
-            <span className="text-xs font-semibold text-gray-600 w-5 text-right shrink-0">{nodeMinSize}</span>
+            <span className="text-xs font-semibold text-foreground w-5 text-right shrink-0">{nodeMinSize}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 w-7 shrink-0">最大</span>
+            <span className="text-xs text-muted-foreground w-7 shrink-0">最大</span>
             <Slider
               min={30}
               max={100}
@@ -374,7 +364,7 @@ function NetworkControls({
               onValueChange={(val) => setNodeMaxSize(val[0])}
               className="flex-1"
             />
-            <span className="text-xs font-semibold text-gray-600 w-5 text-right shrink-0">{nodeMaxSize}</span>
+            <span className="text-xs font-semibold text-foreground w-5 text-right shrink-0">{nodeMaxSize}</span>
           </div>
         </div>
       </ControlCard>
@@ -383,7 +373,7 @@ function NetworkControls({
       <ControlCard title="連線粗細">
         <div className="space-y-2.5 mt-2">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 w-7 shrink-0">最細</span>
+            <span className="text-xs text-muted-foreground w-7 shrink-0">最細</span>
             <Slider
               min={0.5}
               max={5}
@@ -392,10 +382,10 @@ function NetworkControls({
               onValueChange={(val) => setLineMinWidth(val[0])}
               className="flex-1"
             />
-            <span className="text-xs font-semibold text-gray-600 w-5 text-right shrink-0">{lineMinWidth}</span>
+            <span className="text-xs font-semibold text-foreground w-5 text-right shrink-0">{lineMinWidth}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 w-7 shrink-0">最粗</span>
+            <span className="text-xs text-muted-foreground w-7 shrink-0">最粗</span>
             <Slider
               min={5}
               max={25}
@@ -404,7 +394,7 @@ function NetworkControls({
               onValueChange={(val) => setLineMaxWidth(val[0])}
               className="flex-1"
             />
-            <span className="text-xs font-semibold text-gray-600 w-5 text-right shrink-0">{lineMaxWidth}</span>
+            <span className="text-xs font-semibold text-foreground w-5 text-right shrink-0">{lineMaxWidth}</span>
           </div>
         </div>
       </ControlCard>
@@ -449,8 +439,8 @@ function BubbleControls({
                     className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: color }}
                   />
-                  <span className="text-xs text-gray-700 truncate">{label}</span>
-                  <span className="text-[10px] text-gray-400">({count})</span>
+                  <span className="text-xs text-foreground truncate">{label}</span>
+                  <span className="text-[10px] text-muted-foreground">({count})</span>
                 </div>
                 <Switch
                   checked={categoryState[cat] ?? false}
@@ -472,9 +462,9 @@ function BubbleControls({
           onValueChange={(val) => setMaxWords(val[0])}
           className="mt-2"
         />
-        <div className="flex justify-between text-[11px] text-gray-400 mt-1">
+        <div className="flex justify-between text-[11px] text-muted-foreground mt-1">
           <span>較少</span>
-          <span className="font-semibold text-gray-600">{maxWords}</span>
+          <span className="font-semibold text-foreground">{maxWords}</span>
           <span>較多</span>
         </div>
       </ControlCard>
@@ -505,9 +495,9 @@ function BubbleControls({
 // ===== Shared ControlCard =====
 function ControlCard({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-3">
+    <div className="rounded-lg border border-border bg-card p-3">
       {title && (
-        <div className="text-xs font-semibold text-gray-700 mb-1">{title}</div>
+        <div className="text-xs font-semibold text-foreground mb-1">{title}</div>
       )}
       {children}
     </div>

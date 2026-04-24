@@ -23,7 +23,7 @@ function TrendingRow({ item, rank, maxCount }: { item: TrendingItem; rank: numbe
 
   return (
     <Link
-      href={`/sketch?q=${encodeURIComponent(item.word)}`}
+      href={`/cooccurrence?q=${encodeURIComponent(item.word)}`}
       className="relative flex items-center gap-3 py-3 px-2 border-b border-border group hover:bg-muted/40 transition-colors"
     >
       <div

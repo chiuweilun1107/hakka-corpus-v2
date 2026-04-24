@@ -41,7 +41,7 @@ export function ContextPanel({ data, fallbackQuote, onLoadFallback }: Props) {
                 return (
                   <a
                     key={c.partner}
-                    href={`/sketch?q=${encodeURIComponent(c.partner)}`}
+                    href={`/cooccurrence?q=${encodeURIComponent(c.partner)}`}
                     className="text-foreground/80 hover:text-primary transition-colors"
                     style={{ fontSize: `${fontSize}rem` }}
                   >

@@ -85,7 +85,7 @@ export function RandomExplore() {
               size="sm"
               variant="link"
               className="p-0 h-auto text-primary"
-              onClick={() => { window.location.href = `/sketch?q=${encodeURIComponent((result as DictEntry).title)}` }}
+              onClick={() => { window.location.href = `/cooccurrence?q=${encodeURIComponent((result as DictEntry).title)}` }}
             >
               {t('viewFull')}
             </Button>

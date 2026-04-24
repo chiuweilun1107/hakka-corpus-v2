@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { LoadingState } from '@/components/loading-state'
 import { EmptyState } from '@/components/empty-state'
 import { DataSources } from '@/components/data-sources'
+import { PageHeader } from '@/components/page-header'
 import { fetchCooc, fetchDict, type CoocItem, type DictEntry } from '@/lib/api'
 
 const SKETCH_DATA_CACHE: Record<string, Record<string, string[]>> = {
@@ -69,18 +69,12 @@ function SketchContent() {
     <>
       <div className="container mx-auto px-4 py-6">
         {/* Title */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              Word Sketch
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {q ? (
-                <>「<span className="font-semibold text-primary">{q}</span>」{sketchData ? '語法分類' : '共現詞列表'}</>
-              ) : '輸入關鍵詞後顯示語法分類結果'}
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          title="Word Sketch"
+          subtitle={q ? (
+            <>「<span className="font-semibold text-primary">{q}</span>」{sketchData ? '語法分類' : '共現詞列表'}</>
+          ) : '輸入關鍵詞後顯示語法分類結果'}
+        />
 
         {/* Dict info card */}
         {q && dictData && (

@@ -12,7 +12,7 @@ interface PageSearchBarProps {
   targetPath?: string
 }
 
-export function PageSearchBar({ defaultQuery = '', targetPath = '/sketch' }: PageSearchBarProps) {
+export function PageSearchBar({ defaultQuery = '', targetPath = '/cooccurrence' }: PageSearchBarProps) {
   const router = useRouter()
   const [query, setQuery] = useState(defaultQuery)
   const [pinyinData, setPinyinData] = useState<PinyinRecommendResponse | null>(null)

@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Search, ArrowUpDown, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { LoadingState } from '@/components/loading-state'
 import { EmptyState } from '@/components/empty-state'
 import { DataSources } from '@/components/data-sources'
+import { PageHeader } from '@/components/page-header'
 import { fetchCooc, type CoocItem } from '@/lib/api'
 
 type SortKey = 'logdice' | 'mi' | 'freq' | 'count'
@@ -51,41 +51,36 @@ function CooccurrenceContent() {
     <>
       <div className="container mx-auto px-4 py-6">
         {/* Title + Sort */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-              <Search className="h-6 w-6 text-primary" />
-              共現詞列表
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {q ? (
-                <>「<span className="font-semibold text-primary">{q}</span>」{!loading && ` -- 共 ${sortedData.length} 筆結果`}</>
-              ) : '輸入關鍵詞後顯示共現詞分析結果'}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground font-medium">排序：</span>
-            {(['logdice', 'mi', 'freq', 'count'] as SortKey[]).map((key) => {
-              const labels: Record<SortKey, string> = {
-                logdice: 'LogDice',
-                mi: 'MI-score',
-                freq: '詞頻',
-                count: '共現次數',
-              }
-              return (
-                <Button
-                  key={key}
-                  variant={sortKey === key ? 'default' : 'outline'}
-                  size="sm"
-                  className="rounded-lg text-xs h-8"
-                  onClick={() => setSortKey(key)}
-                >
-                  {labels[key]}
-                </Button>
-              )
-            })}
-          </div>
-        </div>
+        <PageHeader
+          title="共現詞列表"
+          subtitle={q ? (
+            <>「<span className="font-semibold text-primary">{q}</span>」{!loading && ` -- 共 ${sortedData.length} 筆結果`}</>
+          ) : '輸入關鍵詞後顯示共現詞分析結果'}
+          action={
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground font-medium">排序：</span>
+              {(['logdice', 'mi', 'freq', 'count'] as SortKey[]).map((key) => {
+                const labels: Record<SortKey, string> = {
+                  logdice: 'LogDice',
+                  mi: 'MI-score',
+                  freq: '詞頻',
+                  count: '共現次數',
+                }
+                return (
+                  <Button
+                    key={key}
+                    variant={sortKey === key ? 'default' : 'outline'}
+                    size="sm"
+                    className="rounded-lg text-xs h-8"
+                    onClick={() => setSortKey(key)}
+                  >
+                    {labels[key]}
+                  </Button>
+                )
+              })}
+            </div>
+          }
+        />
 
         {/* Loading */}
         {q && loading && <LoadingState />}

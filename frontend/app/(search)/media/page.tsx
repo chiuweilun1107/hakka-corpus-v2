@@ -2,9 +2,12 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Play, Image, Globe, ExternalLink, Loader2 } from 'lucide-react'
+import { Play, Image, Globe } from 'lucide-react'
 import { fetchYoutube, fetchImages, fetchCooc, type CoocItem } from '@/lib/api'
 import { Button } from '@/components/ui/button'
+import { LoadingState } from '@/components/loading-state'
+import { DataSources } from '@/components/data-sources'
+import { PageHeader } from '@/components/page-header'
 
 interface CoocImage {
   word: string
@@ -93,11 +96,18 @@ function MediaContent() {
   return (
     <>
       <div className="container mx-auto px-4 py-6 space-y-8">
+        <PageHeader
+          title="多媒體整合"
+          subtitle={q ? (
+            <>「<span className="font-semibold text-primary">{q}</span>」相關網頁、圖片與影片</>
+          ) : '輸入關鍵詞後顯示多媒體資源'}
+        />
+
         {/* ===== Google 網頁搜尋 ===== */}
         <section>
           <div className="flex items-center gap-2 mb-2">
-            <Globe className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-bold text-foreground">Google 網頁搜尋</h2>
+            <Globe className="h-4 w-4 text-primary" />
+            <h2 className="text-base font-semibold text-foreground">Google 網頁搜尋</h2>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
             {q ? `點擊搜尋「${q} + 共現詞」的 Google 網頁結果` : '輸入關鍵詞後顯示搜尋結果'}
@@ -152,8 +162,8 @@ function MediaContent() {
         {/* ===== Google 圖片搜尋 ===== */}
         <section>
           <div className="flex items-center gap-2 mb-2">
-            <Image className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-bold text-foreground">Google 圖片搜尋</h2>
+            <Image className="h-4 w-4 text-primary" />
+            <h2 className="text-base font-semibold text-foreground">Google 圖片搜尋</h2>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
             {q ? `點擊搜尋「${q} + 共現詞」相關圖片` : '輸入關鍵詞後顯示相關圖片'}
@@ -214,8 +224,8 @@ function MediaContent() {
         {/* ===== YouTube 客語影片 ===== */}
         <section>
           <div className="flex items-center gap-2 mb-2">
-            <Play className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-bold text-foreground">YouTube 客語影片</h2>
+            <Play className="h-4 w-4 text-primary" />
+            <h2 className="text-base font-semibold text-foreground">YouTube 客語影片</h2>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
             {q ? `與「${q}」相關的客語影片資源` : '輸入關鍵詞後顯示相關影片'}

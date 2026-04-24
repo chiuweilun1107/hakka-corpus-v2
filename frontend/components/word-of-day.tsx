@@ -132,7 +132,7 @@ export function WordOfDay() {
                         return (
                           <a
                             key={c.partner}
-                            href={`/sketch?q=${encodeURIComponent(c.partner)}`}
+                            href={`/cooccurrence?q=${encodeURIComponent(c.partner)}`}
                             className="text-foreground/80 hover:text-primary transition-colors"
                             style={{ fontSize: `${fontSize}rem` }}
                           >
@@ -179,7 +179,7 @@ export function WordOfDay() {
                 variant="outline"
                 className="rounded-full gap-2"
                 onClick={() => {
-                  window.location.href = `/sketch?q=${encodeURIComponent(data.entry.title)}`
+                  window.location.href = `/cooccurrence?q=${encodeURIComponent(data.entry.title)}`
                 }}
               >
                 <ExternalLink size={15} /> {t('deepSearch')}

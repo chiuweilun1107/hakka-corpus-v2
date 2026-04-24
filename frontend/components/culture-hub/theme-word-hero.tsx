@@ -78,7 +78,7 @@ export function ThemeWordHero({ data, loading, onRefresh }: Props) {
       <div className="flex justify-center">
         <div className="relative px-14">
           <Link
-            href={`/sketch?q=${encodeURIComponent(data.entry.title)}`}
+            href={`/cooccurrence?q=${encodeURIComponent(data.entry.title)}`}
             className="block text-6xl md:text-8xl font-bold text-primary tracking-tight leading-none hover:underline decoration-primary/40 underline-offset-8 transition-colors"
           >
             {data.entry.title}
@@ -176,7 +176,7 @@ export function ThemeWordHero({ data, loading, onRefresh }: Props) {
               return (
                 <a
                   key={c.partner}
-                  href={`/sketch?q=${encodeURIComponent(c.partner)}`}
+                  href={`/cooccurrence?q=${encodeURIComponent(c.partner)}`}
                   className="text-foreground/70 hover:text-primary transition-colors"
                   style={{ fontSize: `${fontSize}rem` }}
                 >
