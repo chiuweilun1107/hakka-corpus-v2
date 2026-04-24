@@ -5,8 +5,7 @@ import { useParams } from 'next/navigation'
 import { ChevronLeft, BookOpen } from 'lucide-react'
 import Link from 'next/link'
 import { PageLayout } from '@/components/page-layout'
-import { Badge } from '@/components/ui/badge'
-import { CertifiedBadge, GradeBadge, InlineWordGrade } from '@/components/ui/grade-badge'
+import { CertifiedBadge, GradeBadge, InlineWordGrade, TagPill } from '@/components/ui/grade-badge'
 import {
   fetchProverbById,
   fetchProverbPinyinByDialect,
@@ -174,9 +173,7 @@ export default function ExampleDetailPage() {
           {/* Category + certification badges */}
           <div className="flex items-center justify-center gap-2 flex-wrap">
             {proverb.category && (
-              <Badge variant="outline" className="text-xs">
-                {proverb.category}
-              </Badge>
+              <TagPill label={proverb.category} />
             )}
             <CertifiedBadge />
             {gradeLoaded && highestGrade && (
@@ -294,16 +291,8 @@ export default function ExampleDetailPage() {
                 >
                   <div className="bg-card border border-border/50 rounded-xl px-5 py-3.5 hover:border-primary/40 hover:shadow-sm transition-all">
                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                      {item.genre && (
-                        <Badge variant="outline" className="text-[11px] py-0">
-                          {item.genre}
-                        </Badge>
-                      )}
-                      {item.dialect && (
-                        <Badge variant="secondary" className="text-[11px] py-0">
-                          {item.dialect}
-                        </Badge>
-                      )}
+                      {item.genre && <TagPill label={item.genre} />}
+                      {item.dialect && <TagPill label={item.dialect} />}
                       {item.word_count != null && (
                         <span className="text-[11px] text-muted-foreground ml-auto">{item.word_count} 字</span>
                       )}

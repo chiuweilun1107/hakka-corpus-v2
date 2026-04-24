@@ -12,6 +12,15 @@ const GRADE_COLORS: Record<string, string> = {
 
 const PILL_BASE = 'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-white'
 
+// Neutral category tag — muted background, foreground text
+export function TagPill({ label, className }: { label: string; className?: string }) {
+  return (
+    <span className={cn('inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-muted/60 text-muted-foreground', className)}>
+      {label}
+    </span>
+  )
+}
+
 export function CertifiedBadge({ className }: { className?: string }) {
   return (
     <span className={cn(PILL_BASE, className)} style={{ backgroundColor: '#34d399' }}>
