@@ -16,6 +16,7 @@ export interface Speaker {
   media_timestamps: string
   media_script:   string
   video_url:      string
+  video_script:   string
   has_video:      boolean
   sort_order:     number
 }

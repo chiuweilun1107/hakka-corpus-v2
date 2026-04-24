@@ -19,6 +19,7 @@ class SpeakerItem(BaseModel):
     media_timestamps: str = ""
     media_script:   str = ""
     video_url:      str = ""
+    video_script:   str = ""
     has_video:      bool = False
     sort_order:     int = 0
 

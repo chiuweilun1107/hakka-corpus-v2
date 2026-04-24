@@ -23,6 +23,7 @@ class Speaker(Base):
     media_timestamps = Column(Text, server_default="")     # 原音檔片段時間戳 "(00:22:01-00:22:50)"
     media_script = Column(Text, server_default="")         # 原文字稿（客語，含 <CS-zh> 標記）
     video_url    = Column(Text, server_default="")                          # YouTube embed URL（僅有影片的說話者）
+    video_script = Column(Text, server_default="")                          # Whisper 轉錄逐字稿
     has_video    = Column(Boolean, nullable=False, server_default="false")
     sort_order   = Column(SmallInteger, nullable=False, server_default="0")
     is_active    = Column(Boolean, nullable=False, server_default="true")

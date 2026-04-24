@@ -90,28 +90,26 @@ export function VideoModal({ speaker, open, onOpenChange }: VideoModalProps) {
                   <div className="flex items-center gap-2">
                     <div className="w-0.5 h-4 rounded-full" style={{ background: accentColor }} />
                     <span className="text-[10px] font-semibold text-muted-foreground tracking-widest uppercase">
-                      口述語音
+                      影片逐字稿
                     </span>
                   </div>
-                  {speaker.media_timestamps && (
-                    <span className="text-[10px] text-muted-foreground/50 font-mono">
-                      {speaker.media_timestamps}
-                    </span>
-                  )}
                 </div>
 
-                {/* 完整字稿（不截斷，可捲動） */}
-                {speaker.media_script && (
+                {/* 影片逐字稿（可捲動） */}
+                {speaker.video_script ? (
                   <div className="relative flex-1 min-h-0 overflow-y-auto">
                     <Quote
                       size={24}
                       className="absolute top-0 left-0 pointer-events-none select-none"
                       style={{ color: accentColor, opacity: 0.2 }}
                     />
-                    <blockquote
-                      className="font-serif text-[17px] leading-[1.9] text-foreground/80 pl-8"
-                      dangerouslySetInnerHTML={{ __html: formatScript(speaker.media_script) }}
-                    />
+                    <p className="font-serif text-[15px] leading-[1.85] text-foreground/80 pl-8 whitespace-pre-wrap">
+                      {speaker.video_script}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center">
+                    <p className="text-[12px] text-muted-foreground/50">逐字稿整理中</p>
                   </div>
                 )}
 
