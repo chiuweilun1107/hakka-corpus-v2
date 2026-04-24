@@ -52,6 +52,13 @@ export function SearchSection() {
         />
       </section>
 
+      {/* === MOBILE + TABLET CultureHub (<1024px) === */}
+      <section className="lg:hidden border-t border-border/20">
+        <div className="container mx-auto px-4 max-w-2xl py-8">
+          <CultureHub inline />
+        </div>
+      </section>
+
       {/* === DESKTOP (>=1024px): 左右兩欄分色 === */}
       <section className="hidden lg:block bg-muted/30 border-t border-border/20">
         <div className="container mx-auto px-4 max-w-6xl py-12">
