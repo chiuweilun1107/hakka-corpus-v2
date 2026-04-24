@@ -6,7 +6,6 @@ import { DialectMapSection } from '@/components/dialect-map-section'
 import { FestivalSection } from '@/components/festival-section'
 import { SpeakerProfile } from '@/components/speaker-profile'
 import { StatsSection } from '@/components/stats-section'
-import { NewsSection } from '@/components/news-section'
 import { Footer } from '@/components/footer'
 
 export default function HomePage() {
@@ -19,7 +18,6 @@ export default function HomePage() {
         <DialectMapSection />
         <SpeakerProfile />
         <StatsSection />
-        <NewsSection />
       </main>
       <Footer />
     </div>
