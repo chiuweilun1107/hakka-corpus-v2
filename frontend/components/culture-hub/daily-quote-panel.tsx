@@ -11,6 +11,7 @@ import { useExploreStore } from '@/lib/stores/explore-store'
 import { DB_LABEL_TO_DIALECT } from '@/lib/dialect'
 import { useTranslations } from 'next-intl'
 import { CertifiedBadge, GradeBadge } from '@/components/ui/grade-badge'
+import { GRADE_ORDER, CJK_REGEX } from '@/lib/text'
 
 export function DailyQuotePanel() {
   const t = useTranslations('dailyQuote')
@@ -47,20 +48,19 @@ export function DailyQuotePanel() {
 
   useEffect(() => {
     if (!quote) return
-    const chars = [...quote.title].filter(c => /[一-鿿]/.test(c))
+    const chars = [...quote.title].filter(c => CJK_REGEX.test(c))
     if (chars.length === 0) return
     const dialectLabel = Object.keys(DB_LABEL_TO_DIALECT).find(k => DB_LABEL_TO_DIALECT[k] === activeDialect)
     fetchCertifiedVocabBatch(chars, dialectLabel)
       .then(results => {
         const map: Record<string, string | null> = {}
-        const GRADE_ORDER = ['高級', '中高級', '中級', '初級', '基礎級']
         let top: string | null = null
         results.forEach(r => {
           map[r.word] = r.grade
           if (r.grade) {
-            const idx = GRADE_ORDER.indexOf(r.grade)
-            const topIdx = top ? GRADE_ORDER.indexOf(top) : 999
-            if (idx < topIdx) top = r.grade
+            const idx = GRADE_ORDER.indexOf(r.grade as typeof GRADE_ORDER[number])
+            const topIdx = top ? GRADE_ORDER.indexOf(top as typeof GRADE_ORDER[number]) : 999
+            if (idx !== -1 && idx < topIdx) top = r.grade
           }
         })
         setGradeMap(map)

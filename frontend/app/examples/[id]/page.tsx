@@ -21,19 +21,7 @@ import { LabeledDivider } from '@/components/ui/labeled-divider'
 import { BackLink } from '@/components/ui/back-link'
 import { SectionHeader } from '@/components/ui/section-header'
 import { PinyinText } from '@/components/ui/pinyin-text'
-
-const GRADE_ORDER = ['高級', '中高級', '中級', '初級', '基礎級']
-
-function getHighestGrade(gradeMap: Record<string, string | null>): string | null {
-  let top: string | null = null
-  for (const grade of Object.values(gradeMap)) {
-    if (!grade) continue
-    const idx = GRADE_ORDER.indexOf(grade)
-    const topIdx = top ? GRADE_ORDER.indexOf(top) : 999
-    if (idx !== -1 && idx < topIdx) top = grade
-  }
-  return top
-}
+import { GRADE_ORDER, getHighestGrade, CJK_REGEX } from '@/lib/text'
 
 export default function ExampleDetailPage() {
   const params = useParams()
@@ -75,7 +63,7 @@ export default function ExampleDetailPage() {
   // Fetch vocab grades after proverb loads
   useEffect(() => {
     if (!proverb) return
-    const chars = [...proverb.title].filter(c => /[一-鿿]/.test(c))
+    const chars = [...proverb.title].filter(c => CJK_REGEX.test(c))
     if (chars.length === 0) {
       setGradeLoaded(true)
       return
@@ -137,7 +125,7 @@ export default function ExampleDetailPage() {
     )
   }
 
-  const titleChars = [...proverb.title].filter(c => /[一-鿿]/.test(c))
+  const titleChars = [...proverb.title].filter(c => CJK_REGEX.test(c))
 
   return (
     <PageLayout>

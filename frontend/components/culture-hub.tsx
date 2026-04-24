@@ -44,7 +44,9 @@ export function CultureHub({ inline = false }: { inline?: boolean }) {
     }
   }, [setActiveDialect, setActiveWord])
 
-  useEffect(() => { loadWordOfDay() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { loadWordOfDay() }, [loadWordOfDay])
+
+  const handleRefresh = useCallback(() => loadWordOfDay({ random: true }), [loadWordOfDay])
 
   const inner = (
     <div>
@@ -70,7 +72,7 @@ export function CultureHub({ inline = false }: { inline?: boolean }) {
           <ThemeWordHero
             data={data}
             loading={loading}
-            onRefresh={() => loadWordOfDay({ random: true })}
+            onRefresh={handleRefresh}
           />
         )}
         {hubTab === 'quote' && <DailyQuotePanel />}

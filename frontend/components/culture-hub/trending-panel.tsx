@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { Loader2 } from 'lucide-react'
 import { fetchTrending } from '@/lib/api'
@@ -52,13 +52,13 @@ export function TrendingPanel() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
-  const timePeriods: { id: TimePeriod; label: string }[] = [
+  const timePeriods = useMemo<{ id: TimePeriod; label: string }[]>(() => [
     { id: 'daily', label: t('periods.day') },
     { id: 'weekly', label: t('periods.week') },
     { id: 'monthly', label: t('periods.month') },
     { id: 'quarterly', label: t('periods.quarter') },
     { id: 'yearly', label: t('periods.year') },
-  ]
+  ], [t])
 
   const load = useCallback(async (p: TimePeriod) => {
     setLoading(true)
