@@ -2,14 +2,16 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { Volume2, RefreshCw } from 'lucide-react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { fetchRandomProverb, fetchProverbPinyinByDialect } from '@/lib/api'
+import { fetchRandomProverb, fetchProverbPinyinByDialect, fetchCertifiedVocabBatch } from '@/lib/api'
 import type { ProverbItem, PinyinByDialect } from '@/lib/api'
 import { useExploreStore } from '@/lib/stores/explore-store'
 import { DIALECT_CHART_COLORS } from '@/lib/colors'
 import { cn } from '@/lib/utils'
 import type { Dialect } from '@/lib/types'
 import { useTranslations } from 'next-intl'
+import { CertifiedBadge, GradeBadge } from '@/components/ui/grade-badge'
 
 const DB_LABEL_TO_DIALECT: Record<string, Dialect> = {
   '四縣': 'sixian',
@@ -35,6 +37,8 @@ export function DailyQuotePanel() {
   const [quote, setQuote] = useState<ProverbItem | null>(null)
   const [pinyinByDialect, setPinyinByDialect] = useState<PinyinByDialect[]>([])
   const [loading, setLoading] = useState(false)
+  const [gradeMap, setGradeMap] = useState<Record<string, string | null>>({})
+  const [highestGrade, setHighestGrade] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -59,6 +63,30 @@ export function DailyQuotePanel() {
   useEffect(() => {
     load()
   }, [load])
+
+  useEffect(() => {
+    if (!quote) return
+    const chars = [...quote.title].filter(c => /[一-鿿]/.test(c))
+    if (chars.length === 0) return
+    const dialectLabel = Object.keys(DB_LABEL_TO_DIALECT).find(k => DB_LABEL_TO_DIALECT[k] === activeDialect)
+    fetchCertifiedVocabBatch(chars, dialectLabel)
+      .then(results => {
+        const map: Record<string, string | null> = {}
+        const GRADE_ORDER = ['高級', '中高級', '中級', '初級', '基礎級']
+        let top: string | null = null
+        results.forEach(r => {
+          map[r.word] = r.grade
+          if (r.grade) {
+            const idx = GRADE_ORDER.indexOf(r.grade)
+            const topIdx = top ? GRADE_ORDER.indexOf(top) : 999
+            if (idx < topIdx) top = r.grade
+          }
+        })
+        setGradeMap(map)
+        setHighestGrade(top)
+      })
+      .catch(() => {})
+  }, [quote, activeDialect])
 
   if (loading && !quote) {
     return (
@@ -97,12 +125,23 @@ export function DailyQuotePanel() {
         &quot;
       </div>
 
+      {/* 認證分級 badges */}
+      {Object.keys(gradeMap).length > 0 && (
+        <div className="flex justify-center gap-1.5 flex-wrap">
+          <CertifiedBadge />
+          {highestGrade && <GradeBadge grade={highestGrade} />}
+        </div>
+      )}
+
       {/* 主諺語 + 右側垂直 icon buttons */}
       <div className="relative flex justify-center">
         <div className="relative px-14">
-          <h3 className="text-2xl md:text-4xl font-serif font-bold text-foreground leading-tight text-center">
+          <Link
+            href={`/examples/${quote.id}`}
+            className="block text-2xl md:text-4xl font-serif font-bold text-foreground leading-tight text-center hover:text-primary transition-colors hover:underline decoration-primary/40 underline-offset-4"
+          >
             {quote.title}
-          </h3>
+          </Link>
           <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-1.5">
             <Button
               size="icon"

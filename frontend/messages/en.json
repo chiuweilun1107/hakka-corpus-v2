@@ -156,7 +156,21 @@
     "errorLoad": "Unable to load the daily proverb. Please try again later.",
     "loadFailed": "Failed to load proverb",
     "noData": "No data available",
-    "dailyQuoteTitle": "Daily Proverb"
+    "dailyQuoteTitle": "Daily Proverb",
+    "viewExample": "View Example Bank"
+  },
+  "examples": {
+    "backToQuote": "← Daily Quote",
+    "certified": "HAC Certified",
+    "category": "Sub-corpus",
+    "mandarin": "Mandarin Translation",
+    "definition": "Definition",
+    "example": "Example",
+    "vocabGrades": "Vocabulary Proficiency",
+    "usageInCorpus": "Usage in Corpus",
+    "viewAllInCorpus": "View All in Corpus",
+    "noGradeData": "Proficiency data pending import",
+    "noCorpusData": "No related corpus texts found"
   },
   "dialectExplorer": {
     "title": "Dialect Explorer",

@@ -102,6 +102,7 @@ from routers import proverbs as proverbs_router
 from routers import dialects as dialects_router
 from routers import speakers as speakers_router
 from routers import corpus_texts as corpus_texts_router
+from routers import certified_vocab as certified_vocab_router
 
 app.include_router(dict_router.router)
 app.include_router(cooc_router.router)
@@ -113,6 +114,7 @@ app.include_router(proverbs_router.router)
 app.include_router(dialects_router.router)
 app.include_router(corpus_texts_router.router)
 app.include_router(speakers_router.router)
+app.include_router(certified_vocab_router.router)
 
 
 # ── Static files (speaker portraits / audio) ─────────

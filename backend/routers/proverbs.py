@@ -77,6 +77,23 @@ async def random_proverb(
     )
 
 
+@router.get("/proverbs/{proverb_id}", response_model=ProverbItem)
+async def get_proverb(
+    proverb_id: int,
+    db: AsyncSession = Depends(get_db),
+) -> ProverbItem:
+    """取得單一諺語（by id）。"""
+    result = await db.execute(
+        select(DailyProverb).where(
+            DailyProverb.id == proverb_id, DailyProverb.is_active.is_(True)
+        )
+    )
+    proverb = result.scalar_one_or_none()
+    if not proverb:
+        raise HTTPException(status_code=404, detail="Proverb not found")
+    return ProverbItem.model_validate(proverb)
+
+
 @router.get("/proverbs/{proverb_id}/pinyin-by-dialect", response_model=list[PinyinByDialect])
 async def proverb_pinyin_by_dialect(
     proverb_id: int,

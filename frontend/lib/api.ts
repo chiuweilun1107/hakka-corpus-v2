@@ -366,6 +366,42 @@ export async function fetchProverbList(params?: {
   return res.json()
 }
 
+// ===== Proverb by ID =====
+export async function fetchProverbById(id: number): Promise<ProverbItem> {
+  const res = await fetch(`${API_BASE}/proverbs/${id}`)
+  if (!res.ok) throw new Error('API error')
+  return res.json()
+}
+
+// ===== Certified Vocab =====
+export interface CertifiedVocabItem {
+  word: string
+  pinyin: string | null
+  dialect: string | null
+  grade: string
+  category: string | null
+  mandarin: string | null
+}
+
+export interface CertifiedVocabBatchItem {
+  word: string
+  grade: string | null
+  mandarin: string | null
+}
+
+export async function fetchCertifiedVocabBatch(
+  words: string[],
+  dialect?: string
+): Promise<CertifiedVocabBatchItem[]> {
+  if (words.length === 0) return []
+  const params = new URLSearchParams()
+  params.set('words', words.join(','))
+  if (dialect) params.set('dialect', dialect)
+  const res = await fetch(`${API_BASE}/certified-vocab/batch?${params.toString()}`)
+  if (!res.ok) return words.map(w => ({ word: w, grade: null, mandarin: null }))
+  return res.json()
+}
+
 // ===== Cooc Top / Random Pair =====
 
 export interface CoocPairItem {

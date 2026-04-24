@@ -157,7 +157,21 @@
     "errorLoad": "暫時無法載入每日一句，請稍後再試。",
     "loadFailed": "諺語載入失敗",
     "noData": "暫無資料",
-    "dailyQuoteTitle": "每日一句 (muiˊ ngidˋ idˋ giˇ)"
+    "dailyQuoteTitle": "每日一句 (muiˊ ngidˋ idˋ giˇ)",
+    "viewExample": "查看例句庫"
+  },
+  "examples": {
+    "backToQuote": "← 每日一句",
+    "certified": "客委會認證",
+    "category": "子庫",
+    "mandarin": "華語對譯",
+    "definition": "釋義",
+    "example": "例句",
+    "vocabGrades": "詞彙認證分級",
+    "usageInCorpus": "在語料庫中的使用",
+    "viewAllInCorpus": "查看全部語料",
+    "noGradeData": "詞彙分級資料待匯入",
+    "noCorpusData": "語料庫中暫無相關文本"
   },
   "dialectExplorer": {
     "title": "腔調探索 (kiongˋ tiauˋ tham-sakˋ)",
