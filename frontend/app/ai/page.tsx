@@ -611,7 +611,7 @@ export default function AiPage() {
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                  className="hidden sm:flex h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
                   title="圖像辨識"
                   onClick={handleCameraOpen}
                   disabled={isLoading}
@@ -649,7 +649,7 @@ export default function AiPage() {
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                placeholder="輸入訊息... (Shift+Enter 換行)"
+                placeholder="輸入訊息..."
                 className="flex-1 resize-none bg-transparent border-0 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-0 py-1.5 max-h-36 min-h-0"
               />
 
@@ -667,7 +667,7 @@ export default function AiPage() {
                 )}
               </Button>
             </div>
-            <p className="text-[10px] text-muted-foreground text-center mt-2">
+            <p className="hidden sm:block text-[10px] text-muted-foreground text-center mt-2">
               AI 助手基於 Gemini + 客語語料庫 RAG，回答僅供參考
             </p>
           </form>
