@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useExploreStore } from '@/lib/stores/explore-store'
 import { fetchWordOfDay } from '@/lib/api'
 import type { WordOfDayData } from '@/lib/api'
@@ -17,6 +17,7 @@ export function CultureHub({ inline = false }: { inline?: boolean }) {
   const t = useTranslations('cultureHub')
   const { setActiveDialect, setActiveWord, activeHubTab, setActiveHubTab } = useExploreStore()
   const [localTab, setLocalTab] = useState<HubTab>('today')
+  const hubPausedRef = useRef(false)
   const hubTab = activeHubTab ?? localTab
 
   const setHubTab = (v: HubTab) => {
@@ -49,7 +50,10 @@ export function CultureHub({ inline = false }: { inline?: boolean }) {
   const handleRefresh = useCallback(() => loadWordOfDay({ random: true }), [loadWordOfDay])
 
   const inner = (
-    <div>
+    <div
+      onMouseEnter={() => { hubPausedRef.current = true }}
+      onMouseLeave={() => { hubPausedRef.current = false }}
+    >
       {!inline && <SectionHeader title={t('title')} subtitle={t('subtitle')} />}
       <UnderlineTabs
         items={[
@@ -63,6 +67,7 @@ export function CultureHub({ inline = false }: { inline?: boolean }) {
         autoplay
         autoplayInterval={7000}
         pauseOnHover
+        pauseRef={hubPausedRef}
         align="center"
         className="mb-8"
       />

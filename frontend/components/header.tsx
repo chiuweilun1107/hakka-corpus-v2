@@ -31,6 +31,7 @@ function getNavItems(t: ReturnType<typeof useTranslations<'nav'>>): NavItem[] {
       name: t('categories.languageResources.label'),
       children: [
         { name: t('categories.languageResources.children.corpus'), href: '/corpus' },
+        { name: t('categories.languageResources.children.examples'), href: '/examples' },
         { name: t('categories.languageResources.children.coreVocabulary'), href: 'https://corpus.hakka.gov.tw/#/corevocabulary', external: true },
         { name: t('categories.languageResources.children.gradedVocabulary'), href: 'https://corpus.hakka.gov.tw/#/gradedvocabulary', external: true },
         { name: t('categories.languageResources.children.semiAffix'), href: 'https://corpus.hakka.gov.tw/#/semiaffix', external: true },
@@ -41,7 +42,6 @@ function getNavItems(t: ReturnType<typeof useTranslations<'nav'>>): NavItem[] {
       name: t('categories.aiFeatures.label'),
       children: [
         { name: t('categories.aiFeatures.children.aiAssistant'), href: '/ai' },
-        { name: t('categories.aiFeatures.children.topicAnalysis'), href: '/corpus' },
         { name: t('categories.aiFeatures.children.segmenter'), href: 'https://corpus.hakka.gov.tw/corpus/#/segmenter', external: true },
       ],
     },

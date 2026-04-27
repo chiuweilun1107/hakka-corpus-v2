@@ -34,7 +34,7 @@ export function useSpeakers() {
   useEffect(() => {
     fetch('/api/v1/speakers?limit=20')
       .then(r => r.json())
-      .then((data: SpeakerListResponse) => setSpeakers(data.items))
+      .then((data: SpeakerListResponse) => setSpeakers(data.items ?? []))
       .catch(() => setError('無法載入人物資料'))
       .finally(() => setLoading(false))
   }, [])

@@ -41,7 +41,7 @@ export function SpeakerCarousel({ speakers }: SpeakerCarouselProps) {
     return () => document.removeEventListener('visibilitychange', onVisibility)
   }, [emblaApi])
 
-  if (speakers.length === 0) return null
+  if (!speakers || speakers.length === 0) return null
 
   const activeAccent = DIALECT_CHART_COLORS[speakers[selectedIndex]?.dialect] ?? '#009688'
 

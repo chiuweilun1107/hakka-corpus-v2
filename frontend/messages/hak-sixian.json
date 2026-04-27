@@ -45,6 +45,7 @@
         "label": "語言資源",
         "children": {
           "corpus": "文本語料庫（AI 分析）",
+          "examples": "俚諺語",
           "coreVocabulary": "基礎詞彙尋",
           "gradedVocabulary": "詞語分級標準詞彙",
           "semiAffix": "（類）詞綴表",
@@ -55,7 +56,6 @@
         "label": "AI 智慧功能",
         "children": {
           "aiAssistant": "AI 助手",
-          "topicAnalysis": "文本主題分析",
           "segmenter": "客話斷詞暨詞性標注"
         }
       },

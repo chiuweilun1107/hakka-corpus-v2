@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type RefObject } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -21,6 +21,7 @@ export interface UnderlineTabsProps {
   autoplay?: boolean
   autoplayInterval?: number
   pauseOnHover?: boolean
+  pauseRef?: RefObject<boolean>
   // expose active value to parent (autoplay mode)
   onActiveChange?: (v: string) => void
   // style
@@ -36,6 +37,7 @@ export function UnderlineTabs({
   autoplay = false,
   autoplayInterval = 7000,
   pauseOnHover = true,
+  pauseRef,
   onActiveChange,
   align = 'center',
   size = 'md',
@@ -43,7 +45,13 @@ export function UnderlineTabs({
 }: UnderlineTabsProps) {
   const pathname = usePathname()
   const paused = useRef(false)
+  const wrapperRef = useRef<HTMLDivElement>(null)
   const [internalValue, setInternalValue] = useState(items[0]?.value ?? '')
+  const internalValueRef = useRef(items[0]?.value ?? '')
+  const onValueChangeRef = useRef(onValueChange)
+  const onActiveChangeRef = useRef(onActiveChange)
+  onValueChangeRef.current = onValueChange
+  onActiveChangeRef.current = onActiveChange
 
   // Mode B: any item has href => router mode
   const isRouterMode = items.some((i) => i.href)
@@ -53,6 +61,7 @@ export function UnderlineTabs({
     : (controlledValue ?? internalValue)
 
   const setActive = (v: string) => {
+    internalValueRef.current = v
     setInternalValue(v)
     onValueChange?.(v)
     onActiveChange?.(v)
@@ -61,6 +70,7 @@ export function UnderlineTabs({
   // Keep internalValue in sync with controlled value
   useEffect(() => {
     if (controlledValue !== undefined) {
+      internalValueRef.current = controlledValue
       setInternalValue(controlledValue)
     }
   }, [controlledValue])
@@ -69,18 +79,18 @@ export function UnderlineTabs({
   useEffect(() => {
     if (!autoplay || isRouterMode) return
     const tick = () => {
-      if (paused.current || document.hidden) return
-      setInternalValue((prev) => {
-        const idx = items.findIndex((i) => i.value === prev)
-        const next = items[(idx + 1) % items.length].value
-        onValueChange?.(next)
-        onActiveChange?.(next)
-        return next
-      })
+      if (paused.current || pauseRef?.current || document.hidden || wrapperRef.current?.offsetParent === null) return
+      const prev = internalValueRef.current
+      const idx = items.findIndex((i) => i.value === prev)
+      const next = items[(idx + 1) % items.length].value
+      internalValueRef.current = next
+      setInternalValue(next)
+      onValueChangeRef.current?.(next)
+      onActiveChangeRef.current?.(next)
     }
     const id = setInterval(tick, autoplayInterval)
     return () => clearInterval(id)
-  }, [autoplay, autoplayInterval, isRouterMode, items, onActiveChange, onValueChange])
+  }, [autoplay, autoplayInterval, isRouterMode, items])
 
   const tabClass = (isActive: boolean) =>
     cn(
@@ -101,6 +111,7 @@ export function UnderlineTabs({
 
   return (
     <div
+      ref={wrapperRef}
       className={cn(
         'flex border-b border-border/60',
         align === 'center' ? 'justify-center' : '',

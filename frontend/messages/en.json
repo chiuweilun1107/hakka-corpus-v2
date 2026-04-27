@@ -44,6 +44,7 @@
         "label": "Language Resources",
         "children": {
           "corpus": "Text Corpus (AI Analysis)",
+          "examples": "Proverbs & Idioms",
           "coreVocabulary": "Core Vocabulary Search",
           "gradedVocabulary": "Graded Vocabulary",
           "semiAffix": "Semi-affix List",
@@ -54,7 +55,6 @@
         "label": "AI Features",
         "children": {
           "aiAssistant": "AI Assistant",
-          "topicAnalysis": "Topic Analysis",
           "segmenter": "Hakka Segmenter & POS Tagger"
         }
       },

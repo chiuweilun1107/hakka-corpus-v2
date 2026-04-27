@@ -9,7 +9,7 @@
 4. 情感分析（positive/negative/neutral 百分比）
 
 執行：
-  python3 backend/scripts/run_ai_analysis.py [--limit N] [--force]
+  python3 backend/scripts/run_ai_analysis.py [--limit N] [--force] [--reanalyze-topics-only]
 """
 
 from __future__ import annotations
@@ -23,15 +23,12 @@ import asyncpg
 from gemini_webapi import GeminiClient
 from gemini_webapi.constants import Model
 
+from _topic_taxonomy import UNIFIED_TAXONOMY, normalize_topics
+
 DATABASE_URL = "postgresql://postgres:postgres@localhost:54322/postgres"
 STORAGE_STATE = Path.home() / ".notebooklm" / "storage_state.json"
 
-
-# 固定主題分類 taxonomy — 12 類，與首頁 stats 圖表的 5 大主題（飲食/文化/教育/觀光/民俗）共用詞彙
-TOPIC_TAXONOMY = [
-    "飲食", "文化", "教育", "觀光", "民俗", "歷史",
-    "人物", "地理", "產業", "生活", "節慶", "歌謠",
-]
+TOPIC_TAXONOMY = UNIFIED_TAXONOMY  # backward-compat alias
 
 
 ANALYSIS_PROMPT = """你是客語 NLP 分析系統。以下是一篇客語文本，請用 JSON 格式回傳分析結果。
@@ -70,11 +67,12 @@ ANALYSIS_PROMPT = """你是客語 NLP 分析系統。以下是一篇客語文本
 }}
 
 **規則**：
-- **topics.name 必須從下方 12 類固定清單中選出（不可自創名稱、不可組合、不可加修飾詞）**：
-  [飲食、文化、教育、觀光、民俗、歷史、人物、地理、產業、生活、節慶、歌謠]
+- **topics.name 必須從下方 16 類固定清單中選出（不可自創名稱、不可組合、不可加修飾詞）**：
+  [飲食、文化、教育、觀光、民俗、歷史、人物、地理、產業、生活、節慶、歌謠、勸戒、處世、勤勞、比喻]
   - 選出最貼近本文的 3 個主題，percentage 三者總和須為 100
   - 同一主題不可重複出現
   - 若本文難以歸類（如純技術說明），可使用「文化」或「生活」作兜底
+  - 若本文為勸世、警示、人生哲理性質，優先使用「勸戒」或「處世」而非「文化」
 - **每個主題的 keywords 必須是「直接從原文擷取的客語詞彙或漢字詞組」**，不可自行生成華語概括詞
 - 例如：若原文為客家飲食主題，keywords 應該是「粄條」「擂茶」「鹹豬肉」（原文出現的字詞），不是「勤儉」「誠實」（華語概括詞）
 - 每主題列 3-5 個關鍵詞，優先選出現頻率高且具客語/客家文化特色的詞
@@ -87,94 +85,6 @@ ANALYSIS_PROMPT = """你是客語 NLP 分析系統。以下是一篇客語文本
 - persons/places/organizations 若無則為空陣列，有的話必須是原文出現的實體
 - 全部用繁體中文
 - 只回傳 JSON，不要任何額外說明文字"""
-
-
-# Gemini 偶爾不守清單時的兜底映射（子字串 → 規範類別）
-_TOPIC_ALIAS: dict[str, str] = {
-    # 飲食
-    "飲食": "飲食", "食物": "飲食", "料理": "飲食", "小吃": "飲食", "美食": "飲食",
-    # 文化（通用兜底）
-    "文化": "文化", "藝術": "文化", "傳統": "文化", "風俗": "文化",
-    # 教育
-    "教育": "教育", "學校": "教育", "學習": "教育", "教學": "教育",
-    # 觀光
-    "觀光": "觀光", "旅遊": "觀光", "景點": "觀光",
-    # 民俗
-    "民俗": "民俗", "信仰": "民俗", "宗教": "民俗", "祭祀": "民俗", "禮俗": "民俗",
-    # 歷史
-    "歷史": "歷史", "沿革": "歷史", "大事": "歷史", "年表": "歷史",
-    # 人物
-    "人物": "人物", "人名": "人物", "名人": "人物", "傳記": "人物",
-    "生平": "人物", "背景": "人物", "經歷": "人物", "求學": "人物",
-    "從政": "人物", "政治人物": "人物", "家族": "人物", "血統": "人物",
-    # 地理
-    "地理": "地理", "地名": "地理", "地區": "地理", "地形": "地理", "地貌": "地理",
-    # 產業
-    "產業": "產業", "農業": "產業", "工業": "產業", "商業": "產業", "經濟": "產業",
-    "交通": "產業", "技術": "產業", "科技": "產業", "設備": "產業",
-    # 生活
-    "生活": "生活", "家庭": "生活", "日常": "生活", "倫理": "生活",
-    # 節慶
-    "節慶": "節慶", "節日": "節慶", "慶典": "節慶",
-    # 歌謠
-    "歌謠": "歌謠", "山歌": "歌謠", "歌詞": "歌謠", "音樂": "歌謠",
-}
-TOPIC_SET = set(TOPIC_TAXONOMY)
-
-
-def normalize_topics(topics: list) -> list:
-    """把 Gemini 回傳的主題 name 規範化到 12 類清單；
-    - 無法映射的退到『文化』兜底
-    - 映射後重複的 name 會累加 percentage 並合併 keywords（保留順序）
-    - 最後把 percentage 標準化到總和 100
-    """
-    if not isinstance(topics, list):
-        return []
-    merged: dict[str, dict] = {}
-    order: list[str] = []
-    for t in topics:
-        if not isinstance(t, dict):
-            continue
-        raw = str(t.get("name", "")).strip()
-        mapped: str | None = None
-        if raw in TOPIC_SET:
-            mapped = raw
-        else:
-            for alias, target in _TOPIC_ALIAS.items():
-                if alias in raw:
-                    mapped = target
-                    break
-        if mapped is None:
-            mapped = "文化"
-
-        pct_raw = t.get("percentage", 0)
-        try:
-            pct = float(pct_raw) if pct_raw is not None else 0.0
-        except (TypeError, ValueError):
-            pct = 0.0
-        kw = t.get("keywords", []) or []
-
-        if mapped not in merged:
-            merged[mapped] = {"name": mapped, "percentage": pct, "keywords": list(kw)}
-            order.append(mapped)
-        else:
-            merged[mapped]["percentage"] += pct
-            for k in kw:
-                if k not in merged[mapped]["keywords"]:
-                    merged[mapped]["keywords"].append(k)
-
-    # 標準化 percentage 總和 → 100
-    total = sum(merged[n]["percentage"] for n in order)
-    if total > 0:
-        for n in order:
-            merged[n]["percentage"] = round(merged[n]["percentage"] * 100 / total)
-        # 修正捨入誤差：最大那筆吸收餘差
-        diff = 100 - sum(merged[n]["percentage"] for n in order)
-        if diff != 0 and order:
-            max_name = max(order, key=lambda n: merged[n]["percentage"])
-            merged[max_name]["percentage"] += diff
-
-    return [merged[n] for n in order]
 
 
 def extract_json(text: str) -> dict | None:
@@ -213,10 +123,52 @@ async def analyze_one(client: GeminiClient, row: dict) -> dict | None:
         return None
 
 
+TOPICS_ONLY_PROMPT = """你是客語 NLP 分析系統。以下是一篇客語文本，請只分析主題並用 JSON 格式回傳。
+
+【文本標題】{title}
+【文類】{genre}
+【腔調】{dialect}
+
+【文本內容】
+{content}
+
+【任務】回傳**單一 JSON 物件**（不要包 markdown code block）：
+{{
+  "topics": [
+    {{"name": "<必須從下方 16 類清單中擇一>", "percentage": <0-100>, "keywords": ["<原文詞1>", "<原文詞2>", "<原文詞3>"]}},
+    ...
+  ]
+}}
+
+**規則**：
+- topics.name 必須從 16 類固定清單選出：
+  [飲食、文化、教育、觀光、民俗、歷史、人物、地理、產業、生活、節慶、歌謠、勸戒、處世、勤勞、比喻]
+- 選最貼近本文的 1-3 個主題，percentage 總和須為 100
+- 若本文為勸世、警示性質 → 優先用「勸戒」或「處世」
+- 只回傳 JSON，不要任何額外說明文字"""
+
+
+async def analyze_topics_only(client: GeminiClient, row: dict) -> list | None:
+    prompt = TOPICS_ONLY_PROMPT.format(
+        title=row["title"],
+        genre=row.get("genre", "百科"),
+        dialect=row.get("dialect", "四縣"),
+        content=row["content"][:2000],
+    )
+    try:
+        resp = await client.generate_content(prompt, model=Model.BASIC_FLASH)
+        result = extract_json(resp.text)
+        return result.get("topics") if result else None
+    except Exception as e:
+        print(f"  ⚠ Gemini error: {e}")
+        return None
+
+
 async def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=35)
     parser.add_argument("--force", action="store_true", help="重跑已分析過的")
+    parser.add_argument("--reanalyze-topics-only", action="store_true", help="只重跑 topics 欄位（不動 summary/NER/emotion）")
     args = parser.parse_args()
 
     # 1. Init Gemini
@@ -229,7 +181,10 @@ async def main():
 
     # 2. Fetch rows
     conn = await asyncpg.connect(DATABASE_URL)
-    if args.force:
+    if args.reanalyze_topics_only:
+        rows = await conn.fetch("SELECT id, title, genre, dialect, content FROM public.corpus_texts ORDER BY id LIMIT $1", args.limit)
+        print(f"[fetch] 重分析 topics（16 類）: {len(rows)} 筆")
+    elif args.force:
         rows = await conn.fetch("SELECT * FROM public.corpus_texts ORDER BY id LIMIT $1", args.limit)
     else:
         rows = await conn.fetch("SELECT * FROM public.corpus_texts WHERE analysis_updated_at IS NULL ORDER BY id LIMIT $1", args.limit)
@@ -239,6 +194,25 @@ async def main():
     ok = 0
     for i, row in enumerate(rows, 1):
         print(f"\n[{i}/{len(rows)}] {row['title'][:40]}")
+
+        if args.reanalyze_topics_only:
+            raw_topics = await analyze_topics_only(client, dict(row))
+            if raw_topics is None:
+                print("  ✗ 跳過（無結果）")
+                continue
+            try:
+                await conn.execute(
+                    "UPDATE public.corpus_texts SET topics = $1, updated_at = NOW() WHERE id = $2",
+                    json.dumps(normalize_topics(raw_topics), ensure_ascii=False),
+                    row["id"],
+                )
+                ok += 1
+                topic_names = [t.get("name", "") for t in normalize_topics(raw_topics)][:3]
+                print(f"  ✓ 主題: {', '.join(topic_names)}")
+            except Exception as e:
+                print(f"  ✗ DB update error: {e}")
+            continue
+
         result = await analyze_one(client, dict(row))
         if not result:
             print("  ✗ 跳過（無結果）")

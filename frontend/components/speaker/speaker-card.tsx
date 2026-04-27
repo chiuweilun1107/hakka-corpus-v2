@@ -143,8 +143,7 @@ export function SpeakerCard({ speaker }: { speaker: Speaker }) {
 
     {speaker.has_video && speaker.video_url && (
       <VideoModal
-        videoUrl={speaker.video_url}
-        speakerName={speaker.name}
+        speaker={speaker}
         open={videoOpen}
         onOpenChange={setVideoOpen}
       />
