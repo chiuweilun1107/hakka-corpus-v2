@@ -41,7 +41,7 @@ function getNavItems(t: ReturnType<typeof useTranslations<'nav'>>): NavItem[] {
     {
       name: t('categories.aiFeatures.label'),
       children: [
-        { name: t('categories.aiFeatures.children.aiAssistant'), href: '/ai' },
+        { name: t('categories.aiFeatures.children.aiAssistant'), href: '/ai', external: true },
         { name: t('categories.aiFeatures.children.segmenter'), href: 'https://corpus.hakka.gov.tw/corpus/#/segmenter', external: true },
       ],
     },

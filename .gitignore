@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.env
+*.env.local
+
+# Node
+node_modules/
+.next/
+.vercel/
+npm-debug.log*
+
+# Secrets
+*.p12
+*.key
+*.pem
+secrets/
+
+# Data & dumps
+*.dump
+*.sql
+data/raw/
+data/processed/
+
+# macOS
+.DS_Store
+.~lock.*
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/
