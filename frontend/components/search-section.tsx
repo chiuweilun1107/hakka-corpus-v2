@@ -171,7 +171,7 @@ function SearchPanel({
               <Input
                 type="text" placeholder={t('searchForm.placeholder')}
                 value={searchQuery} onChange={(e) => { setIsTyping(true); setSearchQuery(e.target.value) }}
-                className="h-11 flex-1 border-0 bg-transparent text-sm text-gray-900 focus-visible:ring-0 px-3 placeholder:text-gray-400 font-medium"
+                className="h-11 flex-1 border-0 bg-transparent text-base sm:text-sm text-gray-900 focus-visible:ring-0 px-3 placeholder:text-gray-400 font-medium"
               />
               <div className="h-6 w-px bg-gray-200 shrink-0" />
               <Select value={corpusType} onValueChange={setCorpusType}>
@@ -189,10 +189,10 @@ function SearchPanel({
               <div className="flex items-center bg-white rounded-xl shadow-md ring-1 ring-black/5">
                 <Search className="h-4 w-4 text-hakka-light-brown/70 shrink-0 ml-4" />
                 <Input placeholder={t('searchForm.coword1')} value={searchQuery} onChange={(e) => { setIsTyping(true); setSearchQuery(e.target.value) }}
-                  className="h-11 flex-1 border-0 bg-transparent text-sm focus-visible:ring-0 px-3 placeholder:text-gray-400 font-medium" />
+                  className="h-11 flex-1 border-0 bg-transparent text-base sm:text-sm focus-visible:ring-0 px-3 placeholder:text-gray-400 font-medium" />
                 <div className="h-6 w-px bg-gray-200 shrink-0" />
                 <Input placeholder={t('searchForm.coword2')} value={searchQuery2} onChange={(e) => setSearchQuery2(e.target.value)}
-                  className="h-11 flex-1 border-0 bg-transparent text-sm focus-visible:ring-0 px-3 placeholder:text-gray-400 font-medium" />
+                  className="h-11 flex-1 border-0 bg-transparent text-base sm:text-sm focus-visible:ring-0 px-3 placeholder:text-gray-400 font-medium" />
                 <div className="h-6 w-px bg-gray-200 shrink-0" />
                 <Select value={corpusType} onValueChange={setCorpusType}>
                   <SelectTrigger className="h-11 w-[110px] border-0 bg-transparent text-xs text-gray-500 font-medium focus:ring-0 rounded-none rounded-r-xl">

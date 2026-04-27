@@ -650,7 +650,7 @@ export default function AiPage() {
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
                 placeholder="輸入訊息..."
-                className="flex-1 resize-none bg-transparent border-0 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-0 py-1.5 max-h-36 min-h-0"
+                className="flex-1 resize-none bg-transparent border-0 text-base sm:text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-0 py-1.5 max-h-36 min-h-0"
               />
 
               {/* Send button */}
