@@ -8,33 +8,29 @@ import { EmptyState } from '@/components/empty-state'
 import { DataSources } from '@/components/data-sources'
 import { PageHeader } from '@/components/page-header'
 import { ContentCard } from '@/components/ui/content-card'
-import { fetchCooc, fetchDict, type CoocItem, type DictEntry } from '@/lib/api'
+import { fetchSketch, fetchCooc, fetchDict, type SketchCategories, type CoocItem, type DictEntry } from '@/lib/api'
 
-const SKETCH_DATA_CACHE: Record<string, Record<string, string[]>> = {
-  '客家': {
-    'Modifies': ['文化節','族群','鄉親','山歌','文物館','歌謠','美食','民謠','本色'],
-    'N_Modifier': ['榮興','美濃','寶島','永定','全美','中原','東勢','新竹縣','鄭榮興'],
-    'Subject_of': ['採茶','小炒','醃漬','講古','現身','說唱','開館','料理','口述','炒','掛牌'],
-    'Object_of': ['品嚐','發揚','演唱','保存','認識','變成','展現','非','演出','接見','成立','推出'],
-    'Possession': ['夜'],
-  },
+const CAT_META: Record<keyof SketchCategories, { label: string; desc: string; color: string }> = {
+  Modifies:   { label: 'Modifies',   desc: '被修飾',  color: '#60a5fa' },
+  N_Modifier: { label: 'N_Modifier', desc: '修飾語',  color: '#fb923c' },
+  Subject_of: { label: 'Subject_of', desc: '右鄰搭配', color: '#f472b6' },
+  Object_of:  { label: 'Object_of',  desc: '左鄰搭配', color: '#34d399' },
+  Possession: { label: 'Possession', desc: '領屬',    color: '#a78bfa' },
 }
 
-const CAT_META: Record<string, { label: string; desc: string; color: string }> = {
-  Modifies: { label: 'Modifies', desc: '修飾', color: '#60a5fa' },
-  N_Modifier: { label: 'N_Modifier', desc: '名詞修飾', color: '#fb923c' },
-  Subject_of: { label: 'Subject_of', desc: '主語', color: '#f472b6' },
-  Object_of: { label: 'Object_of', desc: '賓語', color: '#34d399' },
-  Possession: { label: 'Possession', desc: '領屬', color: '#a78bfa' },
-}
+const CAT_ORDER: (keyof SketchCategories)[] = [
+  'N_Modifier', 'Modifies', 'Object_of', 'Subject_of', 'Possession',
+]
 
 function SketchContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const q = searchParams.get('q') || ''
+
+  const [sketchData, setSketchData] = useState<SketchCategories | null>(null)
   const [coocData, setCoocData] = useState<CoocItem[]>([])
   const [dictData, setDictData] = useState<DictEntry | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   const loadData = useCallback(async () => {
@@ -42,10 +38,14 @@ function SketchContent() {
     setLoading(true)
     setError('')
     try {
-      const [coocResult, dictResult] = await Promise.allSettled([
+      const [sketchResult, coocResult, dictResult] = await Promise.allSettled([
+        fetchSketch(q),
         fetchCooc(q),
         fetchDict(q),
       ])
+      if (sketchResult.status === 'fulfilled') {
+        setSketchData(sketchResult.value.categories)
+      }
       if (coocResult.status === 'fulfilled') {
         const v = coocResult.value
         setCoocData(Array.isArray(v) ? v : (v?.results ?? []))
@@ -63,18 +63,30 @@ function SketchContent() {
 
   useEffect(() => { loadData() }, [loadData])
 
-  const countMap = new Map(coocData.map(c => [c.partner, c.co_count]))
-  const sketchData = SKETCH_DATA_CACHE[q]
+  const hasSketch = sketchData && CAT_ORDER.some(cat => sketchData[cat].length > 0)
+
+  // No positional data → distribute cooc results across 5 pseudo-categories by logdice rank
+  const displaySketch: SketchCategories | null = (() => {
+    if (hasSketch) return sketchData!
+    if (coocData.length === 0) return null
+    const perCat = Math.ceil(coocData.length / CAT_ORDER.length)
+    const cats: Record<string, { partner: string; count: number }[]> = {}
+    CAT_ORDER.forEach((cat, idx) => {
+      cats[cat] = coocData.slice(idx * perCat, (idx + 1) * perCat)
+        .map(item => ({ partner: item.partner, count: item.co_count }))
+    })
+    return cats as unknown as SketchCategories
+  })()
+  const isPseudo = !hasSketch && displaySketch !== null
 
   return (
     <>
       <div className="container mx-auto px-4 py-6">
-        {/* Title */}
         <PageHeader
           title="Word Sketch"
           subtitle={q ? (
-            <>「<span className="font-semibold text-primary">{q}</span>」{sketchData ? '語法分類' : '共現詞列表'}</>
-          ) : '輸入關鍵詞後顯示語法分類結果'}
+            <>「<span className="font-semibold text-primary">{q}</span>」位置式詞彙搭配</>
+          ) : '輸入關鍵詞後顯示詞彙搭配結果'}
         />
 
         {/* Dict info card */}
@@ -103,62 +115,26 @@ function SketchContent() {
           </ContentCard>
         )}
 
-        {/* Loading */}
         {q && loading && <LoadingState />}
-
-        {/* Error */}
         {q && error && <EmptyState title={error} />}
 
-        {/* Skeleton grid when no keyword */}
+        {/* Placeholder grid when no keyword */}
         {!q && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-            {Object.entries(CAT_META).map(([cat, meta]) => (
-              <ContentCard key={cat} variant="default" padding="sm" className="overflow-hidden !p-0">
-                <div className="px-4 py-3 border-b-2" style={{ borderBottomColor: meta.color }}>
-                  <div className="font-bold text-sm" style={{ color: meta.color }}>{meta.label}</div>
-                  <div className="text-xs text-muted-foreground">{meta.desc}</div>
-                </div>
-                <div className="space-y-1 p-3">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="flex items-center justify-between py-2">
-                      <div className="h-4 bg-muted/20 rounded w-16" />
-                      <div className="h-3 bg-muted/15 rounded w-8" />
-                    </div>
-                  ))}
-                </div>
-              </ContentCard>
-            ))}
-          </div>
-        )}
-
-        {/* Sketch Grid */}
-        {q && !loading && !error && sketchData && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-            {Object.entries(sketchData).map(([cat, words]) => {
+            {CAT_ORDER.map((cat) => {
               const meta = CAT_META[cat]
               return (
                 <ContentCard key={cat} variant="default" padding="sm" className="overflow-hidden !p-0">
-                  <div
-                    className="px-4 py-3 border-b-2"
-                    style={{ borderBottomColor: meta.color }}
-                  >
+                  <div className="px-4 py-3 border-b-2" style={{ borderBottomColor: meta.color }}>
                     <div className="font-bold text-sm" style={{ color: meta.color }}>{meta.label}</div>
                     <div className="text-xs text-muted-foreground">{meta.desc}</div>
                   </div>
-                  <div className="divide-y divide-border/50">
-                    {words.map((w, i) => (
-                      <Button
-                        key={w}
-                        variant="ghost"
-                        className="w-full flex items-center justify-between px-4 py-2.5 h-auto hover:bg-muted/50 rounded-none text-left"
-                        style={{ opacity: Math.max(0.4, 1 - i * 0.07) }}
-                        onClick={() => router.push(`/cooccurrence?q=${encodeURIComponent(w)}`)}
-                      >
-                        <span className="text-sm text-foreground font-medium">{w}</span>
-                        <span className="text-xs text-muted-foreground font-mono">
-                          {countMap.get(w) || '-'}
-                        </span>
-                      </Button>
+                  <div className="space-y-1 p-3">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="flex items-center justify-between py-2">
+                        <div className="h-4 bg-muted/20 rounded w-16" />
+                        <div className="h-3 bg-muted/15 rounded w-8" />
+                      </div>
                     ))}
                   </div>
                 </ContentCard>
@@ -167,47 +143,54 @@ function SketchContent() {
           </div>
         )}
 
-        {/* Fallback: flat cooc list when no sketch data */}
-        {q && !loading && !error && !sketchData && coocData.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[0, 1, 2].map((col) => {
-              const chunkSize = Math.ceil(coocData.length / 3)
-              const chunk = coocData.slice(col * chunkSize, (col + 1) * chunkSize)
-              return (
-                <ContentCard key={col} variant="default" padding="sm" className="overflow-hidden !p-0">
-                  <div className="px-4 py-3 border-b-2 border-primary">
-                    <div className="font-bold text-sm text-primary">共現詞 ({col + 1})</div>
-                    <div className="text-xs text-muted-foreground">LogDice 排序</div>
-                  </div>
-                  <div className="divide-y divide-border/50">
-                    {chunk.map((w, i) => (
-                      <Button
-                        key={w.partner}
-                        variant="ghost"
-                        className="w-full flex items-center justify-between px-4 py-2.5 h-auto hover:bg-muted/50 rounded-none text-left"
-                        style={{ opacity: Math.max(0.4, 1 - i * 0.04) }}
-                        onClick={() => router.push(`/cooccurrence?q=${encodeURIComponent(w.partner)}`)}
-                      >
-                        <span className="text-sm text-foreground font-medium">{w.partner}</span>
-                        <span className="text-xs text-muted-foreground font-mono">{w.co_count}</span>
-                      </Button>
-                    ))}
-                  </div>
-                </ContentCard>
-              )
-            })}
-          </div>
+        {/* 5-column Sketch Grid — real positional data or pseudo-distributed cooc */}
+        {q && !loading && !error && displaySketch && (
+          <>
+            {isPseudo && (
+              <p className="text-xs text-muted-foreground mb-3">該詞位置語料不足，以共現頻率近似分類</p>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+              {CAT_ORDER.map((cat) => {
+                const meta = CAT_META[cat]
+                const items = displaySketch[cat]
+                return (
+                  <ContentCard key={cat} variant="default" padding="sm" className="overflow-hidden !p-0">
+                    <div className="px-4 py-3 border-b-2" style={{ borderBottomColor: meta.color }}>
+                      <div className="font-bold text-sm" style={{ color: meta.color }}>{meta.label}</div>
+                      <div className="text-xs text-muted-foreground">{meta.desc}</div>
+                    </div>
+                    {items.length === 0 ? (
+                      <div className="px-4 py-6 text-xs text-muted-foreground text-center">無資料</div>
+                    ) : (
+                      <div className="divide-y divide-border/50">
+                        {items.map((item, i) => (
+                          <Button
+                            key={item.partner}
+                            variant="ghost"
+                            className="w-full flex items-center justify-between px-4 py-2.5 h-auto hover:bg-muted/50 rounded-none text-left"
+                            style={{ opacity: Math.max(0.4, 1 - i * 0.07) }}
+                            onClick={() => router.push(`/cooccurrence?q=${encodeURIComponent(item.partner)}`)}
+                          >
+                            <span className="text-sm text-foreground font-medium">{item.partner}</span>
+                            <span className="text-xs text-muted-foreground font-mono">{item.count}</span>
+                          </Button>
+                        ))}
+                      </div>
+                    )}
+                  </ContentCard>
+                )
+              })}
+            </div>
+          </>
         )}
 
-        {/* No results */}
-        {q && !loading && !error && !sketchData && coocData.length === 0 && (
+        {q && !loading && !error && !displaySketch && (
           <EmptyState
-            title="查無共現詞資料"
-            description={`關鍵詞「${q}」在資料庫中沒有共現詞。`}
+            title="查無資料"
+            description={`關鍵詞「${q}」在資料庫中沒有搭配詞紀錄。`}
           />
         )}
 
-        {/* Data sources */}
         <DataSources />
       </div>
     </>

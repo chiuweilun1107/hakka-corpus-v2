@@ -5,6 +5,11 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 
+class TopicItem(BaseModel):
+    name: str
+    percentage: int
+
+
 class ProverbItem(BaseModel):
     id: int
     title: str
@@ -13,6 +18,7 @@ class ProverbItem(BaseModel):
     definition: str | None = None
     example: str | None = None
     category: str | None = None
+    topics: list[TopicItem] | None = None
 
     model_config = {"from_attributes": True}
 

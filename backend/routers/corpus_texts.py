@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import json as _json
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
-from sqlalchemy import select, func, or_
+from sqlalchemy import cast, select, func, or_, text
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
@@ -71,6 +74,7 @@ async def list_texts(
     offset: int = Query(0, ge=0),
     dialect: str | None = Query(None, description="四縣/海陸/大埔/饒平/詔安/南四縣"),
     genre: str | None = Query(None, description="散文/口述/歌謠/新聞/諺語集/百科"),
+    topic: str | None = Query(None, description="主題過濾（飲食/產業/生活/人物/地理/民俗/節慶/文化/歌謠/教育/觀光/歷史）"),
     q: str | None = Query(None, description="標題或內容關鍵字搜尋"),
     db: AsyncSession = Depends(get_db),
 ):
@@ -80,6 +84,12 @@ async def list_texts(
         stmt = stmt.where(CorpusText.dialect == dialect)
     if genre:
         stmt = stmt.where(CorpusText.genre == genre)
+    if topic:
+        stmt = stmt.where(
+            text("topics @> CAST(:t AS jsonb)").bindparams(
+                t=_json.dumps([{"name": topic}], ensure_ascii=False)
+            )
+        )
     if q:
         pattern = f"%{q}%"
         stmt = stmt.where(or_(CorpusText.title.ilike(pattern), CorpusText.content.ilike(pattern)))

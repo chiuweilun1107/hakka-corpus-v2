@@ -11,8 +11,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
 from models.cooc import Cooccurrence
+from models.cooc_positional import CoocPositional
 from models.log import QueryLog
-from schemas.cooc import CoocItem, CoocPairItem, CoocResponse
+from schemas.cooc import CoocItem, CoocPairItem, CoocResponse, SketchCategories, SketchCategoryItem, SketchResponse
 
 router = APIRouter(prefix="/api/v1", tags=["cooc"])
 
@@ -177,6 +178,45 @@ async def cooc_categories(
         total=total,
         sort_by="logdice",
         results=items,
+    )
+
+
+@router.get("/cooc/sketch", response_model=SketchResponse)
+async def cooc_sketch(
+    q: str = Query(..., min_length=1, max_length=100, description="查詢詞"),
+    limit_per_cat: int = Query(10, ge=1, le=50),
+    db: AsyncSession = Depends(get_db),
+) -> SketchResponse:
+    """
+    位置型 Word Sketch：依左/右相對位置將共現詞分入 5 個語法欄位。
+    資料由 build_positional_cooc.py 預先計算寫入 cooc_positional 表。
+    """
+    stmt = (
+        select(CoocPositional.category, CoocPositional.partner, CoocPositional.count)
+        .where(CoocPositional.word == q)
+        .order_by(CoocPositional.count.desc())
+    )
+    rows = (await db.execute(stmt)).all()
+
+    buckets: dict[str, list[SketchCategoryItem]] = {
+        "N_Modifier": [],
+        "Modifies": [],
+        "Object_of": [],
+        "Subject_of": [],
+        "Possession": [],
+    }
+    counts: dict[str, int] = {k: 0 for k in buckets}
+    for row in rows:
+        cat = row.category
+        if cat not in buckets:
+            continue
+        if counts[cat] < limit_per_cat:
+            buckets[cat].append(SketchCategoryItem(partner=row.partner, count=row.count))
+            counts[cat] += 1
+
+    return SketchResponse(
+        word=q,
+        categories=SketchCategories(**buckets),
     )
 
 

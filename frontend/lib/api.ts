@@ -323,6 +323,11 @@ export async function fetchRandomDict(dialect?: string): Promise<DictEntry> {
 
 // ===== Proverbs =====
 
+export interface ProverbTopicItem {
+  name: string
+  percentage: number
+}
+
 export interface ProverbItem {
   id: number
   title: string
@@ -331,6 +336,7 @@ export interface ProverbItem {
   definition: string | null
   example: string | null
   category: string | null
+  topics?: ProverbTopicItem[] | null
 }
 
 export interface ProverbListResponse {
@@ -355,12 +361,14 @@ export async function fetchProverbList(params?: {
   offset?: number
   category?: string
   dialect?: string
+  topic?: string
 }): Promise<ProverbListResponse> {
   const p = new URLSearchParams()
   if (params?.limit) p.set('limit', String(params.limit))
   if (params?.offset) p.set('offset', String(params.offset))
   if (params?.category) p.set('category', params.category)
   if (params?.dialect) p.set('dialect', params.dialect)
+  if (params?.topic) p.set('topic', params.topic)
   const res = await fetch(`${API_BASE}/proverbs?${p.toString()}`)
   if (!res.ok) throw new Error('API error')
   return res.json()
@@ -505,6 +513,7 @@ export async function fetchCorpusTexts(params: {
   offset?: number
   dialect?: string
   genre?: string
+  topic?: string
   q?: string
 } = {}): Promise<CorpusTextListResponse> {
   const sp = new URLSearchParams()
@@ -512,6 +521,7 @@ export async function fetchCorpusTexts(params: {
   if (params.offset) sp.set('offset', String(params.offset))
   if (params.dialect) sp.set('dialect', params.dialect)
   if (params.genre) sp.set('genre', params.genre)
+  if (params.topic) sp.set('topic', params.topic)
   if (params.q) sp.set('q', params.q)
   const res = await fetch(`${API_BASE}/corpus/texts?${sp.toString()}`)
   if (!res.ok) throw new Error('API error')
@@ -526,6 +536,32 @@ export async function fetchCorpusTextDetail(id: string): Promise<CorpusTextDetai
 
 export async function fetchCorpusStats(): Promise<CorpusTextStats> {
   const res = await fetch(`${API_BASE}/corpus/stats`)
+  if (!res.ok) throw new Error('API error')
+  return res.json()
+}
+
+// ===== Word Sketch =====
+
+export interface SketchCategoryItem {
+  partner: string
+  count: number
+}
+
+export interface SketchCategories {
+  N_Modifier: SketchCategoryItem[]
+  Modifies: SketchCategoryItem[]
+  Object_of: SketchCategoryItem[]
+  Subject_of: SketchCategoryItem[]
+  Possession: SketchCategoryItem[]
+}
+
+export interface SketchResponse {
+  word: string
+  categories: SketchCategories
+}
+
+export async function fetchSketch(q: string, limitPerCat = 10): Promise<SketchResponse> {
+  const res = await fetch(`${API_BASE}/cooc/sketch?q=${encodeURIComponent(q)}&limit_per_cat=${limitPerCat}`)
   if (!res.ok) throw new Error('API error')
   return res.json()
 }

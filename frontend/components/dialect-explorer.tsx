@@ -12,6 +12,7 @@ import { DIALECT_INFO } from '@/lib/data/dialects'
 import { DIALECT_BG } from '@/lib/colors'
 import { fetchDialectWords } from '@/lib/api'
 import type { DialectWord } from '@/lib/api'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export function DialectExplorer() {
   const t = useTranslations('dialectExplorer')
@@ -81,7 +82,7 @@ export function DialectExplorer() {
                     {loading ? (
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         {Array.from({ length: 12 }).map((_, i) => (
-                          <div key={i} className="h-16 rounded-lg bg-muted animate-pulse" />
+                          <Skeleton key={i} className="h-16 rounded-lg" />
                         ))}
                       </div>
                     ) : words.length === 0 ? (

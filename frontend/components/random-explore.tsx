@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { fetchRandomDict, fetchRandomProverb, fetchRandomCoocPair } from '@/lib/api'
 import type { DictEntry, ProverbItem, CoocPairItem } from '@/lib/api'
+import { Skeleton } from '@/components/ui/skeleton'
 
 type ResultMode = 'word' | 'proverb' | 'cooc'
 type ResultData = DictEntry | ProverbItem | CoocPairItem
@@ -72,7 +73,7 @@ export function RandomExplore() {
         </div>
 
         {loading && (
-          <div className="max-w-md mx-auto h-24 rounded-xl bg-muted animate-pulse" />
+          <Skeleton className="max-w-md mx-auto h-24 rounded-xl" />
         )}
 
         {!loading && result && mode === 'word' && (

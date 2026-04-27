@@ -19,6 +19,7 @@ import {
 
 const GENRES = ['全部', '百科', '諺語集', '文化', '地理', '歷史', '散文', '歌謠', '人物誌']
 const DIALECTS = ['全部', '四縣', '海陸', '大埔', '饒平', '詔安', '南四縣']
+const TOPICS = ['全部', '飲食', '產業', '生活', '人物', '地理', '民俗', '節慶', '文化', '歌謠', '教育', '觀光', '歷史']
 
 const EMOTION_STYLE: Record<string, { icon: LucideIcon; cls: string }> = {
   '喜悅': { icon: Smile,     cls: 'border-amber-200  text-amber-700  bg-amber-50/70'  },
@@ -37,6 +38,7 @@ export default function CorpusListPage() {
   const [loading, setLoading] = useState(true)
   const [genre, setGenre] = useState('全部')
   const [dialect, setDialect] = useState('全部')
+  const [topic, setTopic] = useState('全部')
   const [search, setSearch] = useState('')
 
   useEffect(() => {
@@ -49,11 +51,12 @@ export default function CorpusListPage() {
       limit: 50,
       genre: genre === '全部' ? undefined : genre,
       dialect: dialect === '全部' ? undefined : dialect,
+      topic: topic === '全部' ? undefined : topic,
       q: search || undefined,
     })
       .then((r) => setItems(r.items))
       .finally(() => setLoading(false))
-  }, [genre, dialect, search])
+  }, [genre, dialect, topic, search])
 
   return (
     <PageLayout>
@@ -122,6 +125,20 @@ export default function CorpusListPage() {
                   className="h-7"
                 >
                   {d}
+                </Button>
+              ))}
+            </div>
+            <div className="flex gap-2 flex-wrap items-center">
+              <span className="text-xs text-muted-foreground font-medium mr-1">主題：</span>
+              {TOPICS.map((t) => (
+                <Button
+                  key={t}
+                  size="sm"
+                  variant={topic === t ? 'default' : 'outline'}
+                  onClick={() => setTopic(t)}
+                  className="h-7"
+                >
+                  {t}
                 </Button>
               ))}
             </div>

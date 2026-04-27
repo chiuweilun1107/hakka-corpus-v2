@@ -13,6 +13,7 @@ import { useTranslations } from 'next-intl'
 import { CertifiedBadge, GradeBadge } from '@/components/ui/grade-badge'
 import { CJK_REGEX } from '@/lib/text'
 import { useVocabGrades } from '@/lib/hooks/use-vocab-grades'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export function DailyQuotePanel() {
   const t = useTranslations('dailyQuote')
@@ -53,9 +54,9 @@ export function DailyQuotePanel() {
   if (loading && !quote) {
     return (
       <div className="py-8 space-y-3 max-w-xl mx-auto">
-        <div className="h-10 w-3/4 mx-auto rounded bg-muted animate-pulse" />
-        <div className="h-5 w-1/2 mx-auto rounded bg-muted animate-pulse" />
-        <div className="h-4 w-full rounded bg-muted animate-pulse" />
+        <Skeleton className="h-10 w-3/4 mx-auto" />
+        <Skeleton className="h-5 w-1/2 mx-auto" />
+        <Skeleton className="h-4 w-full" />
       </div>
     )
   }

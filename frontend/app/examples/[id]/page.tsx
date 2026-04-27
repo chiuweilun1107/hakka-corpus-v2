@@ -22,6 +22,7 @@ import { SectionHeader } from '@/components/ui/section-header'
 import { PinyinText } from '@/components/ui/pinyin-text'
 import { CJK_REGEX } from '@/lib/text'
 import { useVocabGrades } from '@/lib/hooks/use-vocab-grades'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function ExampleDetailPage() {
   const params = useParams()
@@ -77,12 +78,12 @@ export default function ExampleDetailPage() {
       <PageLayout>
         <div className="container mx-auto px-4 py-8 max-w-3xl">
           <div className="space-y-4">
-            <div className="h-5 w-24 rounded bg-muted animate-pulse" />
+            <Skeleton className="h-5 w-24" />
             <ContentCard variant="hero" padding="lg" className="space-y-4">
-              <div className="h-8 w-2/3 mx-auto rounded bg-muted animate-pulse" />
-              <div className="h-5 w-1/2 mx-auto rounded bg-muted animate-pulse" />
-              <div className="h-4 w-full rounded bg-muted animate-pulse" />
-              <div className="h-4 w-4/5 rounded bg-muted animate-pulse" />
+              <Skeleton className="h-8 w-2/3 mx-auto" />
+              <Skeleton className="h-5 w-1/2 mx-auto" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-4/5" />
             </ContentCard>
           </div>
         </div>
@@ -158,13 +159,31 @@ export default function ExampleDetailPage() {
             </div>
           )}
 
+          {/* Divider: 主題分類 */}
+          {proverb.topics && proverb.topics.length > 0 && (
+            <div className="space-y-2">
+              <LabeledDivider label="主題分類" />
+              <div className="flex justify-center gap-2 flex-wrap">
+                {proverb.topics.map((t) => (
+                  <span
+                    key={t.name}
+                    className="inline-flex items-center gap-1 rounded-full border px-3 py-0.5 text-xs font-medium bg-amber-50 text-amber-700 border-amber-200"
+                  >
+                    {t.name}
+                    <span className="text-amber-400/80">{t.percentage}%</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Divider: 詞彙認證分級 */}
           <div className="space-y-2">
             <LabeledDivider label="詞彙認證分級" />
             {!gradeLoaded ? (
               <div className="flex justify-center gap-2">
                 {titleChars.slice(0, 4).map((_, i) => (
-                  <div key={i} className="h-6 w-8 rounded bg-muted animate-pulse" />
+                  <Skeleton key={i} className="h-6 w-8" />
                 ))}
               </div>
             ) : hasGrades ? (

@@ -9,6 +9,7 @@ import { CoocWordCloud } from '@/components/ui/cooc-word-cloud'
 import { useExploreStore } from '@/lib/stores/explore-store'
 import type { WordOfDayData } from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface Props {
   data: WordOfDayData | null
@@ -31,11 +32,11 @@ export function ThemeWordHero({ data, loading, onRefresh }: Props) {
   if (loading) {
     return (
       <div className="py-6 space-y-6">
-        <div className="h-20 w-40 mx-auto rounded-xl bg-muted animate-pulse" />
-        <div className="h-6 w-64 mx-auto rounded bg-muted animate-pulse" />
+        <Skeleton className="h-20 w-40 mx-auto rounded-xl" />
+        <Skeleton className="h-6 w-64 mx-auto" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="h-28 rounded-xl bg-muted animate-pulse" />
-          <div className="h-28 rounded-xl bg-muted animate-pulse" />
+          <Skeleton className="h-28 rounded-xl" />
+          <Skeleton className="h-28 rounded-xl" />
         </div>
       </div>
     )

@@ -13,6 +13,7 @@ import { fetchDialectWords } from '@/lib/api'
 import type { DialectWord } from '@/lib/api'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export function DialectPanel() {
   const t = useTranslations('dialectPanel')
@@ -122,7 +123,7 @@ export function DialectPanel() {
                   {loading ? (
                     <div className="grid grid-cols-2 gap-2">
                       {Array.from({ length: 12 }).map((_, i) => (
-                        <div key={i} className="h-16 rounded-xl bg-muted animate-pulse" />
+                        <Skeleton key={i} className="h-16 rounded-xl" />
                       ))}
                     </div>
                   ) : words.length === 0 ? (

@@ -13,6 +13,19 @@ import { fetchProverbList, type ProverbItem } from '@/lib/api'
 
 const CATEGORIES = ['全部', '諺語', '歇後語', '佳句']
 const DIALECTS = ['全部', '四縣', '海陸', '大埔', '饒平', '詔安', '南四縣']
+const TOPICS = [
+  '全部',
+  '勸戒', '處世', '勤勞', '比喻',
+  '飲食', '產業', '生活', '人物', '地理',
+  '民俗', '節慶', '文化', '歌謠', '教育', '觀光', '歷史',
+]
+
+function getTopicBadgeClass(topic: string) {
+  const proverb = ['勸戒', '處世', '勤勞', '比喻']
+  return proverb.includes(topic)
+    ? 'bg-amber-50 text-amber-700 border-amber-200'
+    : 'bg-sky-50 text-sky-700 border-sky-200'
+}
 
 export default function ExamplesPage() {
   const [items, setItems] = useState<ProverbItem[]>([])
@@ -20,6 +33,7 @@ export default function ExamplesPage() {
   const [loading, setLoading] = useState(true)
   const [category, setCategory] = useState('全部')
   const [dialect, setDialect] = useState('全部')
+  const [topic, setTopic] = useState('全部')
 
   useEffect(() => {
     setLoading(true)
@@ -27,13 +41,14 @@ export default function ExamplesPage() {
       limit: 60,
       category: category === '全部' ? undefined : category,
       dialect: dialect === '全部' ? undefined : dialect,
+      topic: topic === '全部' ? undefined : topic,
     })
       .then((r) => {
         setItems(r.items)
         setTotal(r.total)
       })
       .finally(() => setLoading(false))
-  }, [category, dialect])
+  }, [category, dialect, topic])
 
   return (
     <PageLayout>
@@ -60,7 +75,7 @@ export default function ExamplesPage() {
         <Card className="mb-6">
           <CardContent className="p-4 space-y-3">
             <div className="flex gap-2 flex-wrap items-center">
-              <span className="text-xs text-muted-foreground font-medium mr-1">類別：</span>
+              <span className="text-xs text-muted-foreground font-medium w-10 shrink-0">類別：</span>
               {CATEGORIES.map((c) => (
                 <Button
                   key={c}
@@ -74,7 +89,7 @@ export default function ExamplesPage() {
               ))}
             </div>
             <div className="flex gap-2 flex-wrap items-center">
-              <span className="text-xs text-muted-foreground font-medium mr-1">腔調：</span>
+              <span className="text-xs text-muted-foreground font-medium w-10 shrink-0">腔調：</span>
               {DIALECTS.map((d) => (
                 <Button
                   key={d}
@@ -87,6 +102,20 @@ export default function ExamplesPage() {
                 </Button>
               ))}
             </div>
+            <div className="flex gap-2 flex-wrap items-center">
+              <span className="text-xs text-muted-foreground font-medium w-10 shrink-0">主題：</span>
+              {TOPICS.map((t) => (
+                <Button
+                  key={t}
+                  size="sm"
+                  variant={topic === t ? 'default' : 'outline'}
+                  onClick={() => setTopic(t)}
+                  className="h-7"
+                >
+                  {t}
+                </Button>
+              ))}
+            </div>
           </CardContent>
         </Card>
 
@@ -94,42 +123,56 @@ export default function ExamplesPage() {
         {loading ? (
           <LoadingState message="載入俚諺語中…" />
         ) : items.length === 0 ? (
-          <EmptyState title="沒有符合條件的俚諺語" description="試試調整類別或腔調篩選" />
+          <EmptyState title="沒有符合條件的俚諺語" description="試試調整類別、腔調或主題篩選" />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {items.map((item) => (
-              <Link key={item.id} href={`/examples/${item.id}`} className="block">
-                <Card className="h-full transition hover:border-primary hover:shadow-md cursor-pointer">
-                  <CardContent className="p-5">
-                    <div className="flex gap-2 mb-2 flex-wrap items-center">
-                      {item.category && (
-                        <Badge variant="outline" className="text-xs">
-                          {item.category}
-                        </Badge>
+            {items.map((item) => {
+              const mainTopic = item.topics?.reduce(
+                (a, b) => (b.percentage > a.percentage ? b : a),
+                item.topics[0]
+              )
+              return (
+                <Link key={item.id} href={`/examples/${item.id}`} className="block">
+                  <Card className="h-full transition hover:border-primary hover:shadow-md cursor-pointer">
+                    <CardContent className="p-5">
+                      <div className="flex gap-2 mb-2 flex-wrap items-center">
+                        {item.category && (
+                          <Badge variant="outline" className="text-xs">
+                            {item.category}
+                          </Badge>
+                        )}
+                        {item.dialect && (
+                          <Badge variant="secondary" className="text-xs">
+                            {item.dialect}
+                          </Badge>
+                        )}
+                        {mainTopic && (
+                          <Badge
+                            variant="outline"
+                            className={`text-xs border ${getTopicBadgeClass(mainTopic.name)}`}
+                          >
+                            {mainTopic.name}
+                          </Badge>
+                        )}
+                      </div>
+                      <h3 className="font-bold font-serif text-foreground mb-1 line-clamp-2 leading-snug">
+                        {item.title}
+                      </h3>
+                      {item.pinyin && (
+                        <p className="text-xs text-primary/70 mb-2 font-mono tracking-wide line-clamp-1">
+                          {item.pinyin}
+                        </p>
                       )}
-                      {item.dialect && (
-                        <Badge variant="secondary" className="text-xs">
-                          {item.dialect}
-                        </Badge>
+                      {item.definition && (
+                        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                          {item.definition}
+                        </p>
                       )}
-                    </div>
-                    <h3 className="font-bold font-serif text-foreground mb-1 line-clamp-2 leading-snug">
-                      {item.title}
-                    </h3>
-                    {item.pinyin && (
-                      <p className="text-xs text-primary/70 mb-2 font-mono tracking-wide line-clamp-1">
-                        {item.pinyin}
-                      </p>
-                    )}
-                    {item.definition && (
-                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                        {item.definition}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+                    </CardContent>
+                  </Card>
+                </Link>
+              )
+            })}
           </div>
         )}
       </div>

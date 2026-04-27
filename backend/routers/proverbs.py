@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import json as _json
+
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import func, select, text
+from sqlalchemy import cast, func, select, text
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
@@ -27,14 +30,21 @@ async def list_proverbs(
     offset: int = Query(0, ge=0),
     category: str | None = Query(None, description="類別過濾（諺語/歇後語/佳句）"),
     dialect: str | None = Query(None, description="腔調過濾（四縣/海陸/大埔/饒平/詔安）"),
+    topic: str | None = Query(None, description="主題過濾（統一 16 類，如勸戒/處世/飲食）"),
     db: AsyncSession = Depends(get_db),
 ) -> ProverbListResponse:
-    """列出諺語，支援分頁與類別/腔調過濾。"""
+    """列出諺語，支援分頁與類別/腔調/主題過濾。"""
     base = select(DailyProverb).where(DailyProverb.is_active.is_(True))
     if category:
         base = base.where(DailyProverb.category == category)
     if dialect:
         base = base.where(DailyProverb.dialect == dialect)
+    if topic:
+        base = base.where(
+            text("topics @> CAST(:t AS jsonb)").bindparams(
+                t=_json.dumps([{"name": topic}], ensure_ascii=False)
+            )
+        )
 
     count_result = await db.execute(select(func.count()).select_from(base.subquery()))
     total = count_result.scalar() or 0
@@ -56,7 +66,7 @@ async def random_proverb(
     """隨機取一則諺語。"""
     result = await db.execute(
         text("""
-            SELECT id, title, pinyin, dialect, definition, example, category
+            SELECT id, title, pinyin, dialect, definition, example, category, topics
             FROM daily_proverbs
             WHERE is_active = true
             ORDER BY random()
@@ -66,6 +76,10 @@ async def random_proverb(
     row = result.first()
     if row is None:
         raise HTTPException(status_code=404, detail="No proverbs available")
+    topics_raw = row.topics if hasattr(row, "topics") else None
+    if isinstance(topics_raw, str):
+        import json as _json
+        topics_raw = _json.loads(topics_raw)
     return ProverbItem(
         id=row.id,
         title=row.title,
@@ -74,6 +88,7 @@ async def random_proverb(
         definition=row.definition,
         example=row.example,
         category=row.category,
+        topics=topics_raw,
     )
 
 

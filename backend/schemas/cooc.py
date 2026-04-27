@@ -31,3 +31,21 @@ class CoocPairItem(BaseModel):
     logdice: float
     mi_score: float
     word_freq: int
+
+
+class SketchCategoryItem(BaseModel):
+    partner: str
+    count: int
+
+
+class SketchCategories(BaseModel):
+    N_Modifier: list[SketchCategoryItem] = Field(default_factory=list)
+    Modifies: list[SketchCategoryItem] = Field(default_factory=list)
+    Object_of: list[SketchCategoryItem] = Field(default_factory=list)
+    Subject_of: list[SketchCategoryItem] = Field(default_factory=list)
+    Possession: list[SketchCategoryItem] = Field(default_factory=list)
+
+
+class SketchResponse(BaseModel):
+    word: str
+    categories: SketchCategories
