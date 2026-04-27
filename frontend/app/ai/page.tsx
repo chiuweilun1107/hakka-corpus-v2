@@ -5,6 +5,7 @@ import Link from 'next/link'
 import {
   Send,
   Mic,
+  MicOff,
   Camera,
   FileText,
   Plus,
@@ -16,14 +17,13 @@ import {
   Loader2,
   User,
   Bot,
-  ChevronLeft,
   Menu,
   X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import { fetchChat, type ChatResponse } from '@/lib/api'
+import { fetchChat, fetchOcr, fetchImageRecognize, fetchAsrTicket } from '@/lib/api'
 import { Logo } from '@/components/logo'
 
 interface ChatMessage {
@@ -33,6 +33,28 @@ interface ChatMessage {
   timestamp: Date
   image?: string
   mode?: string
+  followUps?: { label: string; prompt: string }[]
+}
+
+function buildFollowUps(
+  response: { ocr_text?: string; items?: Array<{ item: string }> }
+): { label: string; prompt: string }[] {
+  if (response.ocr_text) {
+    const raw = response.ocr_text.trim()
+    const t = raw.length > 500 ? raw.slice(0, 500) + '（節錄）' : raw
+    return [
+      { label: '翻譯這段文字', prompt: `幫我把這段文字翻譯成客語：${t}` },
+      { label: '解釋意思',     prompt: `請用白話解釋這段文字的意思：${t}` },
+    ]
+  }
+  if (response.items && response.items.length > 0) {
+    const first = response.items[0].item
+    return [
+      { label: `更多「${first}」客語說法`, prompt: `「${first}」在客語五個腔調怎麼說？` },
+      { label: '相關例句',                prompt: `請給我幾個跟「${first}」有關的客語例句` },
+    ]
+  }
+  return []
 }
 
 const SUGGESTED_PROMPTS = [
@@ -56,8 +78,16 @@ export default function AiPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [sessionId, setSessionId] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isRecording, setIsRecording] = useState(false)
+  const [showCamera, setShowCamera] = useState(false)
+  const [pendingImage, setPendingImage] = useState<{ dataUrl: string; base64: string; userText: string } | null>(null)
   const chatScrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const ocrInputRef = useRef<HTMLInputElement>(null)
+  const wsRef = useRef<WebSocket | null>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const streamRef = useRef<MediaStream | null>(null)
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -131,6 +161,163 @@ export default function AiPage() {
     setMessages([])
     setSessionId('')
     setInput('')
+  }
+
+  const readFileAsBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve((reader.result as string).split(',')[1])
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+
+  const handleCameraOpen = async () => {
+    if (isLoading) return
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      streamRef.current = stream
+      setShowCamera(true)
+      // attach stream after modal renders
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream
+          videoRef.current.play()
+        }
+      }, 50)
+    } catch {
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: '無法開啟鏡頭，請確認瀏覽器已授予攝影機權限，且頁面在 HTTPS 或 localhost 下執行。',
+        timestamp: new Date(),
+      }])
+    }
+  }
+
+  const handleCameraCapture = async () => {
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    if (!video || !canvas) return
+
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    canvas.getContext('2d')?.drawImage(video, 0, 0)
+    const dataUrl = canvas.toDataURL('image/jpeg')
+    const base64 = dataUrl.split(',')[1]
+
+    streamRef.current?.getTracks().forEach(t => t.stop())
+    streamRef.current = null
+    setShowCamera(false)
+
+    const userText = input.trim()
+    setInput('')
+    if (inputRef.current) inputRef.current.style.height = 'auto'
+
+    setPendingImage({ dataUrl, base64, userText })
+  }
+
+  const handleCameraClose = () => {
+    streamRef.current?.getTracks().forEach(t => t.stop())
+    streamRef.current = null
+    setShowCamera(false)
+  }
+
+  const handleImageModeSelect = async (mode: 'ocr' | 'image') => {
+    if (!pendingImage || isLoading) return
+    const { dataUrl, base64, userText } = pendingImage
+    setPendingImage(null)
+
+    setMessages(prev => [...prev, {
+      id: Date.now().toString(),
+      role: 'user',
+      content: userText,
+      timestamp: new Date(),
+      image: dataUrl,
+    }])
+    setIsLoading(true)
+    try {
+      const response = mode === 'ocr'
+        ? await fetchOcr(base64, userText)
+        : await fetchImageRecognize(base64, userText)
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: response.reply,
+        timestamp: new Date(),
+        mode,
+        followUps: buildFollowUps(response),
+      }])
+    } catch {
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: '辨識失敗，請確認後端伺服器已啟動。',
+        timestamp: new Date(),
+      }])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleOcrUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || isLoading) return
+    e.target.value = ''
+
+    const dataUrl = URL.createObjectURL(file)
+    const userText = input.trim()
+    setInput('')
+    if (inputRef.current) inputRef.current.style.height = 'auto'
+
+    const base64 = await readFileAsBase64(file)
+    setPendingImage({ dataUrl, base64, userText })
+  }
+
+  const handleMicClick = async () => {
+    if (isRecording) {
+      wsRef.current?.close()
+      wsRef.current = null
+      setIsRecording(false)
+      return
+    }
+    try {
+      const { wss_url } = await fetchAsrTicket()
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const ws = new WebSocket(wss_url)
+      wsRef.current = ws
+      setIsRecording(true)
+
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
+      mediaRecorder.ondataavailable = (ev) => {
+        if (ev.data.size > 0 && ws.readyState === WebSocket.OPEN) {
+          ws.send(ev.data)
+        }
+      }
+
+      ws.onmessage = (ev) => {
+        const data = JSON.parse(ev.data)
+        const transcript = data.transcript || data.text || ''
+        if (transcript) {
+          setInput(prev => prev + transcript)
+        }
+      }
+
+      ws.onclose = () => {
+        stream.getTracks().forEach(t => t.stop())
+        setIsRecording(false)
+        wsRef.current = null
+      }
+
+      ws.onopen = () => mediaRecorder.start(250)
+    } catch {
+      setIsRecording(false)
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: '語音輸入啟動失敗，請確認麥克風權限已開啟且後端 ASR 服務已啟動。',
+        timestamp: new Date(),
+      }])
+    }
   }
 
   return (
@@ -299,6 +486,21 @@ export default function AiPage() {
                     )}>
                       {msg.content}
                     </div>
+                    {msg.role === 'assistant' && msg.followUps && msg.followUps.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {msg.followUps.map((fu) => (
+                          <Button
+                            key={fu.label}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => sendMessage(fu.prompt)}
+                            className="text-xs h-auto py-1.5 px-3 rounded-full hover:border-primary/50 hover:bg-primary/5"
+                          >
+                            {fu.label}
+                          </Button>
+                        ))}
+                      </div>
+                    )}
                     <div className={cn(
                       'text-[10px] mt-1.5',
                       msg.role === 'user' ? 'text-primary-foreground/60 text-right' : 'text-muted-foreground'
@@ -327,20 +529,116 @@ export default function AiPage() {
           )}
         </div>
 
+        {/* Camera modal */}
+        {showCamera && (
+          <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4">
+            <div className="bg-card rounded-2xl overflow-hidden shadow-2xl w-full max-w-md">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                <span className="text-sm font-semibold">拍照辨識</span>
+                <Button variant="ghost" size="icon" onClick={handleCameraClose}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <video ref={videoRef} className="w-full aspect-video bg-black" playsInline muted />
+              <canvas ref={canvasRef} className="hidden" />
+              <div className="p-4 flex justify-center">
+                <Button onClick={handleCameraCapture} className="rounded-full px-8">
+                  <Camera className="h-4 w-4 mr-2" />
+                  拍照
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Image mode selection modal */}
+        {pendingImage && (
+          <div className="fixed inset-0 z-[200] bg-black/70 flex items-center justify-center p-4">
+            <div className="bg-card rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+              <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+                <span className="text-sm font-semibold">請選擇辨識模式</span>
+                <Button variant="ghost" size="icon" onClick={() => setPendingImage(null)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="p-4">
+                <img
+                  src={pendingImage.dataUrl}
+                  alt="待辨識圖片"
+                  className="w-full rounded-lg mb-4 max-h-48 object-cover"
+                />
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    variant="outline"
+                    className="flex flex-col items-center gap-2 h-auto py-4 rounded-xl hover:border-primary/50 hover:bg-primary/5"
+                    onClick={() => handleImageModeSelect('ocr')}
+                  >
+                    <FileText className="h-6 w-6 text-primary" />
+                    <span className="text-sm font-medium">辨識文字</span>
+                    <span className="text-[11px] text-muted-foreground">OCR</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex flex-col items-center gap-2 h-auto py-4 rounded-xl hover:border-primary/50 hover:bg-primary/5"
+                    onClick={() => handleImageModeSelect('image')}
+                  >
+                    <ImageIcon className="h-6 w-6 text-primary" />
+                    <span className="text-sm font-medium">辨識物品</span>
+                    <span className="text-[11px] text-muted-foreground">圖像辨識</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Hidden file input for OCR */}
+        <input
+          ref={ocrInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleOcrUpload}
+        />
+
         {/* Input Area */}
         <div className="border-t border-border bg-card px-4 py-3">
           <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
             <div className="flex items-end gap-2 bg-background rounded-2xl border border-border px-4 py-2 focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20 transition-all">
               {/* Tool buttons */}
               <div className="flex items-center gap-1 pb-1">
-                <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10" title="圖片上傳">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                  title="圖像辨識"
+                  onClick={handleCameraOpen}
+                  disabled={isLoading}
+                >
                   <Camera className="h-4 w-4" />
                 </Button>
-                <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10" title="OCR 文字辨識">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                  title="OCR 文字辨識"
+                  onClick={() => ocrInputRef.current?.click()}
+                  disabled={isLoading}
+                >
                   <FileText className="h-4 w-4" />
                 </Button>
-                <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10" title="語音輸入">
-                  <Mic className="h-4 w-4" />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className={cn('h-8 w-8 hover:bg-primary/10', isRecording ? 'text-red-500 hover:text-red-600' : 'text-muted-foreground hover:text-primary')}
+                  title={isRecording ? '停止錄音' : '語音輸入'}
+                  onClick={handleMicClick}
+                  disabled={isLoading && !isRecording}
+                >
+                  {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
                 </Button>
               </div>
 

@@ -33,7 +33,7 @@ function SearchLayoutInner({ children }: { children: React.ReactNode }) {
         <PageSearchBar defaultQuery={currentQ} targetPath={pathname} />
 
         {/* 4-tab sub-nav */}
-        <div className="bg-background">
+        <div className="bg-background pt-2">
           <div className="container mx-auto px-4">
             <UnderlineTabs
               items={navItems.map((item) => ({

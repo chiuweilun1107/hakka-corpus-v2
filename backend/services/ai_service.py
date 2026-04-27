@@ -12,9 +12,38 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from external.gemini_client import call_gemini
 from external.hakka_api_client import translate
 from models.cooc import Cooccurrence
-from models.dict import HakkaDict
+from models.dict import HakkaDict, PinyinIndex
 
 logger = logging.getLogger(__name__)
+
+
+_CJK_RE = re.compile(r"[一-鿿\U00020000-\U0002fa1f]")
+
+# Dialect label → PinyinIndex dialect key (strips 腔 suffix)
+_DIALECT_DB_KEY: dict[str, str] = {
+    "四縣腔": "四縣", "海陸腔": "海陸", "大埔腔": "大埔",
+    "饒平腔": "饒平", "詔安腔": "詔安", "南四縣腔": "南四縣",
+}
+
+
+async def _pinyin_from_db(text: str, dialect_label: str, db: AsyncSession) -> str:
+    """Character-by-character pinyin lookup from PinyinIndex (fallback for API failure)."""
+    dialect_key = _DIALECT_DB_KEY.get(dialect_label, dialect_label.rstrip("腔"))
+    chars = [c for c in text if _CJK_RE.match(c)]
+    if not chars:
+        return ""
+    stmt = (
+        select(PinyinIndex.word, PinyinIndex.pinyin_full)
+        .where(PinyinIndex.word.in_(chars))
+        .where(PinyinIndex.dialect == dialect_key)
+    )
+    rows = (await db.execute(stmt)).all()
+    lookup: dict[str, str] = {}
+    for r in rows:
+        if r.word not in lookup:
+            lookup[r.word] = r.pinyin_full
+    parts = [lookup[c] for c in chars if c in lookup]
+    return " ".join(parts) if parts else ""
 
 
 def _strip_combining(text: str) -> str:
@@ -191,6 +220,10 @@ async def image_recognize(
         hk_pinyin = await translate(hk_text, "hakka_hk_py_tone") if hk_text else ""
         hl_pinyin = await translate(hl_text, "hakka_hl_py_tone") if hl_text else ""
 
+        # API returns original text when pinyin unsupported → fallback to local DB
+        if hl_pinyin == hl_text or not hl_pinyin:
+            hl_pinyin = await _pinyin_from_db(item, "海陸腔", db)
+
         dialects: list[dict] = []
         if hk_text:
             dialects.append({"label": "四縣腔", "text": hk_text, "pinyin": hk_pinyin})
@@ -216,8 +249,20 @@ async def image_recognize(
     if corpus_results:
         source += " + 臺灣客語語料庫"
 
+    lines = [f"辨識到 {len(items)} 個物品，以下是客語翻譯：\n"]
+    for r in item_results:
+        lines.append(f"▌ {r['item']}")
+        if r["dialects"]:
+            for d in r["dialects"]:
+                py = f"（{d['pinyin']}）" if d.get("pinyin") and d["pinyin"] != d["text"] else ""
+                lines.append(f"  {d['label']}：{d['text']}{py}")
+        else:
+            lines.append("  （查無客語翻譯）")
+        lines.append("")
+    reply_text = "\n".join(lines).strip()
+
     return {
-        "reply": f"辨識到 {len(items)} 個物品，以下是客語翻譯：",
+        "reply": reply_text,
         "items": item_results,
         "corpus_results": corpus_results,
         "source": source,
@@ -294,8 +339,15 @@ async def ocr_recognize(
                 }
             )
 
+    ocr_lines = [f"辨識到以下文字：\n\n{text or '（無文字）'}"]
+    if annotations:
+        ocr_lines.append("\n\n客語拼音標注：")
+        for a in annotations[:20]:
+            ocr_lines.append(f"  {a['word']}：{a['pinyin']}")
+    reply_text = "\n".join(ocr_lines)
+
     return {
-        "reply": "辨識到以下文字，已自動標注客語拼音並檢索語料庫：",
+        "reply": reply_text,
         "ocr_text": text or "",
         "annotations": annotations[:20],
         "corpus_results": corpus_results,
