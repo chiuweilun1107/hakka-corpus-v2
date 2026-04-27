@@ -44,7 +44,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased overflow-x-hidden">
         <NextIntlClientProvider messages={messages}>
           {children}
         </NextIntlClientProvider>

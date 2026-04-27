@@ -52,10 +52,10 @@ export function PageSearchBar({ defaultQuery = '', targetPath = '/cooccurrence' 
                 className="h-11 border-0 bg-transparent text-base text-gray-900 focus-visible:ring-0 px-3 placeholder:text-gray-400 font-medium"
               />
               <div className="flex items-center gap-0.5 border-l border-gray-200 pl-2 ml-1">
-                <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-hakka-light-brown" title="語音輸入">
+                <Button type="button" variant="ghost" size="icon" className="hidden sm:flex h-8 w-8 text-gray-400 hover:text-hakka-light-brown" title="語音輸入">
                   <Mic className="h-4 w-4" />
                 </Button>
-                <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-hakka-light-brown" title="拍照辨識">
+                <Button type="button" variant="ghost" size="icon" className="hidden sm:flex h-8 w-8 text-gray-400 hover:text-hakka-light-brown" title="拍照辨識">
                   <Camera className="h-4 w-4" />
                 </Button>
                 <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-hakka-light-brown" title="OCR 文字辨識">

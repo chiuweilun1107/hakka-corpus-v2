@@ -72,7 +72,7 @@ function CooccurrenceContent() {
             <>「<span className="font-semibold text-primary">{q}</span>」{!loading && ` -- 共 ${total} 筆結果`}</>
           ) : '輸入關鍵詞後顯示共現詞分析結果'}
           action={
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs text-muted-foreground font-medium">排序：</span>
               {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
                 <Button

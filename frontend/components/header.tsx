@@ -133,7 +133,7 @@ export function Header() {
   return (
     <header
       className={cn(
-        "fixed top-0 z-50 w-full transition-all duration-300 border-b backdrop-blur-md",
+        "fixed top-0 z-[200] w-full transition-all duration-300 border-b backdrop-blur-md",
         scrolled
           ? "border-border/80 shadow-sm py-2"
           : "border-transparent py-3"
@@ -202,9 +202,8 @@ export function Header() {
 
       {/* Mobile Menu */}
       <div
-        style={{ background: 'var(--header-bg)' }}
         className={cn(
-          "lg:hidden absolute top-full left-0 right-0 backdrop-blur-xl border-b shadow-xl transition-all duration-300 overflow-hidden",
+          "lg:hidden absolute top-full left-0 right-0 border-b shadow-xl transition-all duration-300 overflow-hidden bg-background",
           mobileMenuOpen ? "max-h-[80vh] opacity-100 border-border" : "max-h-0 opacity-0 border-transparent"
         )}
       >

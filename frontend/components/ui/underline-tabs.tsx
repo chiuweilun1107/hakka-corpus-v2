@@ -113,7 +113,7 @@ export function UnderlineTabs({
     <div
       ref={wrapperRef}
       className={cn(
-        'flex border-b border-border/60',
+        'flex border-b border-border/60 overflow-x-auto no-scrollbar',
         align === 'center' ? 'justify-center' : '',
         className
       )}
