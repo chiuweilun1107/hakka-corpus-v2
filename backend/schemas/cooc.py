@@ -49,3 +49,15 @@ class SketchCategories(BaseModel):
 class SketchResponse(BaseModel):
     word: str
     categories: SketchCategories
+
+
+# ── Dialect counts schemas ────────────────────────────────────────────────────
+
+class DialectCountItem(BaseModel):
+    dialect: str  # DB label: 四縣/海陸/大埔/饒平/詔安/南四縣
+    count: int
+
+
+class DialectCountsResponse(BaseModel):
+    word: str
+    counts: list[DialectCountItem] = Field(default_factory=list)

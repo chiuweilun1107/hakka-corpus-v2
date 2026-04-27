@@ -117,8 +117,48 @@ export async function fetchDict(q: string): Promise<DictResponse> {
   return res.json()
 }
 
-export async function fetchCooc(q: string, sort = 'logdice', limit = 20, offset = 0): Promise<CoocResponse> {
-  const res = await fetch(`${API_BASE}/cooc?q=${encodeURIComponent(q)}&sort=${sort}&limit=${limit}&offset=${offset}`)
+export async function fetchCooc(
+  q: string,
+  sort = 'logdice',
+  limit = 20,
+  offset = 0,
+  dialects?: string[]
+): Promise<CoocResponse> {
+  let url = `${API_BASE}/cooc?q=${encodeURIComponent(q)}&sort=${sort}&limit=${limit}&offset=${offset}`
+  if (dialects && dialects.length > 0) {
+    url += `&dialects=${dialects.join(',')}`
+  }
+  const res = await fetch(url)
+  if (!res.ok) throw new Error('API error: ' + res.status)
+  return res.json()
+}
+
+export async function fetchCoocPositional(
+  q: string,
+  cats: string[],
+  limit = 20,
+  offset = 0
+): Promise<CoocResponse> {
+  const catsParam = cats.join(',')
+  const res = await fetch(
+    `${API_BASE}/cooc/positional?q=${encodeURIComponent(q)}&cats=${encodeURIComponent(catsParam)}&limit=${limit}&offset=${offset}`
+  )
+  if (!res.ok) throw new Error('API error: ' + res.status)
+  return res.json()
+}
+
+export interface DialectCountItem {
+  dialect: string
+  count: number
+}
+
+export interface DialectCountsResponse {
+  word: string
+  counts: DialectCountItem[]
+}
+
+export async function fetchCoocDialectCounts(q: string): Promise<DialectCountsResponse> {
+  const res = await fetch(`${API_BASE}/cooc/dialect-counts?q=${encodeURIComponent(q)}`)
   if (!res.ok) throw new Error('API error: ' + res.status)
   return res.json()
 }
