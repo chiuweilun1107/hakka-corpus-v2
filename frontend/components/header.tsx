@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { Menu, X, User, ChevronDown, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -132,9 +132,25 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // iOS-safe scroll lock: body position:fixed + restore scroll position on close
+  const savedScrollY = useRef(0)
   useEffect(() => {
-    document.body.style.overflow = mobileMenuOpen ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
+    if (mobileMenuOpen) {
+      savedScrollY.current = window.scrollY
+      document.body.style.position = 'fixed'
+      document.body.style.top = `-${savedScrollY.current}px`
+      document.body.style.width = '100%'
+    } else {
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      window.scrollTo(0, savedScrollY.current)
+    }
+    return () => {
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+    }
   }, [mobileMenuOpen])
 
   // Track header height so the fixed overlay can start exactly below it
@@ -221,12 +237,15 @@ export function Header() {
       {/* Mobile Menu — fixed overlay so nothing can cover it */}
       <div
         className={cn(
-          "lg:hidden fixed left-0 right-0 bottom-0 z-[9000] bg-background shadow-xl transition-all duration-300",
+          "lg:hidden fixed left-0 right-0 bottom-0 z-[9000] bg-background shadow-xl transition-opacity duration-300",
           mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         )}
         style={{ top: headerHeight }}
       >
-        <nav className="h-full overflow-y-auto overscroll-contain px-4 py-4 flex flex-col gap-1">
+        <nav
+          className="h-full overflow-y-scroll px-4 py-4 flex flex-col gap-1"
+          style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+        >
           {navItems.map((item) => (
             <div key={item.name}>
               {item.children ? (
