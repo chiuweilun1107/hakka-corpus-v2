@@ -120,7 +120,13 @@ function SearchPanel({
 }: SearchPanelProps) {
   const t = useTranslations('hero')
   const [isTyping, setIsTyping] = useState(false)
-  const { dedupedItems, showPanel, containerRef } = usePinyinSuggest(searchQuery, isTyping)
+  const { mode, hanziItems, pinyinGroups, showPanel, setShowPanel, containerRef } = usePinyinSuggest(searchQuery, isTyping)
+
+  const handlePinyinSelect = (word: string) => {
+    setSearchQuery(word)
+    setShowPanel(false)
+    window.location.href = `/cooccurrence?q=${encodeURIComponent(word)}`
+  }
 
   return (
     <div className="animate-in fade-in duration-500">
@@ -219,7 +225,14 @@ function SearchPanel({
         </form>
 
         {/* Pinyin dropdown */}
-        {showPanel && <PinyinSuggestPanel items={dedupedItems} />}
+        {showPanel && (
+          <PinyinSuggestPanel
+            mode={mode}
+            hanziItems={hanziItems}
+            pinyinGroups={pinyinGroups}
+            onSelect={handlePinyinSelect}
+          />
+        )}
         </div>
 
         {/* Quick explore chips (desktop only) */}

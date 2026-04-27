@@ -23,12 +23,18 @@ export function PageSearchBar({ defaultQuery = '', targetPath = '/cooccurrence' 
     setQuery(defaultQuery)
   }, [defaultQuery])
 
-  const { dedupedItems, showPanel, containerRef } = usePinyinSuggest(query, isTyping)
+  const { mode, hanziItems, pinyinGroups, showPanel, setShowPanel, containerRef } = usePinyinSuggest(query, isTyping)
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (!query.trim()) return
     router.push(`${targetPath}?q=${encodeURIComponent(query.trim())}`)
+  }
+
+  const handleSelect = (word: string) => {
+    setQuery(word)
+    setShowPanel(false)
+    router.push(`${targetPath}?q=${encodeURIComponent(word)}`)
   }
 
   return (
@@ -66,7 +72,14 @@ export function PageSearchBar({ defaultQuery = '', targetPath = '/cooccurrence' 
           </form>
 
           {/* Pinyin Panel */}
-          {showPanel && <PinyinSuggestPanel items={dedupedItems} />}
+          {showPanel && (
+            <PinyinSuggestPanel
+              mode={mode}
+              hanziItems={hanziItems}
+              pinyinGroups={pinyinGroups}
+              onSelect={handleSelect}
+            />
+          )}
         </div>
       </div>
     </div>
