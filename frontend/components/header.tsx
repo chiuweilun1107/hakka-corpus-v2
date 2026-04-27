@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { Menu, X, User, ChevronDown, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -124,7 +125,10 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [headerHeight, setHeaderHeight] = useState(64)
+  const [mounted, setMounted] = useState(false)
   const headerRef = useRef<HTMLElement>(null)
+
+  useEffect(() => { setMounted(true) }, [])
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -164,6 +168,7 @@ export function Header() {
   }, [])
 
   return (
+    <>
     <header
       ref={headerRef}
       className={cn(
@@ -234,7 +239,10 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile Menu — fixed overlay so nothing can cover it */}
+    </header>
+
+    {/* Portal: rendered in document.body to escape header's backdrop-filter containing block */}
+    {mounted && createPortal(
       <div
         className={cn(
           "lg:hidden fixed left-0 right-0 bottom-0 z-[9000] bg-background shadow-xl transition-opacity duration-300",
@@ -303,7 +311,9 @@ export function Header() {
             <Button className="w-full rounded-full bg-primary hover:bg-primary/90">{t('login')}</Button>
           </div>
         </nav>
-      </div>
-    </header>
+      </div>,
+      document.body
+    )}
+    </>
   )
 }
