@@ -22,6 +22,14 @@ const CAT_LABELS: Record<string, string> = {
   Possession: '領屬 (Possession)',
 }
 
+const CAT_LABELS_SHORT: Record<string, string> = {
+  Modifies: '修飾',
+  N_Modifier: '名修語',
+  Subject_of: '主語',
+  Object_of: '賓語',
+  Possession: '領屬',
+}
+
 const SKETCH_DATA_CACHE: Record<string, Record<string, string[]>> = {
   '客家': {
     Modifies: ['文化節', '族群', '鄉親', '山歌', '文物館', '歌謠', '美食', '民謠', '本色'],
@@ -141,12 +149,13 @@ export function BubbleCloud({ keyword, data, categoryState, maxWords }: BubbleCl
     const startAngle = -Math.PI / 2
 
     // Bubble sizes per category
+    const isMobile = containerW < 640
     const catBubbles: Record<string, Array<{ word: string; r: number; ratio: number; x: number; y: number }>> = {}
     activeCats.forEach((cat) => {
       const words = sketchData[cat].slice(0, maxWords)
       catBubbles[cat] = words.map((word, wi) => {
         const ratio = 1 - wi / Math.max(words.length, 1)
-        return { word, r: 16 + ratio * 26, ratio, x: 0, y: 0 }
+        return { word, r: (isMobile ? 13 : 16) + ratio * (isMobile ? 18 : 26), ratio, x: 0, y: 0 }
       })
     })
 
@@ -199,7 +208,7 @@ export function BubbleCloud({ keyword, data, categoryState, maxWords }: BubbleCl
       return true
     }
 
-    let pieR = Math.min(containerW, containerH) * 0.40
+    let pieR = Math.min(containerW, containerH) * (isMobile ? 0.36 : 0.40)
 
     for (let attempt = 0; attempt < 5; attempt++) {
       allPlaced.length = 0
@@ -274,9 +283,12 @@ export function BubbleCloud({ keyword, data, categoryState, maxWords }: BubbleCl
 
   const { activeCats, catBubbles, sectorAngles, pieR, centerX, centerY } = layout
 
+  const isMobile = dimensions.w < 640
+  const chartHeight = isMobile ? 380 : 560
+
   if (activeCats.length === 0 && data.length > 0) {
     return (
-      <div ref={containerRef} className="w-full relative" style={{ height: 560 }}>
+      <div ref={containerRef} className="w-full relative" style={{ height: chartHeight }}>
         <div className="flex items-center justify-center h-full text-gray-500 text-sm">
           請開啟至少一個語法分類
         </div>
@@ -286,7 +298,7 @@ export function BubbleCloud({ keyword, data, categoryState, maxWords }: BubbleCl
 
   if (data.length === 0) {
     return (
-      <div ref={containerRef} className="w-full relative" style={{ height: 560 }}>
+      <div ref={containerRef} className="w-full relative" style={{ height: chartHeight }}>
         <div className="flex items-center justify-center h-full text-gray-500 text-sm">
           查無共現詞資料
         </div>
@@ -298,7 +310,7 @@ export function BubbleCloud({ keyword, data, categoryState, maxWords }: BubbleCl
   const containerH = dimensions.h
 
   return (
-    <div ref={containerRef} className="w-full relative overflow-hidden" style={{ height: 560 }}>
+    <div ref={containerRef} className="w-full relative overflow-hidden" style={{ height: chartHeight }}>
       {/* Zoomable inner area */}
       <div
         className="w-full relative transition-transform duration-200"
@@ -380,7 +392,7 @@ export function BubbleCloud({ keyword, data, categoryState, maxWords }: BubbleCl
           const mid = (sectorAngles[ci].start + sectorAngles[ci].end) / 2
           let lx = centerX + (pieR + 16) * Math.cos(mid)
           let ly = centerY + (pieR + 16) * Math.sin(mid)
-          lx = Math.max(5, Math.min(containerW - 120, lx))
+          lx = Math.max(5, Math.min(containerW - (isMobile ? 60 : 120), lx))
           ly = Math.max(5, Math.min(containerH - 20, ly))
           return (
             <div
@@ -389,13 +401,13 @@ export function BubbleCloud({ keyword, data, categoryState, maxWords }: BubbleCl
               style={{
                 left: lx,
                 top: ly,
-                fontSize: 13,
+                fontSize: isMobile ? 11 : 13,
                 fontWeight: 600,
                 color,
                 opacity: 0.7,
               }}
             >
-              {CAT_LABELS[cat] || cat}
+              {isMobile ? (CAT_LABELS_SHORT[cat] || cat) : (CAT_LABELS[cat] || cat)}
             </div>
           )
         })}

@@ -22,12 +22,12 @@ import {
 // Dynamic imports (no SSR for chart components)
 const BubbleCloud = dynamic(
   () => import('@/components/viz/bubble-cloud').then((m) => ({ default: m.BubbleCloud })),
-  { ssr: false, loading: () => <LoadingState message="正在載入圖表..." className="h-[560px] py-0" /> }
+  { ssr: false, loading: () => <LoadingState message="正在載入圖表..." className="h-[380px] sm:h-[560px] py-0" /> }
 )
 
 const ForceGraph = dynamic(
   () => import('@/components/viz/force-graph').then((m) => ({ default: m.ForceGraph })),
-  { ssr: false, loading: () => <LoadingState message="正在載入圖表..." className="h-[560px] py-0" /> }
+  { ssr: false, loading: () => <LoadingState message="正在載入圖表..." className="h-[380px] sm:h-[560px] py-0" /> }
 )
 
 type ViewMode = 'network' | 'bubble'
@@ -187,17 +187,17 @@ function VizContent() {
             {/* Chart area */}
             <div className="flex-1 min-w-0">
               {!keyword ? (
-                <div className="flex items-center justify-center text-muted-foreground text-sm" style={{ height: 560 }}>
+                <div className="flex items-center justify-center text-muted-foreground text-sm h-[380px] sm:h-[560px]">
                   請在上方搜尋欄輸入關鍵詞
                 </div>
               ) : loading ? (
-                <LoadingState message="正在載入共現詞資料..." className="h-[560px] py-0" />
+                <LoadingState message="正在載入共現詞資料..." className="h-[380px] sm:h-[560px] py-0" />
               ) : error ? (
-                <div className="flex items-center justify-center text-muted-foreground text-sm" style={{ height: 560 }}>
+                <div className="flex items-center justify-center text-muted-foreground text-sm h-[380px] sm:h-[560px]">
                   {error}
                 </div>
               ) : coocData.length === 0 ? (
-                <div className="flex items-center justify-center text-muted-foreground text-sm" style={{ height: 560 }}>
+                <div className="flex items-center justify-center text-muted-foreground text-sm h-[380px] sm:h-[560px]">
                   查無共現詞資料
                 </div>
               ) : viewMode === 'network' ? (
