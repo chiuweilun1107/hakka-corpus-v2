@@ -123,6 +123,8 @@ export function Header() {
   const navItems = getNavItems(t)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [headerHeight, setHeaderHeight] = useState(64)
+  const headerRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -135,8 +137,19 @@ export function Header() {
     return () => { document.body.style.overflow = '' }
   }, [mobileMenuOpen])
 
+  // Track header height so the fixed overlay can start exactly below it
+  useEffect(() => {
+    const el = headerRef.current
+    if (!el) return
+    const ro = new ResizeObserver(() => setHeaderHeight(el.offsetHeight))
+    ro.observe(el)
+    setHeaderHeight(el.offsetHeight)
+    return () => ro.disconnect()
+  }, [])
+
   return (
     <header
+      ref={headerRef}
       className={cn(
         "fixed top-0 z-[200] w-full transition-all duration-300 border-b backdrop-blur-md",
         scrolled
@@ -205,14 +218,15 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu — fixed overlay so nothing can cover it */}
       <div
         className={cn(
-          "lg:hidden absolute top-full left-0 right-0 border-b shadow-xl transition-all duration-300 overflow-hidden bg-background",
-          mobileMenuOpen ? "max-h-[80vh] opacity-100 border-border" : "max-h-0 opacity-0 border-transparent"
+          "lg:hidden fixed left-0 right-0 bottom-0 z-[9000] bg-background shadow-xl transition-all duration-300",
+          mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         )}
+        style={{ top: headerHeight }}
       >
-        <nav className="container mx-auto px-4 py-4 flex flex-col gap-1 overflow-y-auto">
+        <nav className="h-full overflow-y-auto overscroll-contain px-4 py-4 flex flex-col gap-1">
           {navItems.map((item) => (
             <div key={item.name}>
               {item.children ? (
