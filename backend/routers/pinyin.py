@@ -6,7 +6,7 @@ import time
 from collections import defaultdict
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Query
-from sqlalchemy import select
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
@@ -114,7 +114,12 @@ async def pinyin_search(
     start = time.perf_counter()
 
     like_pattern = f"{q}%"
-    stmt = select(PinyinIndex).where(PinyinIndex.pinyin_base.like(like_pattern))
+    exact_first = case((PinyinIndex.pinyin_base == q, 0), else_=1)
+    stmt = (
+        select(PinyinIndex)
+        .where(PinyinIndex.pinyin_base.like(like_pattern))
+        .order_by(exact_first, func.length(PinyinIndex.pinyin_base), PinyinIndex.word)
+    )
 
     if dialect:
         stmt = stmt.where(PinyinIndex.dialect == dialect)
